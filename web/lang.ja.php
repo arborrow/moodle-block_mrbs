@@ -1,0 +1,251 @@
+<?php
+# $Id: lang.ja.php,v 1.1 2007/04/05 22:25:32 arborrow Exp $
+
+# This file contains PHP code that specifies language specific strings
+# The default strings come from lang.en, and anything in a locale
+# specific file will overwrite the default. This is a Japanese file.
+#
+#
+#
+#
+# This file is PHP code. Treat it as such.
+
+# The charset to use in "Content-type" header
+$vocab["charset"]            = "UTF-8";
+
+# Used in style.php
+$vocab["mrbs"]               = "X線発生装置予約システム";
+
+# Used in functions.php
+$vocab["report"]             = "報告";
+$vocab["admin"]              = "管理";
+$vocab["help"]               = "手引き";
+$vocab["search"]             = "検索:";
+$vocab["not_php3"]             = "<h1>警告: このスクリプトは、PHP3ではおそらく動作しません。</h1>";
+
+# Used in day.php
+$vocab["bookingsfor"]        = "";
+$vocab["bookingsforpost"]    = "の予約です";
+$vocab["areas"]              = "X線発生装置";
+$vocab["daybefore"]          = "前の日に移動";
+$vocab["dayafter"]           = "次の日移動";
+$vocab["gototoday"]          = "本日に移動";
+$vocab["goto"]               = "移動";
+$vocab["highlight_line"]     = "この行を強調";
+$vocab["click_to_reserve"]   = "予約を入れたいセルをクリックしてください。";
+
+# Used in trailer.php
+$vocab["viewday"]            = "この日の予約状況";
+$vocab["viewweek"]           = "週間予約状況";
+$vocab["viewmonth"]          = "月間予約状況";
+$vocab["ppreview"]           = "印刷向けページ";
+
+# Used in edit_entry.php
+$vocab["addentry"]           = "予約登録";
+$vocab["editentry"]          = "予約の編集";
+$vocab["editseries"]         = "定例の編集";
+$vocab["namebooker"]         = "使用者:";
+$vocab["fulldescription"]    = "詳細な説明<br />(人数, 内部会議/外部会議 等):";
+$vocab["date"]               = "日付:";
+$vocab["start_date"]         = "開始時刻:";
+$vocab["end_date"]           = "終了時刻:";
+$vocab["time"]               = "時間:";
+$vocab["period"]             = "期間:";
+$vocab["duration"]           = "必要な時間:";
+$vocab["seconds"]            = "秒";
+$vocab["minutes"]            = "分";
+$vocab["hours"]              = "時間";
+$vocab["days"]               = "日";
+$vocab["weeks"]              = "週";
+$vocab["years"]              = "年";
+$vocab["periods"]            = "期間";
+$vocab["all_day"]            = "全日";
+$vocab["type"]               = "会議の種類:";
+$vocab["internal"]           = "内部会議";
+$vocab["external"]           = "外部会議";
+$vocab["save"]               = "保存";
+$vocab["rep_type"]           = "繰り返しの様式:";
+$vocab["rep_type_0"]         = "なし";
+$vocab["rep_type_1"]         = "毎日";
+$vocab["rep_type_2"]         = "毎週";
+$vocab["rep_type_3"]         = "毎月";
+$vocab["rep_type_4"]         = "毎年";
+$vocab["rep_type_5"]         = "毎月同じ日";
+$vocab["rep_type_6"]         = "n週毎";
+$vocab["rep_end_date"]       = "繰り返しの終了日:";
+$vocab["rep_rep_day"]        = "繰り返しの曜日:";
+$vocab["rep_for_weekly"]     = "(毎週, n週毎 選択時)";
+$vocab["rep_freq"]           = "頻度:";
+$vocab["rep_num_weeks"]      = "週の繰り返し数";
+$vocab["rep_for_nweekly"]    = "(n週毎 選択時)";
+$vocab["ctrl_click"]         = "複数のディテクターを選択するときは、<br />Controlキーを押しながらクリックしてください。";
+$vocab["entryid"]            = "予約ID ";
+$vocab["repeat_id"]          = "定例ID "; 
+$vocab["you_have_not_entered"] = "以下の項目が入力されていません:";
+$vocab["you_have_not_selected"] = "以下の項目が選択されていません:";
+$vocab["valid_room"]         = "X線発生装置";
+$vocab["valid_time_of_day"]  = "valid time of day.";
+$vocab["brief_description"]  = "簡単な説明";
+$vocab["useful_n-weekly_value"] = "useful n-weekly value.";
+
+# Used in view_entry.php
+$vocab["description"]        = "説明:";
+$vocab["room"]               = "ディテクター:";
+$vocab["createdby"]          = "予約者:";
+$vocab["lastupdate"]         = "最後に更新した日:";
+$vocab["deleteentry"]        = "予約の削除";
+$vocab["deleteseries"]       = "定例の削除";
+$vocab["confirmdel"]         = "本当にこの予約を取り消してもよろしいですか?";
+$vocab["returnprev"]         = "前のページに戻る";
+$vocab["invalid_entry_id"]   = "不正な予約IDです。";
+$vocab["invalid_series_id"]  = "不正な定例IDです。";
+
+# Used in edit_entry_handler.php
+$vocab["error"]              = "エラー";
+$vocab["sched_conflict"]     = "予定の重複";
+$vocab["conflict"]           = "新しい予約は、以下の登録と重複しています:";
+$vocab["too_may_entrys"]     = "選択されたオプションは大量のエントリーを作成します。<br />別のオプションを使用して下さい!";
+$vocab["returncal"]          = "カレンダー表示画面に戻る";
+$vocab["failed_to_acquire"]  = "排他的なデータベースアクセスの確保に失敗しました"; 
+$vocab["mail_subject_entry"] = $mail["subject"];
+$vocab["mail_body_new_entry"] = $mail["新規登録"];
+$vocab["mail_body_del_entry"] = $mail["登録削除"];
+$vocab["mail_body_changed_entry"] = $mail["登録変更"];
+$vocab["mail_subject_delete"] = $mail["subject_delete"];
+
+# Authentication stuff
+$vocab["accessdenied"]       = "アクセスが拒否されました";
+$vocab["norights"]           = "この項目を変更する権利がありません。";
+$vocab["please_login"]       = "ログインしてください";
+$vocab["user_name"]          = "名前";
+$vocab["user_password"]      = "パスワード";
+$vocab["unknown_user"]       = "不明なユーザ";
+$vocab["you_are"]            = "あなたは";
+$vocab["login"]              = "ログイン";
+$vocab["logoff"]             = "ロクオフ";
+
+# Authentication database
+$vocab["user_list"]          = "ユーザリスト";
+$vocab["edit_user"]          = "ユーザ編集";
+$vocab["delete_user"]        = "このユーザを削除";
+#$vocab["user_name"]         = Use the same as above, for consistency.
+#$vocab["user_password"]     = Use the same as above, for consistency.
+$vocab["user_email"]         = "Eメールアドレス";
+$vocab["password_twice"]     = "パスワードを変更したい場合は、新しいパスワードを2回入力してください";
+$vocab["passwords_not_eq"]   = "エラー: パスワードが一致しません。";
+$vocab["add_new_user"]       = "新しいユーザを追加";
+$vocab["rights"]             = "権限";
+$vocab["action"]             = "処置";
+$vocab["user"]               = "ユーザ";
+$vocab["administrator"]      = "管理者";
+$vocab["unknown"]            = "不明";
+$vocab["ok"]                 = "OK";
+$vocab["show_my_entries"]    = "クリックすると、これからの予定が表示されます。";
+
+# Used in search.php
+$vocab["invalid_search"]     = "検索語が空あるいは不適切です。";
+$vocab["search_results"]     = "検索結果:";
+$vocab["nothing_found"]      = "一致する項目は見つかりませんでした。";
+$vocab["records"]            = "履歴";
+$vocab["through"]            = "から";
+$vocab["of"]                 = ", 該当件数";
+$vocab["previous"]           = "前";
+$vocab["next"]               = "次";
+$vocab["entry"]              = "エントリー";
+$vocab["view"]               = "閲覧";
+$vocab["advanced_search"]    = "高度な検索";
+$vocab["search_button"]      = "検索";
+$vocab["search_for"]         = "検索語";
+$vocab["from"]               = "始点";
+
+# Used in report.php
+$vocab["report_on"]          = "会合の報告:";
+$vocab["report_start"]       = "報告開始日:";
+$vocab["report_end"]         = "報告終了日:";
+$vocab["match_area"]         = "X線発生装置の一致:";
+$vocab["match_room"]         = "ディテクターの一致:";
+$vocab["match_type"]         = "形態の一致:";
+$vocab["ctrl_click_type"]    = "複数の形態を選択するときは、<br />Controlキーを押しながらクリックしてください。";
+$vocab["match_entry"]        = "簡単な説明との一致:";
+$vocab["match_descr"]        = "詳細な説明との一致:";
+$vocab["include"]            = "内容:";
+$vocab["report_only"]        = "報告のみ";
+$vocab["summary_only"]       = "要約のみ";
+$vocab["report_and_summary"] = "報告と要約";
+$vocab["summarize_by"]       = "要約のまとめ方:";
+$vocab["sum_by_descrip"]     = "簡単な説明";
+$vocab["sum_by_creator"]     = "予約者";
+$vocab["entry_found"]        = "個のエントリーが見つかりました";
+$vocab["entries_found"]      = "個のエントリーが見つかりました";
+$vocab["summary_header"]     = "予約時間数の要約 (括弧内はエントリー数)";
+$vocab["summary_header_per"] = "予約時間帯数の要約 (括弧内はエントリー数)";
+$vocab["total"]              = "計";
+$vocab["submitquery"]        = "報告の作成";
+$vocab["sort_rep"]           = "報告の並べ方:";
+$vocab["sort_rep_time"]      = "開始日時";
+$vocab["rep_dsp"]            = "報告の表示:";
+$vocab["rep_dsp_dur"]        = "使用期間";
+$vocab["rep_dsp_end"]        = "終了時刻";
+
+# Used in week.php
+$vocab["weekbefore"]         = "前の週に移動";
+$vocab["weekafter"]          = "次の週に移動";
+$vocab["gotothisweek"]       = "今週に移動";
+
+# Used in month.php
+$vocab["monthbefore"]        = "前の月に移動";
+$vocab["monthafter"]         = "次の月に移動";
+$vocab["gotothismonth"]      = "今月に移動";
+
+# Used in {day week month}.php
+$vocab["no_rooms_for_area"]  = "このX線発生装置にはディテクターが設定されていません";
+
+# Used in admin.php
+$vocab["edit"]               = "編集";
+$vocab["delete"]             = "削除";
+$vocab["rooms"]              = "ディテクター";
+$vocab["in"]                 = "-";
+$vocab["noareas"]            = "X線発生装置がありません。";
+$vocab["addarea"]            = "X線発生装置を追加";
+$vocab["name"]               = "名称";
+$vocab["noarea"]             = "X線発生装置が選択されていません";
+$vocab["browserlang"]        = "あなたのブラウザの言語設定は";
+$vocab["postbrowserlang"]    = "です。";
+$vocab["addroom"]            = "ディテクターを追加";
+$vocab["capacity"]           = "収容人数";
+$vocab["norooms"]            = "ディテクターがありません。";
+$vocab["administration"]     = "管理";
+
+# Used in edit_area_room.php
+$vocab["editarea"]           = "X線発生装置の編集";
+$vocab["change"]             = "変更";
+$vocab["backadmin"]          = "管理画面に戻る";
+$vocab["editroomarea"]       = "X線発生装置やディテクターの説明";
+$vocab["editroom"]           = "ディテクターの編集";
+$vocab["update_room_failed"] = "ディテクターの更新に失敗しました: ";
+$vocab["error_room"]         = "エラー: ディテクター ";
+$vocab["not_found"]          = "は見つかりませんでした";
+$vocab["update_area_failed"] = "X線発生装置の更新に失敗しました: ";
+$vocab["error_area"]         = "エラー: X線発生装置 ";
+$vocab["room_admin_email"]   = "ディテクターの管理者のEメール:";
+$vocab["area_admin_email"]   = "X線発生装置の管理者のEメール:";
+$vocab["invalid_email"]      = "不適切なEメールです!";
+
+# Used in del.php
+$vocab["deletefollowing"]    = "以下の予約を削除します";
+$vocab["sure"]               = "よろしいですか?";
+$vocab["YES"]                = "はい";
+$vocab["NO"]                 = "いいえ";
+$vocab["delarea"]            = "削除する前に、このX線発生装置に属するディテクターを全て削除してください。<p>";
+
+# Used in help.php
+$vocab["about_mrbs"]         = "MRBSについて";
+$vocab["database"]           = "データベース: ";
+$vocab["system"]             = "システム: ";
+$vocab["please_contact"]     = "ここに答えがない質問は、";
+$vocab["for_any_questions"]  = "にお尋ねください。";
+
+# Used in mysql.php AND pgsql.php
+$vocab["failed_connect_db"]  = "致命的なエラー: データベースに接続できませんでした。";
+
+?>

@@ -1,5 +1,5 @@
 <?php
-// $Id: mrbs_sql.php,v 1.7 2008/08/15 09:14:38 arborrow Exp $
+// $Id: mrbs_sql.php,v 1.1 2007/04/05 22:25:32 arborrow Exp $
 require_once("../../../config.php"); //for Moodle integration
 /** mrbsCheckFree()
  * 
@@ -54,16 +54,16 @@ function mrbsCheckFree($room_id, $starttime, $endtime, $ignore, $repignore)
 
 		if( $enable_periods ) {
         	$p_num =$starts['minutes'];
-        	$startstr = userdate($row[2], '%A %d %B %Y, ') . $periods[$p_num];
+        	$startstr = utf8_strftime('%A %d %B %Y, ', $row[2]) . $periods[$p_num];
         }
 		else
-        	$startstr = userdate($row[2], '%A %d %B %Y %H:%M:%S');
+        	$startstr = utf8_strftime('%A %d %B %Y %H:%M:%S', $row[2]);
 
         $err .= "<LI><A HREF=\"view_entry.php?id=$row[0]\">$row[1]</A>"
 		. " ( " . $startstr . ") "
-		. "(<A HREF=\"day.php?$param_ymd\">".get_string('viewday','block_mrbs')."</a>"
-		. " | <A HREF=\"week.php?room=$room_id&$param_ymd\">".get_string('viewweek','block_mrbs')."</a>"
-		. " | <A HREF=\"month.php?room=$room_id&$param_ym\">".get_string('viewmonth','block_mrbs')."</a>)";
+		. "(<A HREF=\"day.php?$param_ymd\">".get_vocab("viewday")."</a>"
+		. " | <A HREF=\"week.php?room=$room_id&$param_ymd\">".get_vocab("viewweek")."</a>"
+		. " | <A HREF=\"month.php?room=$room_id&$param_ym\">".get_vocab("viewmonth")."</a>)";
 	}
 	
 	return $err;
@@ -145,15 +145,15 @@ function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $r
 
 	$name        = slashes($name);
 	$description = slashes($description);
-	$timestamp = time();
+	
 	# make sure that any entry is of a positive duration
 	# this is to trap potential negative duration created when DST comes
 	# into effect
 	if( $endtime > $starttime )
 	$sql = "INSERT INTO $tbl_entry (  start_time,   end_time,   entry_type,    repeat_id,   room_id,
-	                                  create_by,    name,       type,          description, timestamp)
+	                                  create_by,    name,       type,          description)
 	                        VALUES ($starttime, $endtime, $entry_type, $repeat_id, $room_id,
-	                                '$owner',     '$name',    '$type',       '$description', $timestamp)";
+	                                '$owner',     '$name',    '$type',       '$description')";
 	
 	if (sql_command($sql) < 0) return 0;
 	
@@ -186,34 +186,52 @@ function mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $r
 
 	$name        = slashes($name);
 	$description = slashes($description);
-	$timestamp = time();
+	
 	// Let's construct the sql statement:
+
 	$sql_coln = array(); $sql_val = array();
 
+
+
         // Mandatory things:
+
 	$sql_coln[] = 'start_time'; 	$sql_val[] = $starttime;
+
 	$sql_coln[] = 'end_time'; 	$sql_val[] = $endtime;
+
 	$sql_coln[] = 'rep_type'; 	$sql_val[] = $rep_type;
+
 	$sql_coln[] = 'end_date';	$sql_val[] = $rep_enddate;
+
 	$sql_coln[] = 'room_id';	$sql_val[] = $room_id;
+
 	$sql_coln[] = 'create_by';	$sql_val[] = '\''.$owner.'\'';
+
 	$sql_coln[] = 'type';		$sql_val[] = '\''.$type.'\'';
+
 	$sql_coln[] = 'name';		$sql_val[] = '\''.$name.'\'';
-    $sql_coln[] = 'timestamp'; $sql_val[]  = $timestamp;
+
+
 
 	// Optional things, pgsql doesn't like empty strings!
+
 	if (!empty($rep_opt))
 		{$sql_coln[] = 'rep_opt';	$sql_val[] = '\''.$rep_opt.'\'';}
 	else
 		{$sql_coln[] = 'rep_opt';	$sql_val[] = '\'0\'';}
+
 	if (!empty($description))
 		{$sql_coln[] = 'description';	$sql_val[] = '\''.$description.'\'';}
+
 	if (!empty($rep_num_weeks))
 		{$sql_coln[] = 'rep_num_weeks';	$sql_val[] = $rep_num_weeks;}
+
+
 
 	$sql = 'INSERT INTO ' . $tbl_repeat .
 	       ' (' . implode(', ',$sql_coln) . ') '.
 	       'VALUES (' . implode(', ',$sql_val) . ')';
+
 
 	if (sql_command($sql) < 0) return 0;
 	
@@ -292,9 +310,6 @@ function mrbsGetRepeatEntryList($time, $enddate, $rep_type, $rep_opt, $max_ittr,
 
 	global $_initial_weeknumber;
 	$_initial_weeknumber = (int)(($day - 1) / 7) + 1;
-	$week_num = 0;
-	$start_day = date('w', mktime($hour, $min, $sec, $month, $day, $year));
-	$cur_day = $start_day;
 
 	$entrys = "";
 	for($i = 0; $i < $max_ittr; $i++)
@@ -339,24 +354,14 @@ function mrbsGetRepeatEntryList($time, $enddate, $rep_type, $rep_opt, $max_ittr,
 
 			// n Weekly repeat
 			case 6:
-
-				while (1)
+				$j = $cur_day = date("w", $entrys[$i]);
+				// Skip over days of the week which are not enabled:
+				while (($j = ($j + 1) % (7*$rep_num_weeks)) != $cur_day && !$rep_opt[$j])
 				{
-					$day++;
-					$cur_day = ($cur_day + 1) % 7;
-
-					if (($cur_day % 7) == $start_day)
-					{
-						$week_num++;
-					}
-
-					if (($week_num % $rep_num_weeks == 0) &&
-					    ($rep_opt[$cur_day] == 1))
-					{
-						break;
-					}
+					$day += 1;
 				}
 
+				$day += 1;
 				break;	
 				
 			// Unknown repeat option
@@ -403,7 +408,6 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
 	}
 	
 	$ent = mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt, $room_id, $owner, $name, $type, $description, $rep_num_weeks);
-    
 	if($ent)
 	{
 	

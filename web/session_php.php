@@ -1,4 +1,5 @@
 <?php
+
 /*****************************************************************************\
 *                                                                             *
 *   File name       session_php.php                                           *
@@ -16,19 +17,12 @@
 *                                                                             *
 \*****************************************************************************/
 
-// $Id: session_php.php,v 1.6 2008/08/17 22:49:36 arborrow Exp $
+// $Id: session_php.php,v 1.1 2007/04/05 22:25:33 arborrow Exp $
 require_once("../../../config.php"); //for Moodle integration
 global $PHP_SELF, $USER;
 
-if (isset($cookie_path_override))
-{
-    $cookie_path = $cookie_path_override;
-}
-else
-{
-    $cookie_path = $PHP_SELF;
-    $cookie_path = ereg_replace('[^/]*$', '', $cookie_path);
-}
+$cookie_path = $PHP_SELF;
+$cookie_path = ereg_replace('[^/]*$', '', $cookie_path);
 session_set_cookie_params(0, $cookie_path);
 session_start();
 
@@ -50,10 +44,10 @@ if (isset($Action) && ($Action == "SetName"))
         }
     } else {
         $NewUserName = unslashes($NewUserName);
-        $NewUserPassword = unslashes($NewUserPassword);
+        $NewPassword = unslashes($NewPassword);
         if (!authValidateUser($NewUserName, $NewUserPassword)) {
             print_header_mrbs(0, 0, 0, 0);
-            echo "<P>".get_string('usernamenotfound')."</P>\n";
+            echo "<P>".get_vocab('unknown_user')."</P>\n";
             printLoginForm($TargetURL);
             exit();
         }
@@ -85,10 +79,40 @@ if (isset($Action) && ($Action == "SetName"))
 function printLoginForm($TargetURL)
 {
     global $PHP_SELF;
-   $SESSION->wantsurl = $TargetURL;
-   require_login();    
+?>
+<p>
+  <?php echo get_vocab("please_login") ?>
+</p>
+<form method="post" action="<?php echo basename($PHP_SELF) ?>">
+  <table>
+    <tr>
+      <td align="right"><?php echo get_vocab("user_name") ?></td>
+      <td><input type="text" name="NewUserName" /></td>
+    </tr>
+    <tr>
+      <td align="right"><?php echo get_vocab("user_password") ?></td>
+      <td><input type="password" name="NewUserPassword" /></td>
+    </tr>
+  </table>
+  <input type="hidden" name="TargetURL" value="<?php echo $TargetURL ?>" /> <br />
+  <input type="hidden" name="Action" value="SetName" /> <br />
+  <input type="submit" value=" <?php echo get_vocab('login') ?> " /> <br />
+</form>
+</body>
+</html>
+<?php
 }
 
+/*
+  Target of the form with sets the URL argument "Action=QueryName".
+  Will eventually return to URL argument "TargetURL=whatever".
+*/
+if (isset($Action) && ($Action == "QueryName"))
+{
+    print_header_mrbs(0, 0, 0, 0);
+    printLoginForm($TargetURL);
+    exit();
+}
 
 /* authGet()
  * 
@@ -102,7 +126,7 @@ function authGet()
 
     print_header_mrbs(0, 0, 0, 0);
 
-    echo "<p>".get_string('norights','block_mrbs')."</p>\n";
+    echo "<p>".get_vocab("norights")."</p>\n";
 
     $TargetURL = basename($PHP_SELF);
     if (isset($QUERY_STRING)) $TargetURL = $TargetURL . "?" . $QUERY_STRING;
@@ -132,7 +156,7 @@ function getUserName()
 // Print the logon entry on the top banner.
 function PrintLogonBox()
 {
-    global $PHP_SELF, $QUERY_STRING, $CFG, $user_list_link, $user_link, $day, $month;
+    global $PHP_SELF, $QUERY_STRING, $user_list_link, $user_link, $day, $month;
     global $year, $auth;
 
     $TargetURL = basename($PHP_SELF);
@@ -149,39 +173,37 @@ function PrintLogonBox()
           "roommatch=&namematch=&descrmatch=&summarize=1&sortby=r&display=d&".
           "sumby=d&creatormatch=$user"; ?>
 
-              <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-                <A name="logonBox" href="<?php echo "$search_string\" title=\""
-         . get_string('show_my_entries','block_mrbs') . "\">" . get_string('you_are','block_mrbs')." "
+    <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
+      <A name="logonBox" href="<?php echo "$search_string\" title=\""
+         . get_vocab('show_my_entries') . "\">" . get_vocab('you_are')." "
          .$user ?></A><br>
-                <FORM METHOD=POST ACTION="<?php echo $CFG->wwwroot.'/login/logout.php'?>">
-	          <input type="hidden" name="TargetURL" value="<?php echo $TargetURL ?>" />
-	          <input type="hidden" name="Action" value="SetName" />
-	          <input type="hidden" name="NewUserName" value="" />
-	          <input type="hidden" name="NewUserPassword" value="" />
-	    <input type="submit" value=" <?php echo get_string('logout') ?> " />
-                </FORM>
-<?php if (isset($user_list_link)) print "
-                <br>
-                <A href=\"$user_list_link\">" . get_string('user_list') . "</A><br>\n";
+          <FORM METHOD=POST ACTION="admin.php">
+	    <input type="hidden" name="TargetURL" value="<?php echo $TargetURL ?>" />
+	    <input type="hidden" name="Action" value="SetName" />
+	    <input type="hidden" name="NewUserName" value="" />
+	    <input type="hidden" name="NewUserPassword" value="" />
+	    <input type="submit" value=" <?php echo get_vocab('logoff') ?> " />
+	  </FORM>
+<?php if (isset($user_list_link)) print "	  <br>\n	  " .
+	    "<A href='$user_list_link'>" . get_vocab('user_list') . "</A><br>\n" ;
 ?>
-              </TD>
+	</TD>
 <?php
     }
 else
     {
 ?>
-              <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-	  <A name="logonBox" href=""><?php echo get_string('usernamenotfound'); ?></A><br>
-                <FORM METHOD=POST ACTION="admin.php">
-                  <input type="hidden" name="TargetURL" value="<?php echo $TargetURL ?>" />
-                  <input type="hidden" name="Action" value="QueryName" />
-	    <input type="submit" value=" <?php echo get_string('login') ?> " />
-                </FORM>
-<?php if (isset($user_list_link)) print "
-	        <br>
-                <A href=\"$user_list_link\">" . get_string('user_list') . "</A><br>\n";
+	<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
+	  <A name="logonBox" href=""><?php echo get_vocab('unknown_user'); ?></A><br>
+          <FORM METHOD=POST ACTION="admin.php">
+	    <input type="hidden" name="TargetURL" value="<?php echo $TargetURL ?>" />
+	    <input type="hidden" name="Action" value="QueryName" />
+	    <input type="submit" value=" <?php echo get_vocab('login') ?> " />
+	  </FORM>
+<?php if (isset($user_list_link)) print "	  <br>\n	  " .
+	    "<A href=\"$user_list_link\">" . get_vocab('user_list') . "</A><br>\n" ;
 ?>
-              </TD>
+	</TD>
 <?php
     }
 }

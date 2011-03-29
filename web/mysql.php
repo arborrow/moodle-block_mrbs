@@ -1,5 +1,5 @@
 <?php
-// $Id: mysql.php,v 1.4 2008/08/01 04:02:10 arborrow Exp $
+// $Id: mysql.php,v 1.1 2007/04/05 22:25:33 arborrow Exp $
 
 // mysql.php - Simple PHP database support for MySQL.
 // Include this file after defining the following variables:
@@ -227,7 +227,7 @@ else
 
 if (!$db_c || !mysql_select_db ($db_database))
 {
-	echo "\n<p>\n" . get_string('failed_connect_db','block_mrbs') . "\n";
+	echo "\n<p>\n" . get_vocab("failed_connect_db") . "\n";
 	exit;
 }
 

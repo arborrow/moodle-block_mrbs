@@ -1,41 +1,11 @@
 <?php
-# $Id: report.php,v 1.8 2008/08/17 23:07:29 arborrow Exp $
+# $Id: report.php,v 1.1 2007/04/05 22:25:33 arborrow Exp $
 require_once("../../../config.php"); //for Moodle integration
 require_once "grab_globals.inc.php";
 include "config.inc.php";
 include "functions.php";
 include "$dbsys.php";
 
-
-if ($CFG->forcelogin) {
-        require_login();
-    }
-$day = optional_param('day', 0, PARAM_INT);
-$month = optional_param('month',  0, PARAM_INT);
-$year = optional_param('year', 0, PARAM_INT); 
-$id = optional_param('id', 0, PARAM_INT);
-$area = optional_param('area', 0, PARAM_INT);
-$room = optional_param('room', 0, PARAM_INT);
-$pview = optional_param('pview', 0, PARAM_INT);
-
-$From_day= optional_param('From_day',  0, PARAM_INT);
-$From_month= optional_param('From_month', 0, PARAM_INT);
-$From_year= optional_param('From_year', 0, PARAM_INT);
-$To_day= optional_param('To_day', 0, PARAM_INT);
-$To_month= optional_param('To_month', 0, PARAM_INT);
-$To_year= optional_param('To_year', 0, PARAM_INT);
-
-// followup what the most appropriate default values should be - ab
-// $areamatch= optional_param('areamatch', PARAM_ALPHA);
-// $roommatch= optional_param('roommatch', PARAM_ALPHA);
-// $namematch= optional_param('namematch', PARAM_ALPHA);
-// $descrmatch= optional_param('descrmatch', PARAM_ALPHA);
-// $creatormatch= optional_param('creatormatch', PARAM_ALPHA);
-
-$summarize=optional_param('summarize', 1, PARAM_INT);
-$sortby= optional_param('sortby', 'r',  PARAM_ALPHA);
-$display= optional_param('display', 'd', PARAM_ALPHA);
-$sumby= optional_param('sumby', 'd', PARAM_ALPHA);
 
 function date_time_string($t)
 {
@@ -46,24 +16,12 @@ function date_time_string($t)
 	}
 	else
 	{
-                $timeformat = "%I:%M:%S%p";
+                # This bit's necessary, because it seems %p in strftime format
+                # strings doesn't work
+                $ampm = utf8_date("a",$t);
+                $timeformat = "%I:%M:%S$ampm";
 	}
-	return userdate($t, "%A %d %B %Y ".$timeformat);
-}
-
-function hours_minutes_seconds_format()
-{
-	global $twentyfourhour_format;
-
-        if ($twentyfourhour_format)
-	{
-                $timeformat = "%H:%M:%S";
-	}
-	else
-	{
-                $timeformat = "%I:%M:%S%p";
-	}
-	return $timeformat;
+	return utf8_strftime("%A %d %B %Y ".$timeformat, $t);
 }
 
 # Convert a start time and end time to a plain language description.
@@ -71,11 +29,22 @@ function hours_minutes_seconds_format()
 function describe_span($starts, $ends)
 {
 	global $twentyfourhour_format;
-	$start_date = userdate($starts, '%A %d %B %Y');
-	$start_time = userdate($starts, hours_minutes_seconds_format());
+	$start_date = utf8_strftime('%A %d %B %Y', $starts);
+        if ($twentyfourhour_format)
+	{
+                $timeformat = "%H:%M:%S";
+	}
+	else
+	{
+                # This bit's necessary, because it seems %p in strftime format
+                # strings doesn't work
+                $ampm = utf8_date("a",$starts);
+                $timeformat = "%I:%M:%S$ampm";
+	}
+	$start_time = utf8_strftime($timeformat, $starts);
 	$duration = $ends - $starts;
 	if ($start_time == "00:00:00" && $duration == 60*60*24)
-		return $start_date . " - " . get_string('all_day','block_mrbs');
+		return $start_date . " - " . get_vocab("all_day");
 	toTimeString($duration, $dur_units);
 	return $start_date . " " . $start_time . " - " . $duration . " " . $dur_units;
 }
@@ -96,11 +65,33 @@ function describe_period_span($starts, $ends)
 function start_to_end($starts, $ends)
 {
 	global $twentyfourhour_format;
-	$start_date = userdate($starts, '%A %d %B %Y');
-	$start_time = userdate($starts, hours_minutes_seconds_format());
+	$start_date = utf8_strftime('%A %d %B %Y', $starts);
+        if ($twentyfourhour_format)
+	{
+                $timeformat = "%H:%M:%S";
+	}
+	else
+	{
+                # This bit's necessary, because it seems %p in strftime format
+                # strings doesn't work
+                $ampm = utf8_date("a",$starts);
+                $timeformat = "%I:%M:%S$ampm";
+	}
+	$start_time = utf8_strftime($timeformat, $starts);
 
-	$end_date = userdate($ends, '%A %d %B %Y');
-	$end_time = userdate($ends, hours_minutes_seconds_format());
+	$end_date = utf8_strftime('%A %d %B %Y', $ends);
+        if ($twentyfourhour_format)
+	{
+                $timeformat = "%H:%M:%S";
+	}
+	else
+	{
+                # This bit's necessary, because it seems %p in strftime format
+                # strings doesn't work
+                $ampm = utf8_date("a",$ends);
+                $timeformat = "%I:%M:%S$ampm";
+	}
+	$end_time = utf8_strftime($timeformat, $ends);
 	return $start_date . " " . $start_time . " - " . $end_date . " " . $end_time;
 }
 
@@ -123,15 +114,15 @@ function reporton(&$row, &$last_area_room, &$last_date, $sortby, $display)
         global $enable_periods;
 	# Display Area/Room, but only when it changes:
 	$area_room = htmlspecialchars($row[8]) . " - " . htmlspecialchars($row[9]);
-	$date = userdate($row[1], "%d-%b-%Y");
+	$date = utf8_strftime("%d-%b-%Y", $row[2]);
 	# entries to be sorted on area/room
 	if( $sortby == "r" )
 	{
 		if ($area_room != $last_area_room)
-			echo "<hr><h2>". get_string('room','block_mrbs') . ": " . $area_room . "</h2>\n";
+			echo "<hr><h2>". get_vocab("room") . ": " . $area_room . "</h2>\n";
 		if ($date != $last_date || $area_room != $last_area_room)
 		{
-			echo "<hr noshade=\"true\"><h3>". get_string('date') . " " . $date . "</h3>\n";
+			echo "<hr noshade=\"true\"><h3>". get_vocab("date") . " " . $date . "</h3>\n";
 			$last_date = $date;
 		}
 		# remember current area/room that is being processed.
@@ -144,10 +135,10 @@ function reporton(&$row, &$last_area_room, &$last_date, $sortby, $display)
 	# entries to be sorted on start date
 	{
 		if ($date != $last_date)
-			echo "<hr><h2>". get_string('date') . " " . $date . "</h2>\n";
+			echo "<hr><h2>". get_vocab("date") . " " . $date . "</h2>\n";
 		if ($area_room != $last_area_room  || $date != $last_date)
 		{
-			echo "<hr noshade=\"true\"><h3>". get_string('room','block_mrbs') . ": " . $area_room . "</h3>\n";
+			echo "<hr noshade=\"true\"><h3>". get_vocab("room") . ": " . $area_room . "</h3>\n";
 			$last_area_room = $area_room;
 		}
 		# remember current date that is being processed.
@@ -180,16 +171,16 @@ function reporton(&$row, &$last_area_room, &$last_date, $sortby, $display)
 			"</td></tr>\n";
 
 	# Description:
-	echo "<tr><td class=\"BL\" colspan=2><b>".get_string('description')."</b> " .
+	echo "<tr><td class=\"BL\" colspan=2><b>".get_vocab("description")."</b> " .
 		nl2br(htmlspecialchars($row[4])) . "</td></tr>\n";
 
 	# Entry Type:
 	$et = empty($typel[$row[5]]) ? "?$row[5]?" : $typel[$row[5]];
-	echo "<tr><td class=\"BL\" colspan=2><b>".get_string('type','block_mrbs')."</b> $et</td></tr>\n";
+	echo "<tr><td class=\"BL\" colspan=2><b>".get_vocab("type")."</b> $et</td></tr>\n";
 	# Created by and last update timestamp:
-	echo "<tr><td class=\"BL\" colspan=2><small><b>".get_string('createdby','block_mrbs')."</b> " .
-		htmlspecialchars($row[6]) . ", <b>".get_string('lastmodified')."</b> " .
-		time_date_string($row[7]) . "</small></td></tr>\n";
+	echo "<tr><td class=\"BL\" colspan=2><small><b>".get_vocab("createdby")."</b> " .
+		htmlspecialchars($row[6]) . ", <b>".get_vocab("lastupdate")."</b> " .
+		date_time_string($row[7]) . "</small></td></tr>\n";
 
 	echo "</table>\n";
 }
@@ -262,7 +253,7 @@ function do_summary(&$count, &$hours, &$room_hash, &$name_hash)
 	$n_names = sizeof($names);
 
 	echo "<hr><h1>".
-             (empty($enable_periods) ? get_string('summary_header','block_mrbs') : get_string('summary_header_per','block_mrbs')).
+             (empty($enable_periods) ? get_vocab("summary_header") : get_vocab("summary_header_per")).
              "</h1><table border=2 cellspacing=4>\n";
 	echo "<tr><td>&nbsp;</td>\n";
 	for ($c = 0; $c < $n_rooms; $c++)
@@ -271,7 +262,7 @@ function do_summary(&$count, &$hours, &$room_hash, &$name_hash)
 		$col_count_total[$c] = 0;
 		$col_hours_total[$c] = 0.0;
 	}
-	echo "<td class=\"BR\" align=right><br><b>".get_string('total')."</b></td></tr>\n";
+	echo "<td class=\"BR\" align=right><br><b>".get_vocab("total")."</b></td></tr>\n";
 	$grand_count_total = 0;
 	$grand_hours_total = 0;
 
@@ -302,7 +293,7 @@ function do_summary(&$count, &$hours, &$room_hash, &$name_hash)
 		$grand_count_total += $row_count_total;
 		$grand_hours_total += $row_hours_total;
 	}
-	echo "<tr><td class=\"BR\" align=right><b>".get_string('total')."</b></td>\n";
+	echo "<tr><td class=\"BR\" align=right><b>".get_vocab("total")."</b></td>\n";
 	for ($c = 0; $c < $n_rooms; $c++)
 		cell($col_count_total[$c], $col_hours_total[$c]);
 	cell($grand_count_total, $grand_hours_total);
@@ -310,19 +301,19 @@ function do_summary(&$count, &$hours, &$room_hash, &$name_hash)
 }
 
 #If we dont know the right date then make it up
-if(($day==0) or ($month==0) or ($year==0))
+if(!isset($day) or !isset($month) or !isset($year))
 {
 	$day   = date("d");
 	$month = date("m");
 	$year  = date("Y");
 }
-if($area==0)
-	$area = get_default_area(); //cleanup - ab
+if(empty($area))
+	$area = get_default_area();
 
 # print the page header
 print_header_mrbs($day, $month, $year, $area);
 
-if (isset($areamatch)) //I need to look into -ab
+if (isset($areamatch))
 {
 	# Resubmit - reapply parameters as defaults.
 	# Make sure these are not escape-quoted:
@@ -359,37 +350,37 @@ if (isset($areamatch)) //I need to look into -ab
 	$To_year  = date("Y", $To_time);
 }
 # $summarize: 1=report only, 2=summary only, 3=both.
-// if (empty($summarize)) $summarize = 1; //commented out - handled by optional_param -ab
+if (empty($summarize)) $summarize = 1;
 # $sumby: d=by brief description, c=by creator.
-// if (empty($sumby)) $sumby = "d"; //commented out - handled by optional_param -ab
+if (empty($sumby)) $sumby = "d";
 # $sortby: r=room, s=start date/time.
-// if (empty($sortby)) $sortby = "r"; //commented out - handled by optional_param -ab
+if (empty($sortby)) $sortby = "r";
 # $display: d=duration, e=start date/time and end date/time.
-// if (empty($display)) $display = "d"; //commented out - handled by optional_param -ab
+if (empty($display)) $display = "d";
 
 # Upper part: The form.
 if ( $pview != 1 ) {
 ?>
-<h1><?php echo get_string('report_on','block_mrbs');?></h1>
+<h1><?php echo get_vocab("report_on");?></h1>
 <form method=get action=report.php>
 <table>
-<tr><td class="CR"><?php echo get_string('report_start','block_mrbs');?></td>
+<tr><td class="CR"><?php echo get_vocab("report_start");?></td>
     <td class="CL"> <font size="-1">
     <?php genDateSelector("From_", $From_day, $From_month, $From_year); ?>
     </font></td></tr>
-<tr><td class="CR"><?php echo get_string('report_end','block_mrbs');?></td>
+<tr><td class="CR"><?php echo get_vocab("report_end");?></td>
     <td class="CL"> <font size="-1">
     <?php genDateSelector("To_", $To_day, $To_month, $To_year); ?>
     </font></td></tr>
-<tr><td class="CR"><?php echo get_string('match_area','block_mrbs');?></td>
+<tr><td class="CR"><?php echo get_vocab("match_area");?></td>
     <td class="CL"><input type=text name=areamatch size=18
     value="<?php echo $areamatch_default; ?>">
     </td></tr>
-<tr><td class="CR"><?php echo get_string('match_room','block_mrbs');?></td>
+<tr><td class="CR"><?php echo get_vocab("match_room");?></td>
     <td class="CL"><input type=text name=roommatch size=18
     value="<?php echo $roommatch_default; ?>">
     </td></tr>
-<tr><td CLASS=CR><?php echo get_string('match_type','block_mrbs')?></td>
+<tr><td CLASS=CR><?php echo get_vocab("match_type")?></td>
     <td CLASS=CL valign=top><table><tr><td>
         <select name="typematch[]" multiple="yes">
 <?php
@@ -400,51 +391,51 @@ foreach( $typel as $key => $val )
 		     (is_array($typematch_default) && in_array ( $key, $typematch_default ) ? " selected" : "") .
 		     ">$val\n";
 }
-?></select></td><td><?php echo get_string('ctrl_click_type','block_mrbs') ?></td></tr></table>
+?></select></td><td><?php echo get_vocab("ctrl_click_type") ?></td></tr></table>
 </td></tr>
-<tr><td class="CR"><?php echo get_string('match_entry','block_mrbs');?></td>
+<tr><td class="CR"><?php echo get_vocab("match_entry");?></td>
     <td class="CL"><input type=text name=namematch size=18
     value="<?php echo $namematch_default; ?>">
     </td></tr>
-<tr><td class="CR"><?php echo get_string('match_descr','block_mrbs');?></td>
+<tr><td class="CR"><?php echo get_vocab("match_descr");?></td>
     <td class="CL"><input type=text name=descrmatch size=18
     value="<?php echo $descrmatch_default; ?>">
     </td></tr>
-<tr><td class="CR"><?php echo get_string('createdby','block_mrbs');?></td>
+<tr><td class="CR"><?php echo get_vocab("createdby");?></td>
     <td class="CL"><input type=text name=creatormatch size=18
     value="<?php echo $creatormatch_default; ?>">
     </td></tr>
-<tr><td class="CR"><?php echo get_string('include','block_mrbs');?></td>
+<tr><td class="CR"><?php echo get_vocab("include");?></td>
     <td class="CL">
       <input type=radio name=summarize value=1<?php if ($summarize==1) echo " checked";
-        echo ">" . get_string('report_only','block_mrbs');?>
+        echo ">" . get_vocab("report_only");?>
       <input type=radio name=summarize value=2<?php if ($summarize==2) echo " checked";
-        echo ">" . get_string('summary_only','block_mrbs');?>
+        echo ">" . get_vocab("summary_only");?>
       <input type=radio name=summarize value=3<?php if ($summarize==3) echo " checked";
-        echo ">" . get_string('report_and_summary','block_mrbs');?>
+        echo ">" . get_vocab("report_and_summary");?>
     </td></tr>
-<tr><td class="CR"><?php echo get_string('sort_rep','block_mrbs');?></td>
+<tr><td class="CR"><?php echo get_vocab("sort_rep");?></td>
     <td class="CL">
       <input type=radio name=sortby value=r<?php if ($sortby=="r") echo " checked";
-        echo ">". get_string('room','block_mrbs');?>
+        echo ">". get_vocab("room");?>
       <input type=radio name=sortby value=s<?php if ($sortby=="s") echo " checked";
-        echo ">". get_string('sort_rep_time','block_mrbs');?>
+        echo ">". get_vocab("sort_rep_time");?>
     </td></tr>
-<tr><td class="CR"><?php echo get_string('rep_dsp','block_mrbs');?></td>
+<tr><td class="CR"><?php echo get_vocab("rep_dsp");?></td>
     <td class="CL">
       <input type=radio name=display value=d<?php if ($display=="d") echo " checked";
-        echo ">". get_string('rep_dsp_dur','block_mrbs');?>
+        echo ">". get_vocab("rep_dsp_dur");?>
       <input type=radio name=display value=e<?php if ($display=="e") echo " checked";
-        echo ">". get_string('rep_dsp_end','block_mrbs');?>
+        echo ">". get_vocab("rep_dsp_end");?>
     </td></tr>
-<tr><td class="CR"><?php echo get_string('summarize_by','block_mrbs');?></td>
+<tr><td class="CR"><?php echo get_vocab("summarize_by");?></td>
     <td class="CL">
       <input type=radio name=sumby value=d<?php if ($sumby=="d") echo " checked";
-        echo ">" . get_string('sum_by_descrip','block_mrbs');?>
+        echo ">" . get_vocab("sum_by_descrip");?>
       <input type=radio name=sumby value=c<?php if ($sumby=="c") echo " checked";
-        echo ">" . get_string('sum_by_creator','block_mrbs');?>
+        echo ">" . get_vocab("sum_by_creator");?>
     </td></tr>
-<tr><td colspan=2 align=center><input type=submit value="<?php echo get_string('submitquery','block_mrbs') ?>">
+<tr><td colspan=2 align=center><input type=submit value="<?php echo get_vocab("submitquery") ?>">
 </td></tr>
 </table>
 </form>
@@ -452,7 +443,7 @@ foreach( $typel as $key => $val )
 <?php
 }
 # Lower part: Results, if called with parameters:
-if (isset($areamatch)) //need to cleanup -ab
+if (isset($areamatch))
 {
 	# Make sure these are not escape-quoted:
 	$areamatch = unslashes($areamatch);
@@ -461,8 +452,8 @@ if (isset($areamatch)) //need to cleanup -ab
 	$descrmatch = unslashes($descrmatch);
 
 	# Start and end times are also used to clip the times for summary info.
-	$report_start = mktime(0, 0, 0, $From_month+0, $From_day+0, $From_year+0);
-	$report_end = mktime(0, 0, 0, $To_month+0, $To_day+1, $To_year+0);
+	$report_start = mktime(0, 0, 0, $From_month, $From_day, $From_year);
+	$report_end = mktime(0, 0, 0, $To_month, $To_day+1, $To_year);
 
 #   SQL result will contain the following columns:
 # Col Index  Description:
@@ -478,7 +469,9 @@ if (isset($areamatch)) //need to cleanup -ab
 #  10  [9]   Room name, must be HTML escaped
 
 	$sql = "SELECT e.id, e.start_time, e.end_time, e.name, e.description, "
-		. "e.type, e.create_by, e.timestamp, a.area_name, r.room_name"
+		. "e.type, e.create_by, "
+		.  sql_syntax_timestamp_to_unix("e.timestamp")
+		. ", a.area_name, r.room_name"
 		. " FROM $tbl_entry e, $tbl_area a, $tbl_room r"
 		. " WHERE e.room_id = r.id AND r.area_id = a.id"
 		. " AND e.start_time < $report_end AND e.end_time > $report_start";
@@ -524,7 +517,7 @@ if (isset($areamatch)) //need to cleanup -ab
 	$nmatch = sql_count($res);
 	if ($nmatch == 0)
 	{
-		echo "<P><B>" . get_string('nothingtodisplay') . "</B>\n";
+		echo "<P><B>" . get_vocab("nothing_found") . "</B>\n";
 		sql_free($res);
 	}
 	else
@@ -532,7 +525,7 @@ if (isset($areamatch)) //need to cleanup -ab
 		$last_area_room = "";
 		$last_date = "";
 		echo "<P><B>" . $nmatch . " "
-		. ($nmatch == 1 ? get_string('entry_found','block_mrbs') : get_string('entries_found','block_mrbs'))
+		. ($nmatch == 1 ? get_vocab("entry_found") : get_vocab("entries_found"))
 		.  "</B>\n";
 
 		for ($i = 0; ($row = sql_row($res, $i)); $i++)
@@ -554,4 +547,3 @@ if (isset($areamatch)) //need to cleanup -ab
 }
 
 include "trailer.php";
-?>

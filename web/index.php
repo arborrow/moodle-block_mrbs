@@ -1,6 +1,6 @@
 <?php
 
-# $Id: index.php,v 1.3 2009/12/27 19:15:18 arborrow Exp $
+# $Id: index.php,v 1.1 2007/04/05 22:25:30 arborrow Exp $
 
 # Index is just a stub to redirect to the appropriate view
 # as defined in config.inc.php using the variable $default_view
@@ -10,7 +10,6 @@ require_once("../../../config.php");; //for Moodle integration
 require_once "grab_globals.inc.php";
 include("config.inc.php");
 include("$dbsys.php");
-
 
 $day   = date("d");
 $month = date("m");
@@ -28,11 +27,15 @@ switch ($default_view)
 		$redirect_str = "day.php?day=$day&month=$month&year=$year";
 }
 
-if (!empty($default_room)) {
+if( ! empty($default_room) )
+{
+
 	$sql = "select area_id from $tbl_room where id=$default_room";
 	$res = sql_query($sql);
-	if ($res) {
-		if( sql_count($res) == 1 ) {
+	if( $res )
+	{
+		if( sql_count($res) == 1 )
+		{
 			$row = sql_row($res, 0);
 			$area = $row[0];
 			$room = $default_room;

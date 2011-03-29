@@ -1,5 +1,5 @@
 <?php
-// $Id: mrbs_auth.php,v 1.3 2008/08/01 04:02:11 arborrow Exp $
+// $Id: mrbs_auth.php,v 1.1 2007/04/05 22:25:32 arborrow Exp $
 require_once("../../../config.php"); //for Moodle integration
 // include the authentification wrappers
 include "auth_$auth[type].php";
@@ -68,12 +68,12 @@ function showAccessDenied($day, $month, $year, $area)
 
     print_header_mrbs($day, $month, $year, $area);
 ?>
-  <H1><?php echo get_string('accessdenied','block_mrbs')?></H1>
+  <H1><?php echo get_vocab("accessdenied")?></H1>
   <P>
-   <?php echo get_string('norights','block_mrbs')?>
+   <?php echo get_vocab("norights")?>
   </P>
   <P>
-   <A HREF="<?php echo $HTTP_REFERER; ?>"><?php echo get_string('returnprev','block_mrbs'); ?></A>
+   <A HREF="<?php echo $HTTP_REFERER; ?>"><?php echo get_vocab("returnprev"); ?></A>
   </P>
  </BODY>
 </HTML>
