@@ -135,8 +135,11 @@ if(empty($day)){
     
 }
     $sql .= " ORDER BY room_name";
-    
-        $res = get_records_sql($sql);
+
+        //TODO: Fix this DML/DDL call (IT MAY NOT WORK WITH MOODLE 2.0
+        $res = $DB->get_records_sql($sql);
+//        $res = get_records_sql($sql);
+
     if($res){
         $list='';
         foreach ($res as $room){

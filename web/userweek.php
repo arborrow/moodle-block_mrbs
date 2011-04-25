@@ -24,7 +24,7 @@ $morningstarts_minutes = optional_param('morningstarts_minutes', 0, PARAM_INT);
 $pview = optional_param('pview', 0, PARAM_INT);
 
 $user = optional_param('user', $USER->id, PARAM_INT);
-if(empty($user) || !has_capability('block/mrbs:viewalltt',get_context_instance(CONTEXT_SYSTEM))){$TTUSER=get_record('user','id',$USER->id);}else{$TTUSER=get_record('user','id',$user);}
+if(empty($user) || !has_capability('block/mrbs:viewalltt',get_context_instance(CONTEXT_SYSTEM))){$TTUSER=$DB->get_record('user',array('id'=>$USER->id));}else{$TTUSER=$DB->get_record('user',array('id'=>$user));}
 
 if (empty($debug_flag)) $debug_flag = 0;
 
@@ -413,4 +413,4 @@ echo "</table>";
 show_colour_key();
 
 //include "trailer.php";
-?>
+?>

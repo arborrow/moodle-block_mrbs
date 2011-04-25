@@ -15,7 +15,8 @@ $pview = optional_param('pview', 0, PARAM_INT);
 
 function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) //if values are not passed assume NULL
 {
-	global $mrbs_company, $mrbs_company_url, $search_str, $locale_warning;
+    global $mrbs_company, $mrbs_company_url, $search_str, $locale_warning;
+    global $CFG, $OUTPUT, $PAGE;
     $cfg_mrbs=get_config('block/mrbs');
     $strmrbs = get_string('blockname','block_mrbs');
 
@@ -24,25 +25,35 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) //if 
     }
 
 
-    $navlinks = array();
-    $navlinks[] = array('name' => $strmrbs,
-                        'link' =>$cfgmrbs->serverpath.'index.php',
-                        'type' => 'misc');
-    $pagetitle = '';
-    $navigation = build_navigation($navlinks);
-    print_header("$site->shortname: $strmrbs: $pagetitle", $strmrbs, $navigation,
-                 '', '', true, '', user_login_string($site));
+//    $navlinks = array();
+//    $navlinks[] = array('name' => $strmrbs,
+//                        'link' =>$cfgmrbs->serverpath.'index.php',
+//                        'type' => 'misc');
+//    $pagetitle = '';
+//    $navigation = build_navigation($navlinks);
+//    print_header("$site->shortname: $strmrbs: $pagetitle", $strmrbs, $navigation,
+//                 '', '', true, '', user_login_string($site));
+
+    # If we dont know the right date then make it up
+    if(!$day)
+            $day   = date("d");
+    if(!$month)
+            $month = date("m");
+    if(!$year)
+            $year  = date("Y");
+    if (empty($search_str))
+            $search_str = "";
+
+    /// Print the header
+    $PAGE->set_url('/blocks/mrbs/web/day.php?day='.$day.'&month='.$month.'&year='.$year);
+    $PAGE->navbar->add($strmrbs);
+    $PAGE->set_title($strmrbs . $pagetitle);
+    $PAGE->set_heading(format_string($strmrbs));
+    $PAGE->set_pagelayout('incourse');
+    echo $OUTPUT->header();
 
 
-	# If we dont know the right date then make it up
-	if(!$day)
-		$day   = date("d");
-	if(!$month)
-		$month = date("m");
-	if(!$year)
-		$year  = date("Y");
-	if (empty($search_str))
-		$search_str = "";
+
 /*
 	if ($unicode_encoding)
 	{
@@ -66,12 +77,10 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) //if 
 *
 */
 
-?>
 
-<?php
-   include "style.php";
+//   include "style.php";
 ?>
-
+<!--
     <SCRIPT LANGUAGE="JavaScript">
 
 function ChangeOptionDays(formObj, prefix, updatefreerooms, roomsearch){
@@ -122,8 +131,10 @@ function ChangeOptionDays(formObj, prefix, updatefreerooms, roomsearch){
 
 
     </SCRIPT>
+<!--
   </HEAD>
   <BODY BGCOLOR="#ffffed" TEXT=black LINK="#5B69A6" VLINK="#5B69A6" ALINK=red>
+-->
 	   <?php if ( $GLOBALS["pview"] != 1 ) { ?>
 
    <?php # show a warning if this is using a low version of php

@@ -83,8 +83,6 @@ echo "<HR>";
 echo '<p><center><a href="' . basename($PHP_SELF) . '?' . $QUERY_STRING . '&pview=1">' . get_string('ppreview','block_mrbs') . '</a></center><p>';
 
 }
-?>
 
-<HR>
-</BODY>
-</HTML>
+echo $OUTPUT->footer();
+?>

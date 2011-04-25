@@ -31,9 +31,12 @@ if(!getAuthorised(1))
 }
 
 
-$sql = "SELECT area_id,area_name FROM mdl_mrbs_room JOIN mdl_mrbs_area ON mdl_mrbs_area.id = area_id WHERE room_name ='$room' OR room_name ='0$room'";
+//$sql = "SELECT area_id,area_name FROM mdl_mrbs_room JOIN mdl_mrbs_area ON mdl_mrbs_area.id = area_id WHERE room_name ='$room' OR room_name ='0$room'";
+$sql = "SELECT area_id,area_name FROM {mrbs_room} AS r JOIN {mrbs_area} AS a ON a.id = r.area_id WHERE room_name = ? OR room_name ='?'";
 
-    $res = get_records_sql($sql);
+
+    //$res = get_records_sql($sql);
+    $res = $DB->get_records_sql($sql, array($room, '0'.$room));
 if($res){
     foreach ($res as $roomfound){echo "<META HTTP-EQUIV='Refresh' CONTENT='0;URL=$CFG->wwwroot/blocks/mrbs/web/day.php?area=$roomfound->area_id&day=$day&month=$month&year=$year'>You should shortly be redirected to <a href='$CFG->wwwroot/blocks/mrbs/web/day.php?area=$roomfound->area_id&day=$day&month=$month&year=$year'>$roomfound->area_name</a>";}
 }else{

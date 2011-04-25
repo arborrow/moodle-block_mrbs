@@ -48,19 +48,27 @@ if (file_exists($cfg_mrbs->cronfile)) {
                         $entry->name=$csvrow->name;
                         $entry->type='K';
                         $entry->description=$csvrow->description;
-                        $newentryid=insert_record('mrbs_entry',$entry);
+                        $newentryid=$DB->insert_record('mrbs_entry',$entry);
 
                         //If there is another non-imported booking there, send emails. It is assumed that simultanious imported classes are intentional
+//                        $sql = "SELECT *
+//                                FROM {$CFG->prefix}mrbs_entry
+//                                WHERE
+//                                    (({$CFG->prefix}mrbs_entry.start_time<$start_time AND {$CFG->prefix}mrbs_entry.end_time>$start_time)
+//                                  OR ({$CFG->prefix}mrbs_entry.start_time<$end_time AND {$CFG->prefix}mrbs_entry.end_time>$end_time)
+//                                  OR ({$CFG->prefix}mrbs_entry.start_time>=$start_time AND {$CFG->prefix}mrbs_entry.end_time<=$end_time ))
+//                                AND mdl_mrbs_entry.room_id = $room AND type<>'K'";
                         $sql = "SELECT *
-                                FROM {$CFG->prefix}mrbs_entry
+                                FROM {mrbs_entry} AS e
                                 WHERE
-                                    (({$CFG->prefix}mrbs_entry.start_time<$start_time AND {$CFG->prefix}mrbs_entry.end_time>$start_time)
-                                  OR ({$CFG->prefix}mrbs_entry.start_time<$end_time AND {$CFG->prefix}mrbs_entry.end_time>$end_time)
-                                  OR ({$CFG->prefix}mrbs_entry.start_time>=$start_time AND {$CFG->prefix}mrbs_entry.end_time<=$end_time ))
-                                AND mdl_mrbs_entry.room_id = $room AND type<>'K'";
+                                    ((e.start_time < ? AND e.end_time > ?)
+                                  OR (e.start_time < ? AND e.end_time > ?)
+                                  OR (e.start_time >= ? AND e.end_time <= ? ))
+                                AND e.room_id = ? AND type <>'K'";
 
                         //limit to 1 to keep this simpler- if there is a 3-way clash it will be noticed by one of the 2 teachers notified
-                        if ($existingclass=get_record_sql($sql,true)) {
+                        //if ($existingclass=get_record_sql($sql,true)) {
+                        if ($existingclass=$DB->get_record_sql($sql,array($start_time,$start_time,$end_time,$end_time,$start_time,$end_time, $room))) {
                             $hr_start_time=date("j F, Y",$start_time) . ", " . to_hr_time($start_time);
                             $a = new object;
                             $a->oldbooking=$existingclass->description.'('.$existingclass->id.')';
@@ -70,8 +78,8 @@ if (file_exists($cfg_mrbs->cronfile)) {
                             $a->admin=$cfg_mrbs->admin.' ('.$cfg_mrbs->admin_email.')';
                             $output.= get_string('clash','block_mrbs',$a);
 
-                            $existingteacher=get_record('user','username',$existingclass->create_by);
-                            $newteacher=get_record('user','username',$csvrow->username);
+                            $existingteacher=$DB->get_record('user',array('username' => $existingclass->create_by));
+                            $newteacher=$DB->get_record('user',array('username' => $csvrow->username));
 
                             $body = get_string('clashemailbody','block_mrbs',$a);
 
@@ -100,7 +108,8 @@ if (file_exists($cfg_mrbs->cronfile)) {
         }
 
         // any remaining type M records are no longer in the import file, so delete
-        delete_records_select('mrbs_entry', 'type=\'M\'');
+//        delete_records_select('mrbs_entry', 'type=\'M\'');
+        $DB->delete_records_select('mrbs_entry', 'type=\'M\'');
 
         //move the processed file to prevent wasted time re-processing TODO: option for how long to keep these- I've found them useful for debugging but obviously can't keep them for ever
         $date=date('Ymd');
@@ -114,7 +123,7 @@ if (file_exists($cfg_mrbs->cronfile)) {
         echo $output; //will only show up if being run via apache
 
         //email output to admin
-        if ($mrbsadmin=get_record('user','email',$cfg_mrbs->admin_email)) {
+        if ($mrbsadmin=$DB->get_record('user',array('email' => $cfg_mrbs->admin_email))) {
             email_to_user($mrbsadmin,$mrbsadmin,get_string('importlog','block_mrbs'),$output);
         }
     }
@@ -123,7 +132,8 @@ if (file_exists($cfg_mrbs->cronfile)) {
 
 //looks up the room id from the name
 function room_id_lookup($name) {
-    if (!$room=get_record('mrbs_room','room_name',$name)) {
+    global $DB;
+    if (!$room=$DB->get_record('mrbs_room',array('room_name'=>$name))) {
         $error = "ERROR: failed to return id from database (room $name probably doesn't exist)";
         $output.= $error . "\n";
         return 'error';

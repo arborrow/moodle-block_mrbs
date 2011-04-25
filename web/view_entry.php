@@ -20,7 +20,7 @@ $series = optional_param('series', 0, PARAM_INT);
 $pview = optional_param('pview', 0, PARAM_INT);
 
 //if the booking belongs to the user looking at it, they probably want to edit it
-if($record=get_record('mrbs_entry','id',$id)) {
+if($record=$DB->get_record('mrbs_entry',array('id'=>$id))) {
     if(strtolower($record->create_by)==strtolower($USER->username)) {
         Header("Location: edit_entry.php?id=$id");
     }
@@ -191,7 +191,7 @@ $repeat_key = "rep_type_" . $rep_type;
 
 <H3>
     <?php 
-    if ($course = get_record('course','shortname',$name)) {
+    if ($course = $DB->get_record('course',array('shortname'=>$name))) {
         echo "<a href={$CFG->wwwroot}/course/view.php?id=$course->id>$name</a>";
         $sizequery="SELECT count(*) as size
                     FROM {$CFG->prefix}context 

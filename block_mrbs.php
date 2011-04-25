@@ -17,7 +17,7 @@ class block_mrbs extends block_base {
     */
 
     function get_content () {
-        global $USER, $CFG;
+        global $USER, $CFG, $OUTPUT;
         $cfg_mrbs=get_config('block/mrbs');
         if ($this->content !== NULL) {
         return $this->content;
@@ -34,10 +34,10 @@ class block_mrbs extends block_base {
             }
             $go = get_string('accessmrbs', 'block_mrbs');
             if ($cfg_mrbs->newwindow) {
-                $this->content->text = '<a href="'.$serverpath.'/index.php" target="_blank">'.'<img src="' . $CFG->pixpath . '/f/web.gif" height="16" width="16" alt="" /> &nbsp;' . $go . ' </a>';
+                $this->content->text = '<a href="'.$serverpath.'/index.php" target="_blank">'.'<img src="' . $OUTPUT->pix_url('web','block_mrbs')  . '" height="16" width="16" alt="" /> &nbsp;' . $go . ' </a>';
                 $this->content->footer = '';
             } else {
-                $this->content->text = '<a href="'.$serverpath.'/index.php">'.'<img src="' . $CFG->pixpath . '/f/web.gif" height="16" width="16" alt="" /> &nbsp;' . $go . ' </a>';
+                $this->content->text = '<a href="'.$serverpath.'/index.php">'.'<img src="' . $OUTPUT->pix_url('web','block_mrbs') . '" height="16" width="16" alt="" /> &nbsp;' . $go . ' </a>';
                 $this->content->footer = '';
             }
             return $this->content;
@@ -45,13 +45,13 @@ class block_mrbs extends block_base {
     }
 
     function cron(){
-        global $CFG;
+        global $CFG, $DB;
         include($CFG->dirroot.'/blocks/mrbs/import.php');
         
         //doesn't seem to update this automatically?
-        $mrbsblock=get_record('block','name','mrbs');
+        $mrbsblock=$DB->get_record('block',array('name' => 'mrbs'));
         $mrbsblock->lastcron=mktime();
-        update_record('block',$mrbsblock);
+        $DB->update_record('block',$mrbsblock);
     }
 }
 

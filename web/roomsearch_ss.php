@@ -118,6 +118,8 @@ $sql .= "OR ($tbl_entry.start_time<$endtime AND $tbl_entry.end_time>=$endtime)) 
 
 $sql .= "AND mdl_mrbs_entry.room_id = mdl_mrbs_room.id ) < 1  AND $tbl_room.capacity >= $mincap ";
 
+
+
 if($computer){$sql.="AND description like 'Teaching IT%' ";}
 if($teaching){$sql.="AND description like 'Teaching%' ";}
 if($special){$sql.="AND description not like 'Teaching Specialist%' ";}
@@ -125,7 +127,8 @@ if($special){$sql.="AND description not like 'Teaching Specialist%' ";}
 $sql .= "ORDER BY area_name,room_name";
     
     //echo$sql;
-        $res = get_records_sql($sql);
+        //TODO: THIS MAY NOT WORK IN MOODLE 2.0
+        $res = $DB->get_records_sql($sql);
     if($res){
         $list='';
         foreach ($res as $room){

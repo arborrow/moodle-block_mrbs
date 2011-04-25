@@ -31,7 +31,9 @@
 // For the core capabilities, the variable is $moodle_capabilities.
 
 
-$block_mrbs_capabilities = array(
+defined('MOODLE_INTERNAL') || die();
+
+$capabilities = array(
 
     'block/mrbs:viewmrbs' => array(
 
@@ -42,7 +44,7 @@ $block_mrbs_capabilities = array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW,
-            'admin' => CAP_ALLOW
+            'manager' => CAP_ALLOW
         )
     ),
 
@@ -54,7 +56,7 @@ $block_mrbs_capabilities = array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW,
-            'admin' => CAP_ALLOW
+            'manager' => CAP_ALLOW
         )
     ),
 
@@ -63,7 +65,7 @@ $block_mrbs_capabilities = array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'legacy' => array(
-            'admin' => CAP_ALLOW
+            'manager' => CAP_ALLOW
         )
     ),
 
@@ -75,7 +77,7 @@ $block_mrbs_capabilities = array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW,
-            'admin' => CAP_ALLOW
+            'manager' => CAP_ALLOW
         )
     ),
 
@@ -84,7 +86,7 @@ $block_mrbs_capabilities = array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'legacy' => array(
-            'admin' => CAP_ALLOW
+            'manager' => CAP_ALLOW
         )
     ),
 
@@ -93,7 +95,7 @@ $block_mrbs_capabilities = array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'legacy' => array(
-            'admin' => CAP_ALLOW
+            'manager' => CAP_ALLOW
         )
     )
 

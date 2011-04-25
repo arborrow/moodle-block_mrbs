@@ -56,12 +56,9 @@ if(!getWritable($create_by, getUserName()))
 if ($name == '')
 {
      print_header_mrbs($day, $month, $year, $area);
-     ?>
-       <H1><?php echo get_string('invalid_booking','block_mrbs'); ?></H1>
-       <?php echo get_string('must_set_description','block_mrbs'); ?>
-   </BODY>
-</HTML>
-<?php
+     echo('<h1>'. get_string('invalid_booking','block_mrbs') . '<h1>');
+     echo get_string('must_set_description','block_mrbs');
+     echo $OUTPUT->footer();
      exit;
 }       
 
@@ -219,20 +216,32 @@ foreach ( $rooms as $room_id ) {
          //do this so that it thinks no clashes were found
          $tmp='';
     } else if($doublebook and has_capability('block/mrbs:doublebook', get_context_instance(CONTEXT_SYSTEM))) {
+//        $sql = 'SELECT entry.id AS entryid,
+//                entry.name as entryname,
+//                entry.create_by,
+//                room.room_name,
+//                entry.start_time,
+//              FROM '.$CFG->prefix.'mrbs_entry as entry
+//                join '.$CFG->prefix.'mrbs_room as room on entry.room_id = room.id
+//             WHERE room.id = '.$room_id.'
+//             AND ((entry.start_time>='.$starttime.' AND entry.end_time<'.$endtime.')
+//             OR (entry.start_time<'.$starttime.' AND entry.end_time>'.$starttime.')
+//             OR (entry.start_time<'.$endtime.' AND entry.end_time>='.$endtime.'))';
         $sql = 'SELECT entry.id AS entryid,
                 entry.name as entryname,
                 entry.create_by,
                 room.room_name,
                 entry.start_time,
-              FROM '.$CFG->prefix.'mrbs_entry as entry
-                join '.$CFG->prefix.'mrbs_room as room on entry.room_id = room.id
-             WHERE room.id = '.$room_id.'
-             AND ((entry.start_time>='.$starttime.' AND entry.end_time<'.$endtime.')
-             OR (entry.start_time<'.$starttime.' AND entry.end_time>'.$starttime.')
-             OR (entry.start_time<'.$endtime.' AND entry.end_time>='.$endtime.'))';
-        if($clashingbookings = get_records_sql($sql)) {
+              FROM {mrbs_entry} as entry
+                join {mrbs_room} as room on entry.room_id = room.id
+             WHERE room.id = ?
+             AND ((entry.start_time >= ? AND entry.end_time < ?)
+             OR (entry.start_time < ? AND entry.end_time> ?)
+             OR (entry.start_time < ? AND entry.end_time>= ?))';
+//        if($clashingbookings = get_records_sql($sql)) {
+        $clashingbookings = get_records_sql($sql,array($room_id, $starttime, $endtime, $starttime, $starttime, $endtime, $endtime));
             foreach($clashingbookings as $clashingbooking) {
-                $oldbookinguser = get_record('user', 'username', $clashingbooking->create_by);
+                $oldbookinguser = $DB->get_record('user', array('username'=> $clashingbooking->create_by));
                 $langvars->user = $USER->firstname.' '.$USER->lastname;
                 $langvars->room = $clashingbooking->room_name;
                 $langvars->time = to_hr_time($clashingbooking->start_time);
@@ -243,16 +252,16 @@ foreach ( $rooms as $room_id ) {
 
                 // Send emails to user with existing booking
                 if(!email_to_user($oldbookinguser, $USER, get_string('doublebookesubject', 'block_mrbs'), get_string('doublebookebody', 'block_mrbs', $langvars))) {
-                    email_to_user(get_record('user', 'email', $mrbs_admin_email), $USER, get_string('doublebookefailsubject', 'block_mrbs'), get_string('doublebookefailbody', 'block_mrbs', $oldbookinguser->username).get_string('doublebookebody', 'block_mrbs', $langvars));
+                    email_to_user($DB->get_record('user', array('email'=> $mrbs_admin_email)), $USER, get_string('doublebookefailsubject', 'block_mrbs'), get_string('doublebookefailbody', 'block_mrbs', $oldbookinguser->username).get_string('doublebookebody', 'block_mrbs', $langvars));
                 }
             }
 
         }
 
-    }else{
-        // If the user hasn't confirmed they want to double book, check the room is free.
-    $err .= mrbsCheckFree($room_id, $starttime, $endtime-1, $ignore_id, 0);
-    }
+//    }else{
+//        // If the user hasn't confirmed they want to double book, check the room is free.
+//    $err .= mrbsCheckFree($room_id, $starttime, $endtime-1, $ignore_id, 0);
+//    }
 } # end foreach rooms
 
 if(empty($err))
