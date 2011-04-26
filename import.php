@@ -1,4 +1,20 @@
 <?php
+
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * This file imports bookings via CSV flatfile; it is intended to allow mrbs to be
  * populated with bookings from any other timetable sytem. It is intended to run
@@ -119,7 +135,7 @@ if (file_exists($cfg_mrbs->cronfile)) {
         $script_time_taken = time() - $script_start_time;
         $output.=get_string('finishedimport','block_mrbs',$script_time_taken);
 
-        
+
         echo $output; //will only show up if being run via apache
 
         //email output to admin
@@ -198,5 +214,3 @@ function to_hr_time($time) {
         return date('G:i',$time);
     }
 }
-
-?>

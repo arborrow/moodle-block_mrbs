@@ -1,4 +1,20 @@
-<?php  //$Id: settings.php,v 1.15 2010/01/16 13:22:16 arborrow Exp $
+<?php
+
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 $cfg_mrbs = get_config('block/mrbs');
 
 $options = array(0 => get_string('pagewindow', 'block_mrbs'), 1 => get_string('newwindow', 'block_mrbs'));
@@ -213,5 +229,3 @@ $settings->settings->mail_cc->plugin='block/mrbs';
 
 $settings->add(new admin_setting_configtext('cronfile', get_string('cronfile', 'block_mrbs'),get_string('cronfiledesc', 'block_mrbs'), NULL, PARAM_TEXT));
 $settings->settings->cronfile->plugin='block/mrbs';
-
-?>
