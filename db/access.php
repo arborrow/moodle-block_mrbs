@@ -39,7 +39,7 @@ $capabilities = array(
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
-        'legacy' => array(
+        'archetypes' => array(
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
@@ -52,7 +52,7 @@ $capabilities = array(
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
-        'legacy' => array(
+        'archetypes' => array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW,
@@ -64,7 +64,7 @@ $capabilities = array(
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
-        'legacy' => array(
+        'archetypes' => array(
             'manager' => CAP_ALLOW
         )
     ),
@@ -73,7 +73,7 @@ $capabilities = array(
 
         'captype' => 'view',
         'contextlevel' => CONTEXT_SYSTEM,
-        'legacy' => array(
+        'archetypes' => array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW,
@@ -85,7 +85,7 @@ $capabilities = array(
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
-        'legacy' => array(
+        'archetypes' => array(
             'manager' => CAP_ALLOW
         )
     ),
@@ -94,7 +94,7 @@ $capabilities = array(
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
-        'legacy' => array(
+        'archetypes' => array(
             'manager' => CAP_ALLOW
         )
     )
