@@ -5,8 +5,6 @@ class block_mrbs extends block_base {
     function init() {
         $this->title = get_string('blockname','block_mrbs');
         $this->content_type = BLOCK_TYPE_TEXT;
-        $this->version = 2009061900;
-        $this->cron=300;
     }
     function has_config() {return true;}
 
@@ -25,7 +23,7 @@ class block_mrbs extends block_base {
         $context = get_context_instance(CONTEXT_SYSTEM, SITEID);
 //        $context = get_context_instance(CONTEXT_BLOCK, $this->instance->id));
 //        Not sure which context to use... Should this be defined site level or course level?
-//        Defining as Site level        
+//        Defining as Site level
         if ( has_capability('block/mrbs:viewmrbs', $context) or has_capability('block/mrbs:editmrbs', $context) or has_capability('block/mrbs:administermrbs', $context)) {
             if (isset($CFG->block_mrbs_serverpath)) {
                 $serverpath = $CFG->block_mrbs_serverpath;
@@ -47,7 +45,7 @@ class block_mrbs extends block_base {
     function cron(){
         global $CFG, $DB;
         include($CFG->dirroot.'/blocks/mrbs/import.php');
-        
+
         //doesn't seem to update this automatically?
         $mrbsblock=$DB->get_record('block',array('name' => 'mrbs'));
         $mrbsblock->lastcron=mktime();
