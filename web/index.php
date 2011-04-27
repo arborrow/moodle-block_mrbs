@@ -21,7 +21,7 @@
   If $default_room is defined in config.inc.php then this will
   be used to redirect to a particular room.
 */
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php'); //for Moodle integration
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
 include("config.inc.php");
 
 $day   = date("d");
