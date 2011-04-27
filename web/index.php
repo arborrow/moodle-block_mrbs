@@ -22,10 +22,7 @@
   be used to redirect to a particular room.
 */
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php'); //for Moodle integration
-require_once "grab_globals.inc.php";
 include("config.inc.php");
-include("$dbsys.php");
-
 
 $day   = date("d");
 $month = date("m");

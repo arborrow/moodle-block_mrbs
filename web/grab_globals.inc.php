@@ -19,6 +19,11 @@
 // +---------------------------------------------------------------------------+
 //
 // $Id: grab_globals.inc.php,v 1.2 2007/12/28 05:53:05 arborrow Exp $
+/*
+
+// Commented out everything in here, as planning to switch everything to use
+// optional_param / required_param instead
+
 require_once("../../../config.php"); //for Moodle integration
 // -- GET --
 if (!empty($_GET))
@@ -129,7 +134,7 @@ else if (!empty($HTTP_SERVER_VARS) && isset($HTTP_SERVER_VARS['HTTP_HOST']))
 {
     $HTTP_HOST = $HTTP_SERVER_VARS['HTTP_HOST'];
 }
-
+*/
 // +---------------------------------------------------------------------------+
 /* Changes to this file :
  * $Log: grab_globals.inc.php,v $

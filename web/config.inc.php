@@ -1,6 +1,19 @@
 <?php
 
-# $Id: config.inc.php,v 1.18 2010/01/16 15:16:08 arborrow Exp $
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 ###########################################################################
 #   MRBS Configuration File
@@ -13,6 +26,9 @@ $cfg_mrbs = get_config('block/mrbs'); //get Moodle config settings for the MRBS 
 ###################
 # Database settings
 ###################
+/*
+// Commented out as planning to replace all with Moodle DB calls
+
 # Which database system: "pgsql"=PostgreSQL, "mysql"=MySQL, "mysqli"=MySQL via the mysqli PHP extension
 $dbsys = $CFG->dbtype; //"mysql", "pgsql", or "mysqli"
 # Hostname of database server. For pgsql, can use "" instead of localhost
@@ -34,6 +50,7 @@ $tbl_entry  = $db_tbl_prefix . "entry";
 $tbl_repeat = $db_tbl_prefix . "repeat";
 $tbl_room   = $db_tbl_prefix . "room";
 $tbl_users  = $db_tbl_prefix . "users";
+*/
 
 ################################
 # Site identification information
@@ -195,12 +212,12 @@ $default_room = $cfg_mrbs->default_room;
 ###############################################
 # Authentication settings - read AUTHENTICATION
 ###############################################
-$auth["session"] = "php"; 
+$auth["session"] = "php";
 $auth["type"] = "moodle";
 if ($CFG->sessioncookiepath=='/') { //if one is not set in Moodle then use default
     $cookie_path_override = ''; //is this even needed with the moodle auth type?
 } else { //if one is set in Moodle then use that path for MRBS block cookies
-    $cookie_path_override = $CFG->$cookie_path_override = ''; 
+    $cookie_path_override = $CFG->$cookie_path_override = '';
 }
 
 
@@ -243,7 +260,7 @@ define ("MAIL_BOOKER", $cfg_mrbs->mail_booker);
 # scheme other than 'auth_db', you need to provide the mail domain that will
 # be appended to the username to produce a valid email address (ie.
 # "@domain.com").
-define ("MAIL_DOMAIN", ''); //I am not including this option as we should be using Moodle email options - see CONTRIB-630 
+define ("MAIL_DOMAIN", ''); //I am not including this option as we should be using Moodle email options - see CONTRIB-630
 
 # If you use MAIL_DOMAIN above and username returned by mrbs contains extra
 # strings appended like domain name ('username.domain'), you need to provide
@@ -266,7 +283,7 @@ define ("SENDMAIL_PATH", "/usr/bin/sendmail");
 define ("SENDMAIL_ARGS", '');
 
 #*******************
-# SMTP settings 
+# SMTP settings
 
 # Set smtp server to connect. Default is 'localhost' (only used with "smtp"
 # backend).
@@ -299,7 +316,7 @@ if (isset($USER->lang)) {
     define ("MAIL_ADMIN_LANG", 'en');
 }
 # Set the email address of the From field. Default is $mrbs_admin_email
-define ("MAIL_FROM", $cfg_mrbs->mail_from); 
+define ("MAIL_FROM", $cfg_mrbs->mail_from);
 
 # Set the recipient email. Default is $mrbs_admin_email. You can define
 # more than one recipient like this "john@doe.com,scott@tiger.com"
@@ -310,7 +327,7 @@ define ("MAIL_RECIPIENTS", $cfg_mrbs->mail_recipients);
 define ("MAIL_CC", $cfg_mrbs->mail_cc);
 
 // Users wanting to use a different strings can change set them as a custom language string
-# Set the content of the Subject field for added/changed entries. 
+# Set the content of the Subject field for added/changed entries.
 $mail["subject"] = get_string('mail_subject', 'block_mrbs', $mrbs_company);
 
 # Set the content of the Subject field for deleted fields.
@@ -318,7 +335,7 @@ $mail["subject_delete"] = get_string('mail_subject_delete', 'block_mrbs', $mrbs_
 
 # Set the content of the message when a new entry is booked. What you type
 # here will be added at the top of the message body.
-$mail["new_entry"] = get_string('mail_new_entry','block_mrbs'); 
+$mail["new_entry"] = get_string('mail_new_entry','block_mrbs');
 
 # Set the content of the message when an entry is modified. What you type
 # here will be added at the top of the message body.
@@ -406,6 +423,5 @@ if (!empty($cfg_mrbs->cronfile)) {
 }
 //WARNING: DO NOT USE TYPE M, type M is used by import script and will delete other type M bookings
 //TODO: Evaluate use of error_reporting to respect Moodle debugging settings
-error_reporting (E_ALL ^ E_NOTICE);
-
-?>
+//Moodle should handle the error reporting level itself - do not need to set it here
+//error_reporting (E_ALL ^ E_NOTICE);
