@@ -25,7 +25,6 @@ include "mincals.php";
 //UT
 $month = optional_param('month', date("m"), PARAM_INT);
 $year = optional_param('year', date("Y"), PARAM_INT);
-$id = optional_param('id', 0, PARAM_INT);
 $area = optional_param('area', 0,  PARAM_INT);
 $room = optional_param('room', 0, PARAM_INT);
 $debug_flag = optional_param('debug_flag', 0, PARAM_INT);
