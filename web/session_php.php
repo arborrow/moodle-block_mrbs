@@ -16,8 +16,7 @@
 *                                                                             *
 \*****************************************************************************/
 
-// $Id: session_php.php,v 1.6 2008/08/17 22:49:36 arborrow Exp $
-require_once("../../../config.php"); //for Moodle integration
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 global $PHP_SELF, $USER;
 
 if (isset($cookie_path_override))
@@ -30,7 +29,7 @@ else
     $cookie_path = ereg_replace('[^/]*$', '', $cookie_path);
 }
 session_set_cookie_params(0, $cookie_path);
-session_start();
+//session_start();
 
 /*
   Target of the form with sets the URL argument "Action=SetName".
@@ -49,8 +48,8 @@ if (isset($Action) && ($Action == "SetName"))
             $HTTP_SESSION_VARS = array();
         }
     } else {
-        $NewUserName = unslashes($NewUserName);
-        $NewUserPassword = unslashes($NewUserPassword);
+        $NewUserName = $NewUserName;
+        $NewUserPassword = $NewUserPassword;
         if (!authValidateUser($NewUserName, $NewUserPassword)) {
             print_header_mrbs(0, 0, 0, 0);
             echo "<P>".get_string('usernamenotfound')."</P>\n";
@@ -86,14 +85,14 @@ function printLoginForm($TargetURL)
 {
     global $PHP_SELF;
    $SESSION->wantsurl = $TargetURL;
-   require_login();    
+   require_login();
 }
 
 
 /* authGet()
- * 
+ *
  * Request the user name/password
- * 
+ *
  * Returns: Nothing
  */
 function authGet()
