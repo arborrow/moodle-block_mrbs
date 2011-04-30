@@ -3,7 +3,6 @@
  *
  * Inspired by the excellent xbDOM.js (and using it for debugging)
  *
- * $Id: xbLib.js,v 1.1 2007/04/05 22:25:35 arborrow Exp $
  */
 
 var doAlert = false;
