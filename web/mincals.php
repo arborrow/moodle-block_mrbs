@@ -1,17 +1,17 @@
 <?php
-// $Id: mincals.php,v 1.5 2009/06/02 14:09:25 mike1989 Exp $
-require_once("../../../config.php"); //for Moodle integration
-function minicals($year, $month, $day, $area, $room, $dmy,$usertt=false) {
+
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
+function minicals($year, $month, $day, $area, $room, $dmy, $usertt=false) {
 // PHP Calendar Class
-//  
+//
 // Copyright David Wilkinson 2000. All Rights reserved.
-// 
+//
 // This software may be used, modified and distributed freely
-// providing this copyright notice remains intact at the head 
+// providing this copyright notice remains intact at the head
 // of the file.
 //
 // This software is freeware. The author accepts no liability for
-// any loss or damages whatsoever incurred directly or indirectly 
+// any loss or damages whatsoever incurred directly or indirectly
 // from the use of this script.
 //
 // URL:   http://www.cascade.org.uk/software/php/calendar/
@@ -27,8 +27,8 @@ class Calendar
     var $room;
     var $dmy;
     var $usertt;
-    
-    function Calendar($day, $month, $year, $h, $area, $room, $dmy,$usertt)
+
+    function Calendar($day, $month, $year, $h, $area, $room, $dmy, $usertt)
     {
         $this->day   = $day;
         $this->month = $month;
@@ -38,25 +38,30 @@ class Calendar
         $this->room  = $room;
         $this->dmy   = $dmy;
         $this->usertt= $usertt;
-        
+
     }
-   
-    
+
+
     function getCalendarLink($month, $year)
     {
         return "";
     }
-    
-   function getDateLink($day, $month, $year,$usertt='')
-   {global $usertt;
-    if(!empty($this->usertt)){$isuser='user';$userpar='&user='.$this->usertt;}
-      if( empty($this->room) )
-         return $isuser.$this->dmy.".php?year=$year&month=$month&day=$day&area=".$this->area.$userpar;
-      else
-         return $isuser.$this->dmy.".php?year=$year&month=$month&day=$day&area=".$this->area."&room=".$this->room.$userpar;
-         
-   }
-    
+
+    function getDateLink($day, $month, $year) {
+        $isuser = '';
+        if(!empty($this->usertt)) {
+            $isuser='user';
+        }
+        $returl = new moodle_url('/blocks/mrbs/web/'.$isuser.$this->dmy.'.php', array('year'=>$year, 'month'=>$month, 'day'=>$day, 'area'=>$this->area));
+        if (!empty($this->usertt)) {
+            $returl->param('user', $this->usertt);
+        }
+        if (!empty($this->room)) {
+            $returl->param('room', $this->room);
+        }
+        return $returl;
+    }
+
 
     function getDaysInMonth($month, $year)
     {
@@ -64,16 +69,16 @@ class Calendar
         {
             return 0;
         }
-    
+
         $days = array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
-   
+
         $d = $days[$month - 1];
-   
+
         if ($month == 2)
         {
             // Check for leap year
             // Forget the 4000 rule, I doubt I'll be around then...
-        
+
             if ($year%4 == 0)
             {
                 if ($year%100 == 0)
@@ -89,7 +94,7 @@ class Calendar
                 }
             }
         }
-    
+
         return $d;
     }
 
@@ -110,13 +115,12 @@ class Calendar
     function getHTML()
     {
         global $weekstarts;
-        global $PHP_SELF;
         global $day;
         global $month;
 
         if (!isset($weekstarts)) $weekstarts = 0;
         $s = "";
-        
+
         $daysInMonth = $this->getDaysInMonth($this->month, $this->year);
 	// $prevYear is the current year unless the previous month is
 	// December then you need to decrement the year
@@ -132,28 +136,28 @@ class Calendar
 	}
         $daysInPrevMonth = $this->getDaysInMonth($prevMonth, $prevYear);
         $date = mktime(12, 0, 0, $this->month, 1, $this->year);
-        
+
         $first = (strftime('%w', $date) + 7 - $weekstarts) % 7;
         $monthName = userdate($date, "%B");
-        
+
         //$prevMonth = $this->getCalendarLink($this->month - 1 >   0 ? $this->month - 1 : 12, $this->month - 1 >   0 ? $this->year : $this->year - 1);
         //$nextMonth = $this->getCalendarLink($this->month + 1 <= 12 ? $this->month + 1 :  1, $this->month + 1 <= 12 ? $this->year : $this->year + 1);
-        
+
         $s .= "<table class=\"calendar\">\n";
         // prints month name and year
         $s .= "<tr>\n";
         //$s .= "<td align=center valign=top>" . (($prevMonth == "") ? "&nbsp;" : "<a href=\"$prevMonth\">&lt;&lt;</a>")  . "</td>\n";
-        $s .= "<td align=center valign=top class=\"calendarHeader\" colspan=7>$monthName&nbsp;$this->year</td>\n"; 
+        $s .= "<td align=center valign=top class=\"calendarHeader\" colspan=7>$monthName&nbsp;$this->year</td>\n";
         //$s .= "<td align=center valign=top>" . (($nextMonth == "") ? "&nbsp;" : "<a href=\"$nextMonth\">&gt;&gt;</a>")  . "</td>\n";
         $s .= "</tr>\n";
-        
+
         $s .= "<tr>\n";
         // gets days of week
         $s .= $this->getFirstDays();
         $s .= "</tr>\n";
 
         $d = 1 - $first;
-            
+
         # this is used to highlight days in upcoming month
         $days_to_highlight = ($d + 7);
 
@@ -171,14 +175,14 @@ class Calendar
 
                     if ($link == "")
                         $s .= $d;
-                    elseif (preg_match("/day/i", basename($PHP_SELF)))
+                    else if ($this->dmy == 'day')
                     {
                         if (($d == $this->day) and ($this->h))
                             $s .= "<a href=\"$link\"><font class=\"calendarHighlight\">$d</font></a>";
                         else
                             $s .= "<a href=\"$link\">$d</a>";
                     }
-                    elseif (preg_match("/week/i", basename($PHP_SELF)))
+                    else if ($this->dmy == 'week')
                     {
 		    #echo "((".$this->day." < $days_to_highlight) && ($d < $days_to_highlight) && (($day - $daysInMonth) > (-6)) && (".$this->month." == ($month + 1)) && ($first != 0))<br>";
                         if (($this->day <= $d) && ($this->day > $d_week) && ($this->h))
@@ -188,7 +192,7 @@ class Calendar
                         else
                             $s .= "<a href=\"$link\">$d</a>";
                     }
-                    elseif (preg_match("/month/i", basename($PHP_SELF)))
+                    elseif ($this->dmy == 'month')
                         if ( $this->h )
                             $s .= "<a href=\"$link\"><font class=\"calendarHighlight\">$d</font></a>";
                         else
@@ -203,9 +207,9 @@ class Calendar
             }
             $s .= "</tr>\n";
         }
-        
+
         $s .= "</table>\n";
-        
+
         return $s;
     }
 }
@@ -229,4 +233,3 @@ $cal = new Calendar(date("d",$nextmonth), date("m",$nextmonth), date("Y",$nextmo
 echo $cal->getHTML();
 echo "</td>";
 }
-?>
