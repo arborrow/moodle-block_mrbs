@@ -1,148 +1,104 @@
 <?php
 
-# $Id: functions.php,v 1.18 2009/06/19 10:32:36 mike1989 Exp $
-require_once("../../../config.php"); //for Moodle integration
-# probably a bad place to put this, but for error reporting purposes
-# $pview must be defined. if it's not then there's errors generated all
-# over the place. so we test to see if it is set, and if not then set
-# it.
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
+// probably a bad place to put this, but for error reporting purposes
+// $pview must be defined. if it's not then there's errors generated all
+// over the place. so we test to see if it is set, and if not then set
+// it.
 
 $pview = optional_param('pview', 0, PARAM_INT);
 
-// if (!isset($pview)) { //better to handle with optional_param
-//	$pview = 0;
-// }
-
 function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) //if values are not passed assume NULL
 {
-    global $mrbs_company, $mrbs_company_url, $search_str, $locale_warning;
-    global $CFG, $OUTPUT, $PAGE;
-    $cfg_mrbs=get_config('block/mrbs');
+    global $mrbs_company, $mrbs_company_url, $search_str, $locale_warning, $pview;
+    global $OUTPUT, $PAGE;
+    $cfg_mrbs = get_config('block/mrbs');
     $strmrbs = get_string('blockname','block_mrbs');
 
     if(!$site = get_site()) {
-        redirect($CFG->wwwroot.'/'.$CFG->admin.'/index.php');
+        redirect(new moodle_url('/admin/index.php'));
     }
 
-
-//    $navlinks = array();
-//    $navlinks[] = array('name' => $strmrbs,
-//                        'link' =>$cfgmrbs->serverpath.'index.php',
-//                        'type' => 'misc');
-//    $pagetitle = '';
-//    $navigation = build_navigation($navlinks);
-//    print_header("$site->shortname: $strmrbs: $pagetitle", $strmrbs, $navigation,
-//                 '', '', true, '', user_login_string($site));
-
-    # If we dont know the right date then make it up
-    if(!$day)
-            $day   = date("d");
-    if(!$month)
-            $month = date("m");
-    if(!$year)
-            $year  = date("Y");
-    if (empty($search_str))
+    // If we dont know the right date then make it up
+    if(!$day) {
+        $day   = date("d");
+    }
+    if(!$month) {
+        $month = date("m");
+    }
+    if(!$year) {
+        $year  = date("Y");
+    }
+    if (empty($search_str)) {
             $search_str = "";
+    }
 
     /// Print the header
-    $PAGE->set_url('/blocks/mrbs/web/day.php?day='.$day.'&month='.$month.'&year='.$year);
+    $PAGE->set_context(get_context_instance(CONTEXT_SYSTEM));
     $PAGE->navbar->add($strmrbs);
-    $PAGE->set_title($strmrbs . $pagetitle);
-    $PAGE->set_heading(format_string($strmrbs));
     $PAGE->set_pagelayout('incourse');
+    $PAGE->set_title($strmrbs);
+    $PAGE->set_heading(format_string($strmrbs));
+
+    // Load extra javascript
+    $PAGE->requires->js('/blocks/mrbs/web/roomsearch.js', true); // For the 'ChangeOptionDays' function
+
     echo $OUTPUT->header();
 
+    // Set the weekday names for the 'ChangeOptionDays' function
+    echo '<script type="text/javascript">SetWeekDayNames(';
+    echo '"'.get_string('mon', 'calendar').'", ';
+    echo '"'.get_string('tue', 'calendar').'", ';
+    echo '"'.get_string('wed', 'calendar').'", ';
+    echo '"'.get_string('thu', 'calendar').'", ';
+    echo '"'.get_string('fri', 'calendar').'", ';
+    echo '"'.get_string('sat', 'calendar').'", ';
+    echo '"'.get_string('sun', 'calendar').'"';
+    echo ');</script>';
 
+    echo '<div id="mrbscontainer">';
 
-/*
-	if ($unicode_encoding)
-	{
-		header("Content-Type: text/html; charset=utf-8");
-	}
-	else
-	{
-
-		header("Content-Type: text/html; charset=".get_string('charset','block_mrbs'));
-	}
-
-	header("Pragma: no-cache");                          // HTTP 1.0
-	header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // Date in the past
-*/
-
-
-/*<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-                      "http://www.w3.org/TR/html4/loose.dtd">
-<HTML>
-  <HEAD>
-*
-*/
-
-
-//   include "style.php";
-?>
-<!--
-    <SCRIPT LANGUAGE="JavaScript">
-
-function ChangeOptionDays(formObj, prefix, updatefreerooms, roomsearch){
-
-    var week=new Array(7);
-    week[1]="<?php print_string('mon','calendar'); ?>";
-    week[2]="<?php print_string('tue','calendar'); ?>";
-    week[3]="<?php print_string('wed','calendar'); ?>";
-    week[4]="<?php print_string('thu','calendar'); ?>";
-    week[5]="<?php print_string('fri','calendar'); ?>";
-    week[6]="<?php print_string('sat','calendar'); ?>";
-    week[0]="<?php print_string('sun','calendar'); ?>";
-     
-     
-  var DaysObject = eval("formObj." + prefix + "day");
-    var currentDay = DaysObject.selectedIndex;
-  var MonthObject = eval("formObj." + prefix + "month");
-  var YearObject = eval("formObj." + prefix + "year");
-
-    //wipe current list
-    for (j = DaysObject.options.length; j >= 0; j--) {
-        DaysObject.options[j] = null;
-    }
-    var day=DaysObject.selectedIndex+1;
-    var month=MonthObject.selectedIndex;
-    var year=YearObject.options[YearObject.selectedIndex].value;
-
-
-    var i=new Date();
-    i.setDate(1);
-    i.setMonth(month);
-    i.setYear(year);
-
-    while (i.getMonth()==month){
-
-      DaysObject.options[i.getDate()-1] = new Option(week[i.getDay()]+" "+i.getDate(),i.getDate());
-      i.setTime(i.getTime() + 86400000);
-  }
-   DaysObject.selectedIndex = currentDay;
-   
-    if(updatefreerooms){
-        updateFreeRooms();
-    }
-    if(roomsearch){
-        RoomSearch();
-}
-}
-
-
-    </SCRIPT>
-<!--
-  </HEAD>
-  <BODY BGCOLOR="#ffffed" TEXT=black LINK="#5B69A6" VLINK="#5B69A6" ALINK=red>
--->
-	   <?php if ( $GLOBALS["pview"] != 1 ) { ?>
-
-   <?php # show a warning if this is using a low version of php
-       if (substr(phpversion(), 0, 1) == 3)
-	       echo get_string('not_php3','block_mrbs');
-       if (!empty($locale_warning))
+    if ( $pview != 1 ) {
+        if (!empty($locale_warning)) {
                echo "[Warning: ".$locale_warning."]";
-   ?>
+        }
+
+        $titlestr = get_string('mrbs', 'block_mrbs');
+        $homeurl = new moodle_url('/blocks/mrbs/web/index.php');
+        $gotostr = get_string('goto', 'block_mrbs');
+
+        $roomsearchstr = get_string('roomsearch', 'block_mrbs');
+        $roomsearchurl = new moodle_url('/blocks/mrbs/web/roomsearch.php');
+
+        $helpstr = get_string('help');
+        $helpurl = new moodle_url('/blocks/mrbs/web/help.php', array('day'=>$day, 'month'=>$month, 'year'=>$year));
+
+        $adminstr = get_string('admin');
+        $adminurl = new moodle_url('/blocks/mrbs/web/admin.php', array('day'=>$day, 'month'=>$month, 'year'=>$year));
+
+        $reportstr = get_string('report');
+        $reporturl = new moodle_url('/blocks/mrbs/web/report.php');
+
+        $searchstr = get_string('search');
+        $searchurl = new moodle_url('/blocks/mrbs/web/search.php');
+        $searchadvurl = new moodle_url($searchurl, array('advanced'=>1));
+
+        echo <<<HTML1END
 
     <TABLE WIDTH="100%">
       <TR>
@@ -150,153 +106,139 @@ function ChangeOptionDays(formObj, prefix, updatefreerooms, roomsearch){
           <TABLE WIDTH="100%" BORDER=0>
             <TR>
               <TD CLASS="banner" BGCOLOR="#C0E0FF">
-          <FONT SIZE=4><B><a href='<?php echo $mrbs_company_url ?>'><?php echo $mrbs_company ?></a></B><BR>
-           <A HREF="index.php"><?php echo get_string('mrbs','block_mrbs') ?></A>
+          <FONT SIZE=4><B><a href='$mrbs_company_url'>$mrbs_company</a></B><BR>
+           <A HREF="$homeurl">$titlestr</A>
                 </FONT>
               </TD>
               <TD CLASS="banner" BGCOLOR="#C0E0FF">
                 <FORM ACTION="day.php" METHOD=GET name="Form1">
                   <FONT SIZE=2>
-<?php
-   genDateSelector("", $day, $month, $year); // Note: The 1st arg must match the last arg in the call to ChangeOptionDays below.
-   if (!empty($area))
-        echo "
-                    <INPUT TYPE=HIDDEN NAME=area VALUE=$area>\n"
+HTML1END;
 
-?>
-	            <SCRIPT LANGUAGE="JavaScript">
+        genDateSelector("", $day, $month, $year); // Note: The 1st arg must match the last arg in the call to ChangeOptionDays below.
+        if (!empty($area)) {
+            echo "<INPUT TYPE=HIDDEN NAME=area VALUE=$area>\n";
+        }
+
+        echo <<<HTML2END
+                <SCRIPT LANGUAGE="JavaScript">
                     <!--
                     // fix number of days for the $month/$year that you start with
                     ChangeOptionDays(document.Form1, ''); // Note: The 2nd arg must match the first in the call to genDateSelector above.
                     // -->
                     </SCRIPT>
-	    <INPUT TYPE=SUBMIT VALUE="<?php echo get_string('goto','block_mrbs') ?>">
+	    <INPUT TYPE=SUBMIT VALUE="$gotostr">
                   </FONT>
                 </FORM>
               </TD>
-<?php if (has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM))) echo'<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
+HTML2END;
+        if (has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM))) {
+            echo'<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
                   <a href="edit_entry.php?force=TRUE">Forcibly book a room</a>
-              </TD>';?>
+              </TD>';
+        }
+
+        echo <<<HTML3END
               <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-<a target="popup" title="<?php print_string('roomsearch','block_mrbs');?>" href="roomsearch.php" onclick="this.target='popup'; return openpopup('/blocks/mrbs/web/roomsearch.php', 'popup', 'toolbar=1,location=0,scrollbars,resizable,width=500,height=400', 0);"><?php print_string('roomsearch','block_mrbs');?></a>
+<a target="popup" title="$roomsearchstr" href="$roomsearchurl" onclick="this.target='popup'; return openpopup('$roomsearchurl', 'popup', 'toolbar=1,location=0,scrollbars,resizable,width=500,height=400', 0);">$roomsearchstr</a>
               </TD>
 
               <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-          <A HREF="help.php?day=<?php echo $day ?>&month=<?php echo $month ?>&year=<?php echo $year ?>"><?php echo get_string('help') ?></A>
+          <A HREF="$helpurl">$helpstr</A>
               </TD>
               <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-          <A HREF="admin.php?day=<?php echo $day ?>&month=<?php echo $month ?>&year=<?php echo $year ?>"><?php echo get_string('admin') ?></A>
+          <A HREF="$adminurl">$adminstr</A>
               </TD>
               <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
           <A HREF="report.php"><?php echo get_string('report') ?></A>
               </TD>
               <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-                <FORM METHOD=GET ACTION="search.php">
-           <FONT SIZE=2><A HREF="search.php?advanced=1"><?php echo get_string('search') ?></A> </FONT>
-                  <INPUT TYPE=TEXT   NAME="search_str" VALUE="<?php echo $search_str ?>" SIZE=10>
-                  <INPUT TYPE=HIDDEN NAME=day        VALUE="<?php echo $day        ?>"        >
-                  <INPUT TYPE=HIDDEN NAME=month      VALUE="<?php echo $month      ?>"        >
-                  <INPUT TYPE=HIDDEN NAME=year       VALUE="<?php echo $year       ?>"        >
-<?php
-   if (!empty($area))
-        echo "
-                  <INPUT TYPE=HIDDEN NAME=area VALUE=$area>\n"
-?>
+                <FORM METHOD=GET ACTION="$searchurl">
+           <FONT SIZE=2><A HREF="$searchadvurl">$searchstr</A> </FONT>
+                  <INPUT TYPE=TEXT   NAME="search_str" VALUE="$search_str" SIZE=10>
+                  <INPUT TYPE=HIDDEN NAME=day        VALUE="$day"        >
+                  <INPUT TYPE=HIDDEN NAME=month      VALUE="$month"        >
+                  <INPUT TYPE=HIDDEN NAME=year       VALUE="$year"        >
+HTML3END;
+        if (!empty($area)) {
+            echo "<INPUT TYPE=HIDDEN NAME=area VALUE=$area>\n";
+        }
+        echo <<<HTML4END
                 </FORM>
               </TD>
-<?php
-    # For session protocols that define their own logon box...
-#    if (function_exists('PrintLogonBox')) {
-#        PrintLogonBox();
-#   	}
-?>
             </TR>
           </TABLE>
         </TD>
       </TR>
     </TABLE>
-<?php } ?>
-<?php
+HTML4END;
+    }
 }
 
-function toTimeString(&$dur, &$units)
-{
-	if($dur >= 60)
-	{
+function toTimeString(&$dur, &$units) {
+	if($dur >= 60) {
 		$dur /= 60;
 
-		if($dur >= 60)
-		{
+		if($dur >= 60) {
 			$dur /= 60;
 
-			if(($dur >= 24) && ($dur % 24 == 0))
-			{
+			if(($dur >= 24) && ($dur % 24 == 0)) {
 				$dur /= 24;
 
-				if(($dur >= 7) && ($dur % 7 == 0))
-				{
+				if(($dur >= 7) && ($dur % 7 == 0)) {
 					$dur /= 7;
 
-					if(($dur >= 52) && ($dur % 52 == 0))
-					{
+					if(($dur >= 52) && ($dur % 52 == 0)) {
 						$dur  /= 52;
 						$units = get_string('years');
-					}
-					else
+					} else {
 						$units = get_string('weeks','block_mrbs');
-				}
-				else
+                    }
+				} else {
 					$units = get_string('days');
-			}
-			else
+                }
+			} else {
 				$units = get_string('hours','block_mrbs');
-		}
-		else
+            }
+		} else {
 			$units = get_string('minutes');
-	}
-	else
+        }
+	} else {
 		$units = get_string('secs');
+    }
 }
 
 
-function toPeriodString($start_period, &$dur, &$units)
-{
+function toPeriodString($start_period, &$dur, &$units) {
 	global $enable_periods;
-        global $periods;
+    global $periods;
 
-        $max_periods = count($periods);
+    $max_periods = count($periods);
 
 	$dur /= 60;
 
-        if( $dur >= $max_periods || $start_period == 0 )
-        {
-                if( $start_period == 0 && $dur == $max_periods )
-                {
-                        $units = get_string('days');
-                        $dur = 1;
-                        return;
-                }
-
-                $dur /= 60;
-                if(($dur >= 24) && is_int($dur))
-                {
-                	$dur /= 24;
-			$units = get_string('days');
-                        return;
-                }
-                else
-                {
-			$dur *= 60;
-                        $dur = ($dur % $max_periods) + floor( $dur/(24*60) ) * $max_periods;
-                        $units = get_string('periods','block_mrbs');
-                        return;
-		}
+    if( $dur >= $max_periods || $start_period == 0 ) {
+        if( $start_period == 0 && $dur == $max_periods ) {
+            $units = get_string('days');
+            $dur = 1;
+            return;
         }
-        else
+
+        $dur /= 60;
+        if(($dur >= 24) && is_int($dur)) {
+            $dur /= 24;
+			$units = get_string('days');
+            return;
+        } else {
+			$dur *= 60;
+            $dur = ($dur % $max_periods) + floor( $dur/(24*60) ) * $max_periods;
+            $units = get_string('periods','block_mrbs');
+            return;
+        }
+    } else {
 		$units = get_string('periods','block_mrbs');
+    }
 }
-
-
 
 function genDateSelector($prefix, $day, $month, $year, $updatefreerooms=false, $roomsearch=false) {
 	if($day   == 0) $day = date("d");
@@ -304,19 +246,25 @@ function genDateSelector($prefix, $day, $month, $year, $updatefreerooms=false, $
 	if($year  == 0) $year = date("Y");
 
 	echo "
-                  <SELECT NAME=\"${prefix}day\" ";if($updatefreerooms){echo"onChange=\"updateFreeRooms()\"";} if($roomsearch){echo"onChange=\"RoomSearch()\"";} echo">";
+                  <SELECT NAME=\"${prefix}day\" ";
+    if($updatefreerooms){echo"onChange=\"updateFreeRooms()\"";}
+    if($roomsearch){echo"onChange=\"RoomSearch()\"";}
+    echo">";
 
-	for($i = 1; $i <= 31; $i++)
+	for($i = 1; $i <= 31; $i++) {
 		echo "
                     <OPTION " . ($i == $day ? " SELECTED" : "") . ">$i</OPTION>";
+    }
 
 	echo "
                   </SELECT>
 
-                  <SELECT NAME=\"${prefix}month\" onchange=\"ChangeOptionDays(this.form,'$prefix'";if($updatefreerooms){echo",true";} if($roomsearch){echo",false,true";} echo")\">";
+                  <SELECT NAME=\"${prefix}month\" onchange=\"ChangeOptionDays(this.form,'$prefix'";
+    if($updatefreerooms){echo",true";}
+    if($roomsearch){echo",false,true";}
+    echo")\">";
 
-	for($i = 1; $i <= 12; $i++)
-	{
+	for($i = 1; $i <= 12; $i++) {
 		$m = userdate(mktime(0, 0, 0, $i, 1, $year)+date('Z', mktime(0,0,0,$i,1,$year)),'%b','0');
 
 		print "
@@ -325,7 +273,9 @@ function genDateSelector($prefix, $day, $month, $year, $updatefreerooms=false, $
 
 	echo "
                   </SELECT>
-              <SELECT NAME=\"${prefix}year\" onchange=\"ChangeOptionDays(this.form,'$prefix'";if($updatefreerooms){echo",true";} if($roomsearch){echo",false,true";} echo")\">";
+              <SELECT NAME=\"${prefix}year\" onchange=\"ChangeOptionDays(this.form,'$prefix'";
+    if($updatefreerooms){echo",true";}
+    if($roomsearch){echo",false,true";} echo")\">";
 
 	$min = min($year, date("Y")) - 5;
 	$max = max($year, date("Y")) + 5;
@@ -338,59 +288,74 @@ function genDateSelector($prefix, $day, $month, $year, $updatefreerooms=false, $
                   </SELECT>";
 }
 
-# Error handler - this is used to display serious errors such as database
-# errors without sending incomplete HTML pages. This is only used for
-# errors which "should never happen", not those caused by bad inputs.
-# If $need_header!=0 output the top of the page too, else assume the
-# caller did that. Alway outputs the bottom of the page and exits.
-function fatal_error($need_header, $message)
-{
+// Error handler - this is used to display serious errors such as database
+// errors without sending incomplete HTML pages. This is only used for
+// errors which "should never happen", not those caused by bad inputs.
+// If $need_header!=0 output the top of the page too, else assume the
+// caller did that. Alway outputs the bottom of the page and exits.
+function fatal_error($need_header, $message) {
 	if ($need_header) print_header_mrbs(0, 0, 0, 0);
 	echo $message;
 	include "trailer.php";
 	exit;
 }
 
-# Apply backslash-escape quoting unless PHP is configured to do it
-# automatically. Use this for GET/POST form parameters, since we
-# cannot predict if the PHP configuration file has magic_quotes_gpc on.
-function slashes($s)
-{
+/* // These should not be needed in Moodle 2.0
+
+// Apply backslash-escape quoting unless PHP is configured to do it
+// automatically. Use this for GET/POST form parameters, since we
+// cannot predict if the PHP configuration file has magic_quotes_gpc on.
+function slashes($s) {
 	if (get_magic_quotes_gpc()) return $s;
 	else return addslashes($s);
 }
 
-# Remove backslash-escape quoting if PHP is configured to do it with
-# magic_quotes_gpc. Use this whenever you need the actual value of a GET/POST
-# form parameter (which might have special characters) regardless of PHP's
-# magic_quotes_gpc setting.
-function unslashes($s)
-{
+// Remove backslash-escape quoting if PHP is configured to do it with
+// magic_quotes_gpc. Use this whenever you need the actual value of a GET/POST
+// form parameter (which might have special characters) regardless of PHP's
+// magic_quotes_gpc setting.
+function unslashes($s) {
 	if (get_magic_quotes_gpc()) return stripslashes($s);
 	else return $s;
 }
 
-# Return a default area; used if no area is already known. This returns the
-# lowest area ID in the database (no guaranty there is an area 1).
-# This could be changed to implement something like per-user defaults.
+*/
+
+// Return a default area; used if no area is already known. This returns the
+// lowest area ID in the database (no guaranty there is an area 1).
+// This could be changed to implement something like per-user defaults.
 function get_default_area()
 {
-	global $tbl_area;
-	$area = sql_query1("SELECT id FROM $tbl_area ORDER BY area_name LIMIT 1");
-	return ($area < 0 ? 0 : $area);
+	global $DB;
+
+    // Get first area in database
+    $area = $DB->get_records('mrbs_area', null, 'area_name', 'id', 0, 1);
+    if (empty($area)) {
+        return 0;
+    }
+    // Extract the first (and only!) item in the returned array
+    $area = reset($area);
+    return $area->id;
 }
 
-# Return a default room given a valid area; used if no room is already known.
-# This returns the first room in alphbetic order in the database.
-# This could be changed to implement something like per-user defaults.
+// Return a default room given a valid area; used if no room is already known.
+// This returns the first room in alphbetic order in the database.
+// This could be changed to implement something like per-user defaults.
 function get_default_room($area)
 {
-	global $tbl_room;
-	$room = sql_query1("SELECT id FROM $tbl_room WHERE area_id=$area ORDER BY room_name LIMIT 1");
-	return ($room < 0 ? 0 : $room);
+    global $DB;
+
+    // Get first room in database
+    $room = $DB->get_records('mrbs_room', array('area_id'=>$area), 'room_name', 'id', 0, 1);
+    if (empty($room)) {
+        return 0;
+    }
+    // Extract the first (and only!) item in the returned array
+    $room = reset($room);
+    return $room->id;
 }
 
-# Get the local day name based on language. Note 2000-01-02 is a Sunday.
+// Get the local day name based on language. Note 2000-01-02 is a Sunday.
 function day_name($daynumber)
 {
 	return userdate(mktime(0,0,0,1,2+$daynumber,2000), "%A");
@@ -398,8 +363,8 @@ function day_name($daynumber)
 
 function hour_min_format()
 {
-        global $twentyfourhour_format;
-        if ($twentyfourhour_format)
+    global $twentyfourhour_format;
+    if ($twentyfourhour_format)
 	{
   	        return "%H:%M";
 	}
@@ -411,49 +376,49 @@ function hour_min_format()
 
 function period_date_string($t, $mod_time=0)
 {
-        global $periods;
+    global $periods;
 
 	$time = getdate($t);
-        $p_num = $time["minutes"] + $mod_time;
-        if( $p_num < 0 ) $p_num = 0;
-        if( $p_num >= count($periods) - 1 ) $p_num = count($periods ) - 1;
-	# I have made the separater a ',' as a '-' leads to an ambiguious
-	# display in report.php when showing end times.
-        return array($p_num, $periods[$p_num] . userdate($t, ", %A %d %B %Y"));
+    $p_num = $time["minutes"] + $mod_time;
+    if( $p_num < 0 ) $p_num = 0;
+    if( $p_num >= count($periods) - 1 ) $p_num = count($periods ) - 1;
+	// I have made the separater a ',' as a '-' leads to an ambiguious
+	// display in report.php when showing end times.
+    return array($p_num, $periods[$p_num] . userdate($t, ", %A %d %B %Y"));
 }
 
 function period_time_string($t, $mod_time=0)
 {
-        global $periods;
+    global $periods;
 
 	$time = getdate($t);
-        $p_num = $time["minutes"] + $mod_time;
-        if( $p_num < 0 ) $p_num = 0;
-        if( $p_num >= count($periods) - 1 ) $p_num = count($periods ) - 1;
-        return $periods[$p_num];
+    $p_num = $time["minutes"] + $mod_time;
+    if( $p_num < 0 ) $p_num = 0;
+    if( $p_num >= count($periods) - 1 ) $p_num = count($periods ) - 1;
+    return $periods[$p_num];
 }
 
 function time_date_string($t)
 {
-        global $twentyfourhour_format;
+    global $twentyfourhour_format;
 
-        if ($twentyfourhour_format)
-	{
+    if ($twentyfourhour_format)
+        {
   	        return userdate($t, "%H:%M:%S - %A %d %B %Y");
-	}
+        }
 	else
-	{
+        {
 	        return userdate($t, "%I:%M:%S%p - %A %d %B %Y");
-	}
+        }
 }
 
-# Output a start table cell tag <td> with color class and fallback color.
-# $colclass is an entry type (A-J), "white" for empty, or "red" for highlighted.
-# The colors for CSS browsers can be found in the style sheet. The colors
-# in the array below are fallback for non-CSS browsers only.
+// Output a start table cell tag <td> with color class and fallback color.
+// $colclass is an entry type (A-J), "white" for empty, or "red" for highlighted.
+// The colors for CSS browsers can be found in the style sheet. The colors
+// in the array below are fallback for non-CSS browsers only.
 function tdcell($colclass)
 {
-	# This should be 'static $ecolors = array(...)' but that crashes PHP3.0.12!
+	// This should be 'static $ecolors = array(...)' but that crashes PHP3.0.12!
 	static $ecolors;
 	if (!isset($ecolors)) $ecolors = array("A"=>"#FFCCFF", "B"=>"#99CCCC",
 		"C"=>"#FF9999", "D"=>"#FFFF99", "E"=>"#C0E0FF", "F"=>"#FFCC99",
@@ -465,7 +430,7 @@ function tdcell($colclass)
 		echo "<td class=\"$colclass\">";
 }
 
-# Display the entry-type color key. This has up to 2 rows, up to 5 columns.
+// Display the entry-type color key. This has up to 2 rows, up to 5 columns.
 function show_colour_key()
 {
 	global $typel;
@@ -487,14 +452,14 @@ function show_colour_key()
 	echo "</tr></table>\n";
 }
 
-# Round time down to the nearest resolution
+// Round time down to the nearest resolution
 function round_t_down($t, $resolution, $am7)
 {
         return (int)$t - (int)abs(((int)$t-(int)$am7)
 				  % $resolution);
 }
 
-# Round time up to the nearest resolution
+// Round time up to the nearest resolution
 function round_t_up($t, $resolution, $am7)
 {
 	if (($t-$am7) % $resolution != 0)
@@ -508,22 +473,19 @@ function round_t_up($t, $resolution, $am7)
 	}
 }
 
-# generates some html that can be used to select which area should be
-# displayed.
+// generates some html that can be used to select which area should be
+// displayed.
 function make_area_select_html( $link, $current, $year, $month, $day )
 {
-	global $tbl_area;
 	$out_html = "
 <form name=\"areaChangeForm\" method=get action=\"$link\">
   <select name=\"area\" onChange=\"document.areaChangeForm.submit()\">";
 
-	$sql = "select id, area_name from $tbl_area order by area_name";
-   	$res = sql_query($sql);
-   	if ($res) for ($i = 0; ($row = sql_row($res, $i)); $i++)
-   	{
-		$selected = ($row[0] == $current) ? "selected" : "";
+    $areas = $DB->get_records('mrbs_area', null, 'area_name');
+    foreach ($areas as $area) {
+		$selected = ($area->id == $current) ? "selected" : "";
 		$out_html .= "
-    <option $selected value=\"".$row[0]."\">" . htmlspecialchars($row[1]);
+    <option $selected value=\"".$area->id."\">" . s($area->area_name);
    	}
 	$out_html .= "
   </select>
@@ -535,22 +497,19 @@ function make_area_select_html( $link, $current, $year, $month, $day )
 </form>\n";
 
 	return $out_html;
-} # end make_area_select_html
+} // end make_area_select_html
 
 function make_room_select_html( $link, $area, $current, $year, $month, $day )
 {
-	global $tbl_room;
 	$out_html = "
 <form name=\"roomChangeForm\" method=get action=\"$link\">
   <select name=\"room\" onChange=\"document.roomChangeForm.submit()\">";
 
-	$sql = "select id, room_name from $tbl_room where area_id=$area order by room_name";
-   	$res = sql_query($sql);
-   	if ($res) for ($i = 0; ($row = sql_row($res, $i)); $i++)
-   	{
-		$selected = ($row[0] == $current) ? "selected" : "";
+    $rooms = $DB->get_records('mrbs_room', array('area_id'=>$area), 'room_name');
+    foreach ($rooms as $room) {
+		$selected = ($room->id == $current) ? "selected" : "";
 		$out_html .= "
-    <option $selected value=\"".$row[0]."\">" . htmlspecialchars($row[1]);
+    <option $selected value=\"".$room->id."\">" . s($room->room_name);
    	}
 	$out_html .= "
   </select>
@@ -562,26 +521,26 @@ function make_room_select_html( $link, $area, $current, $year, $month, $day )
 </form>\n";
 
 	return $out_html;
-} # end make_area_select_html
+} // end make_area_select_html
 
 
-# This will return the appropriate value for isdst for mktime().
-# The order of the arguments was chosen to match those of mktime.
-# hour is added so that this function can when necessary only be
-# run if the time is between midnight and 3am (all DST changes
-# occur in this period.
+// This will return the appropriate value for isdst for mktime().
+// The order of the arguments was chosen to match those of mktime.
+// hour is added so that this function can when necessary only be
+// run if the time is between midnight and 3am (all DST changes
+// occur in this period.
 function is_dst ( $month, $day, $year, $hour="-1" )
 {
 
 	if( $hour != -1  && $hour > 3)
 		return( -1 );
 
-	# entering DST
+	// entering DST
 	if( !date( "I", mktime(12, 0, 0, $month, $day-1, $year)) &&
 	    date( "I", mktime(12, 0, 0, $month, $day, $year)))
 		return( 0 );
 
-	# leaving DST
+	// leaving DST
 	elseif( date( "I", mktime(12, 0, 0, $month, $day-1, $year)) &&
 	    !date( "I", mktime(12, 0, 0, $month, $day, $year)))
 		return( 1 );
@@ -589,16 +548,16 @@ function is_dst ( $month, $day, $year, $hour="-1" )
 		return( -1 );
 }
 
-# if crossing dst determine if you need to make a modification
-# of 3600 seconds (1 hour) in either direction
+// if crossing dst determine if you need to make a modification
+// of 3600 seconds (1 hour) in either direction
 function cross_dst ( $start, $end )
 {
 
-	# entering DST
+	// entering DST
 	if( !date( "I", $start) &&  date( "I", $end))
 		$modification = -3600;
 
-	# leaving DST
+	// leaving DST
 	elseif(  date( "I", $start) && !date( "I", $end))
 		$modification = 3600;
 	else
@@ -694,37 +653,35 @@ function getMailTimeDateString($t, $inc_time=TRUE)
  * @param int     $new_id       used for create a link to the new entry
  * @return bool                 TRUE or PEAR error object if fails
  */
-function notifyAdminOnBooking($new_entry , $new_id)
-{   global $CFG;
+function notifyAdminOnBooking($new_entry , $new_id) {
+    global $DB;
     global $url_base, $returl, $name, $description, $area_name;
     global $room_name, $starttime, $duration, $dur_units, $end_date, $endtime;
     global $rep_enddate, $typel, $type, $create_by, $rep_type, $enable_periods;
     global $rep_opt, $rep_num_weeks;
-    global $tbl_room, $tbl_area, $tbl_entry, $tbl_users, $tbl_repeat;
     global $mail_previous, $auth;
 
     //
     // $recipients = '';
     $id_table = ($rep_type > 0) ? "rep" : "e";
     (MAIL_ADMIN_ON_BOOKINGS) ? $recipientlist[] = MAIL_RECIPIENTS : '';
-    if (MAIL_AREA_ADMIN_ON_BOOKINGS)
-    {
+    if (MAIL_AREA_ADMIN_ON_BOOKINGS) {
         // Look for list of area admins emails addresses
         if ($new_entry) {
             $sql = "SELECT a.area_admin_email ";
-            $sql .= "FROM $tbl_room r, $tbl_area a, $tbl_entry e ";
+            $sql .= "FROM {mrbs_room} r, {mrbs_area} a, {mrbs_entry} e ";
             // If this is a repeating entry...
-            if ($id_table == 'rep')
-            {
+            if ($id_table == 'rep') {
                 // ...use the repeat table
-                $sql .= ", $tbl_repeat rep ";
+                $sql .= ", {mrbs_repeat} rep ";
             }
-            $sql .= "WHERE ${id_table}.id=$new_id AND r.id=${id_table}.room_id AND a.id=r.area_id";
-            $res = sql_query($sql);
-            (! $res) ? fatal_error(0, sql_error()) : '';
-            $row = sql_row($res, 0);
-            if (NULL != $row[0]) { //add only if email address is already not in the string
-                $recipientlist[] = $row[0];
+            $sql .= "WHERE ${id_table}.id=? AND r.id=${id_table}.room_id AND a.id=r.area_id";
+            $emails = $DB->get_records_sql($sql, array($new_id));
+            if (!empty($emails)) {
+                $email = reset($emails);
+                if ($email->area_admin_email != NULL) {
+                    $recipientlist[] = $email->area_admin_email;
+                }
             }
         } else {
         // if this is an edited entry, we already have area_admin_email,
@@ -740,19 +697,20 @@ function notifyAdminOnBooking($new_entry , $new_id)
         if ($new_entry)
         {
             $sql = "SELECT r.room_admin_email ";
-            $sql .= "FROM $tbl_room r, $tbl_entry e ";
+            $sql .= "FROM {mrbs_room} r, {mrbs_entry} e ";
             // If this is a repeating entry...
-            if ($id_table == 'rep')
-            {
+            if ($id_table == 'rep') {
                 // ...use the repeat table
-                $sql .= ", $tbl_repeat rep ";
+                $sql .= ", {mrbs_repeat} rep ";
             }
-            $sql .= "WHERE ${id_table}.id=$new_id AND r.id=${id_table}.room_id";
-            $res = sql_query($sql);
-            (! $res) ? fatal_error(0, sql_error()) : '';
-            $row = sql_row($res, 0);
-            if (NULL != $row[0]) {
-                $recipientlist[] = $row[0];
+            $sql .= "WHERE ${id_table}.id= ? AND r.id=${id_table}.room_id";
+            $emails = $DB->get_records_sql($sql, array($new_id));
+
+            if (!empty($emails)) {
+                $email = reset($emails);
+                if ($email->room_admin_email != NULL) {
+                    $recipientlist[] = $email->room_admin_email;
+                }
             }
         }
         else { // if this is an edited entry, we already have room_admin_email, avoiding a database hit.
@@ -770,25 +728,17 @@ function notifyAdminOnBooking($new_entry , $new_id)
                mails to admins when this user previously booked entries will
                be changed, as no user name will match the booker name */
 
-            $sql = "SELECT email FROM ";
-            $sql .= $CFG->prefix.'user WHERE username=';
-            $sql .= "'";
-            $sql .= ($new_entry) ? $create_by : $mail_previous['createdby'];
-            $sql .= "'";
-            $res = sql_query($sql);
-            (! $res) ? fatal_error(0, sql_error()) : '';
-            $row = sql_row($res, 0);
-            if (NULL != $row[0]) {
-                $recipientlist[] = $row[0];
+            $uname = ($new_entry) ? $create_by : $mail_previous['createdby'];
+            $email = $DB->get_field('user', 'email', array('username'=>$uname));
+            if ($email) {
+                $recipientlist[] = $email->email;
             }
-        }
-        else { //Moodle should always look up the code so this should never execute especially since MAIL_USERNAME_SUFFIX and MAIL_DOMAIN are not defined
+        } else { //Moodle should always look up the code so this should never execute especially since MAIL_USERNAME_SUFFIX and MAIL_DOMAIN are not defined
             if ($new_entry) {
                 if ('' != $create_by) {
                     $recipientlist[] = str_replace(MAIL_USERNAME_SUFFIX, '', $create_by) . MAIL_DOMAIN;
                 }
-            }
-            else {
+            } else {
                 if ('' != $mail_previous['createdby']) {
                     $recipientlist[] = str_replace(MAIL_USERNAME_SUFFIX, '', $mail_previous['createdby']) . MAIL_DOMAIN;
                 }
@@ -921,7 +871,7 @@ function notifyAdminOnBooking($new_entry , $new_id)
         $opt = "";
         if (($rep_type == 2) || ($rep_type == 6))
         {
-        # Display day names according to language and preferred weekday start.
+        // Display day names according to language and preferred weekday start.
         for ($i = 0; $i < 7; $i++)
         {
             $daynum = ($i + $weekstarts) % 7;
@@ -988,7 +938,7 @@ function notifyAdminOnBooking($new_entry , $new_id)
  */
 function notifyAdminOnDelete($mail_previous)
 {
-    global $typel, $enable_periods, $auth, $tbl_users, $CFG;
+    global $typel, $enable_periods, $auth, $DB;
     //
     $recipients = '';
     (MAIL_ADMIN_ON_BOOKINGS) ? $recipients = MAIL_RECIPIENTS : '';
@@ -1016,16 +966,11 @@ function notifyAdminOnDelete($mail_previous)
                user is deleted from your user database, this will prevent all
                mails to admins when this user previously booked entries will
                be changed, as no user name will match the booker name */
-            $sql = "SELECT email FROM ";
-            $sql .= $CFG->prefix.'user WHERE username=';
-            $sql .= "'";
-            $sql .= $mail_previous['createdby'];
-            $sql .= "'";
-            $res = sql_query($sql);
-            (! $res) ? fatal_error(0, sql_error()) : '';
-            $row = sql_row($res, 0);
-            if (NULL != $row[0]) {
-                $recipientlist[] = $row[0];
+
+            $uname = ($new_entry) ? $create_by : $mail_previous['createdby'];
+            $email = $DB->get_field('user', 'email', array('username'=>$uname));
+            if ($email) {
+                $recipientlist[] = $email->email;
             }
         }
         else { //this should never be the case with the MRBS Moodle block
@@ -1139,7 +1084,7 @@ function notifyAdminOnDelete($mail_previous)
  */
 function getPreviousEntryData($id, $series)
 {
-    global $tbl_area, $tbl_entry, $tbl_repeat, $tbl_room, $enable_periods;
+    global $DB, $enable_periods;
     //
     $sql = "
     SELECT  e.name,
@@ -1168,32 +1113,28 @@ function getPreviousEntryData($id, $series)
             re.end_date AS tbl_r_end_date";
     }
     $sql .= "
-    FROM $tbl_entry e, $tbl_room r, $tbl_area a ";
-    (1 == $series) ? $sql .= ', ' . $tbl_repeat . ' re ' : '';
+    FROM {mrbs_entry} e, {mrbs_room} r, {mrbs_area} a ";
+    (1 == $series) ? $sql .= ', ' . '{mrbs_repeat} re ' : '';
     $sql .= "
     WHERE e.room_id = r.id
     AND r.area_id = a.id
-    AND e.id=$id";
+    AND e.id= ? ";
     (1 == $series) ? $sql .= " AND e.repeat_id = re.id" : '';
     //
-    $res = sql_query($sql);
-    (! $res) ? fatal_error(0, sql_error()) : '';
-    (sql_count($res) < 1) ? fatal_error(0, get_string('invalid_entry_id','block_mrbs')) : '';
-    $row = sql_row_keyed($res, 0);
-    sql_free($res);
+    $details = $DB->get_record_sql($sql, array($id), MUST_EXIST);
     // Store all needed values in $mail_previous array to pass to
     // notifyAdminOnDelete function (shorter than individual variables -:) )
-    $mail_previous['namebooker']    = $row['name'];
-    $mail_previous['description']   = $row['description'];
-    $mail_previous['createdby']     = $row['create_by'];
-    $mail_previous['room_name']     = $row['room_name'];
-    $mail_previous['area_name']     = $row['area_name'];
-    $mail_previous['type']          = $row['type'];
-    $mail_previous['room_id']       = $row['room_id'];
-    $mail_previous['repeat_id']     = $row['repeat_id'];
-    $mail_previous['updated']       = getMailTimeDateString($row[8]);
-    $mail_previous['area_admin_email'] = $row['area_admin_email'];
-    $mail_previous['room_admin_email'] = $row['room_admin_email'];
+    $mail_previous['namebooker']    = $details->name;
+    $mail_previous['description']   = $details->description;
+    $mail_previous['createdby']     = $details->create_by;
+    $mail_previous['room_name']     = $details->room_name;
+    $mail_previous['area_name']     = $details->area_name;
+    $mail_previous['type']          = $details->type;
+    $mail_previous['room_id']       = $details->room_id;
+    $mail_previous['repeat_id']     = $details->repeat_id;
+    $mail_previous['updated']       = getMailTimeDateString($details->timestamp);
+    $mail_previous['area_admin_email'] = $details->area_admin_email;
+    $mail_previous['room_admin_email'] = $details->room_admin_email;
     // If we use periods
     if ( $enable_periods )
     {
@@ -1204,45 +1145,45 @@ function getPreviousEntryData($id, $series)
         if (1 != $series)
         {
             list( $mail_previous['start_period'], $mail_previous['start_date'])
-                =  getMailPeriodDateString($row['tbl_e_start_time']);
+                =  getMailPeriodDateString($details->tbl_e_start_time);
             list( $mail_previous['end_period'] , $mail_previous['end_date']) =
-                getMailPeriodDateString($row['tbl_e_end_time'], -1);
+                getMailPeriodDateString($details->tbl_e_end_time, -1);
             // need to make DST correct in opposite direction to entry creation
             // so that user see what he expects to see
-            $mail_previous['duration'] = $row['tbl_e_duration'] -
-                cross_dst($row['tbl_e_start_time'], $row['tbl_e_end_time']);
+            $mail_previous['duration'] = $details->tbl_e_duration -
+                cross_dst($details->tbl_e_start_time, $details->tbl_e_end_time);
         }
         // This is a serie
         else
         {
             list( $mail_previous['start_period'], $mail_previous['start_date'])
-                =  getMailPeriodDateString($row['tbl_r_start_time']);
+                =  getMailPeriodDateString($details->tbl_r_start_time);
             list( $mail_previous['end_period'] , $mail_previous['end_date']) =
-                getMailPeriodDateString($row['tbl_r_end_time'], 0);
+                getMailPeriodDateString($details->tbl_r_end_time, 0);
             // use getMailTimeDateString as all I want is the date
         $mail_previous['rep_end_date'] =
-                getMailTimeDateString($row['tbl_r_end_date'], FALSE);
+                getMailTimeDateString($details->tbl_r_end_date, FALSE);
             // need to make DST correct in opposite direction to entry creation
             // so that user see what he expects to see
-            $mail_previous['duration'] = $row['tbl_r_duration'] -
-                cross_dst($row['tbl_r_start_time'], $row['tbl_r_end_time']);
+            $mail_previous['duration'] = $details->tbl_r_duration -
+                cross_dst($details->tbl_r_start_time, $details->tbl_r_end_time);
 
         $mail_previous['rep_opt'] = "";
-        switch($row['rep_type'])
+        switch($details->rep_type)
         {
         case 2:
         case 6:
-            $rep_day[0] = $row['rep_opt'][0] != "0";
-            $rep_day[1] = $row['rep_opt'][1] != "0";
-            $rep_day[2] = $row['rep_opt'][2] != "0";
-            $rep_day[3] = $row['rep_opt'][3] != "0";
-            $rep_day[4] = $row['rep_opt'][4] != "0";
-            $rep_day[5] = $row['rep_opt'][5] != "0";
-            $rep_day[6] = $row['rep_opt'][6] != "0";
+            $rep_day[0] = $details->rep_opt[0] != "0";
+            $rep_day[1] = $details->rep_opt[1] != "0";
+            $rep_day[2] = $details->rep_opt[2] != "0";
+            $rep_day[3] = $details->rep_opt[3] != "0";
+            $rep_day[4] = $details->rep_opt[4] != "0";
+            $rep_day[5] = $details->rep_opt[5] != "0";
+            $rep_day[6] = $details->rep_opt[6] != "0";
 
-            if ($row['rep_type'] == 6)
+            if ($details->rep_type == 6)
             {
-                $mail_previous['rep_num_weeks'] = $row['rep_num_weeks'];
+                $mail_previous['rep_num_weeks'] = $details->rep_num_weeks;
             }
             else
             {
@@ -1261,7 +1202,7 @@ function getPreviousEntryData($id, $series)
             $mail_previous['rep_opt'] .= day_name($wday) . " ";
         }
 
-        $mail_previous['rep_num_weeks'] = $row['rep_num_weeks'];
+        $mail_previous['rep_num_weeks'] = $details->rep_num_weeks;
         }
         toPeriodString($mail_previous['start_period'],
             $mail_previous['duration'], $mail_previous['dur_units']);
@@ -1273,45 +1214,45 @@ function getPreviousEntryData($id, $series)
         if (1 != $series)
         {
             $mail_previous['start_date'] =
-                getMailTimeDateString($row['tbl_e_start_time']);
+                getMailTimeDateString($details->tbl_e_start_time);
             $mail_previous['end_date'] =
-                getMailTimeDateString($row['tbl_e_end_time']);
+                getMailTimeDateString($details->tbl_e_end_time);
             // need to make DST correct in opposite direction to entry creation
             // so that user see what he expects to see
-            $mail_previous['duration'] = $row['tbl_e_duration'] -
-                cross_dst($row['tbl_e_start_time'], $row['tbl_e_end_time']);
+            $mail_previous['duration'] = $details->tbl_e_duration -
+                cross_dst($details->tbl_e_start_time, $details->tbl_e_end_time);
         }
         // This is a serie
         else
         {
             $mail_previous['start_date'] =
-                getMailTimeDateString($row['tbl_r_start_time']);
+                getMailTimeDateString($details->tbl_r_start_time);
             $mail_previous['end_date'] =
-                getMailTimeDateString($row['tbl_r_end_time']);
+                getMailTimeDateString($details->tbl_r_end_time);
             // use getMailTimeDateString as all I want is the date
         $mail_previous['rep_end_date'] =
-                getMailTimeDateString($row['tbl_r_end_date'], FALSE);
+                getMailTimeDateString($details->tbl_r_end_date, FALSE);
             // need to make DST correct in opposite direction to entry creation
             // so that user see what he expects to see
-            $mail_previous['duration'] = $row['tbl_r_duration'] -
-                cross_dst($row['tbl_r_start_time'], $row['tbl_r_end_time']);
+            $mail_previous['duration'] = $details->tbl_r_duration -
+                cross_dst($details->tbl_r_start_time, $details->tbl_r_end_time);
 
         $mail_previous['rep_opt'] = "";
-        switch($row['rep_type'])
+        switch($details->rep_type)
         {
         case 2:
         case 6:
-            $rep_day[0] = $row['rep_opt'][0] != "0";
-            $rep_day[1] = $row['rep_opt'][1] != "0";
-            $rep_day[2] = $row['rep_opt'][2] != "0";
-            $rep_day[3] = $row['rep_opt'][3] != "0";
-            $rep_day[4] = $row['rep_opt'][4] != "0";
-            $rep_day[5] = $row['rep_opt'][5] != "0";
-            $rep_day[6] = $row['rep_opt'][6] != "0";
+            $rep_day[0] = $details->rep_opt[0] != "0";
+            $rep_day[1] = $details->rep_opt[1] != "0";
+            $rep_day[2] = $details->rep_opt[2] != "0";
+            $rep_day[3] = $details->rep_opt[3] != "0";
+            $rep_day[4] = $details->rep_opt[4] != "0";
+            $rep_day[5] = $details->rep_opt[5] != "0";
+            $rep_day[6] = $details->rep_opt[6] != "0";
 
-            if ($row['rep_type'] == 6)
+            if ($details->rep_type == 6)
             {
-                $mail_previous['rep_num_weeks'] = $row['rep_num_weeks'];
+                $mail_previous['rep_num_weeks'] = $details->rep_num_weeks;
             }
             else
             {
@@ -1330,11 +1271,11 @@ function getPreviousEntryData($id, $series)
             $mail_previous['rep_opt'] .= day_name($wday) . " ";
         }
 
-        $mail_previous['rep_num_weeks'] = $row['rep_num_weeks'];
+        $mail_previous['rep_num_weeks'] = $details->rep_num_weeks;
         }
         toTimeString($mail_previous['duration'], $mail_previous['dur_units']);
     }
-    (1 == $series) ? $mail_previous['rep_type'] = $row['rep_type']
+    (1 == $series) ? $mail_previous['rep_type'] = $details->rep_type
         : $mail_previous['rep_type'] = 0;
     // return entry previous data as an array
     return $mail_previous;
@@ -1399,5 +1340,3 @@ function to_hr_time($time){
         return date('G:i',$time);
     }
 }
-
-?>
