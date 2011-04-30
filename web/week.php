@@ -129,12 +129,12 @@ if ($area_list_format == "select") {
             echo '<a href="'.($baseurl->out(true, array('area'=>$dbarea->id))).'">';
         }
         if ($dbarea->id == $area) {
-            $this_area_name = s($dbarea->name);
+            $this_area_name = s($dbarea->area_name);
             if ( $pview != 1 ) {
                 echo "<font color=\"red\">$this_area_name</font></a><br>\n";
             }
         } else if ( $pview != 1 ) {
-            echo s($dbarea->name) . "</a><br>\n";
+            echo s($dbarea->area_name) . "</a><br>\n";
         }
     }
 }
@@ -203,7 +203,7 @@ if ( $pview != 1 ) {
     $thisweekurl = new moodle_url($baseurl, array('area'=>$area, 'room'=>$room));
     $thisweekurl->remove_params('day', 'month', 'year');
     $weekbefore = new moodle_url($thisweekurl, array('year'=>$yy, 'month'=>$ym, 'day'=>$yd));
-    $weeekafter = new moodle_url($thisweekurl, array('year'=>$ty, 'month'=>$tm, 'day'=>$td));
+    $weekafter = new moodle_url($thisweekurl, array('year'=>$ty, 'month'=>$tm, 'day'=>$td));
     echo "<table width=\"100%\"><tr><td>
       <a href=\"".$weekbefore."\">
       &lt;&lt; ".get_string('weekbefore','block_mrbs')."</a></td>

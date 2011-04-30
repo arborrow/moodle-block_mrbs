@@ -102,9 +102,9 @@ if ( $pview != 1 ) {
        foreach ($areas as $dbarea) {
            echo '<a href="'.($baseurl->out(true, array('area'=>$dbarea->id))).'">';
            if ($dbarea->id == $area) {
-               echo "<font color=\"red\">" . s($dbarea->name) . "</font></a><br>\n";
+               echo "<font color=\"red\">" . s($dbarea->area_name) . "</font></a><br>\n";
            } else {
-               echo s($dbarea->name) . "</a><br>\n";
+               echo s($dbarea->area_name) . "</a><br>\n";
            }
        }
    }
@@ -280,15 +280,14 @@ if (!empty($area)) {
         echo "<table cellspacing=0 border=1 width=\"100%\">";
         echo "<tr><th width=\"1%\">".($enable_periods ? get_string('period','block_mrbs') : get_string('time'))."</th>";
 
-        $room_column_width = (int)(95 / sql_count($res));
+        $room_column_width = (int)(95 / count($rooms));
         $weekurl = new moodle_url('/blocks/mrbs/web/week.php', array('year'=>$year, 'month'=>$month, 'day'=>$day, 'area'=>$area));
-        for ($i = 0; ($row = sql_row($res, $i)); $i++) {
+        foreach ($rooms as $room) {
             echo "<th width=\"$room_column_width%\">
-            <a href=\"".($weekurl->out(true, array('room'=>$dbroom->id)))."\"
-            title=\"" . get_string('viewweek','block_mrbs') . " &#10;&#10;{$dbroom->description}\">"
-                . s($dbroom->room_name) . ($dbroom->capacity > 0 ? "($dbroom->capacity)" : "") . "
-            <br />$dbroom->description</a></th>";//print the room description as well
-            $rooms[] = $dbroom->id;
+            <a href=\"".($weekurl->out(true, array('room'=>$room->id)))."\"
+            title=\"" . get_string('viewweek','block_mrbs') . " &#10;&#10;{$room->description}\">"
+                . s($room->room_name) . ($room->capacity > 0 ? "($room->capacity)" : "") . "
+            <br />$room->description</a></th>";//print the room description as well
         }
 
         // next line to display times on right side
@@ -339,13 +338,13 @@ if (!empty($area)) {
             }
 
             // Loop through the list of rooms we have for this area
-            while (list($key, $room) = each($rooms)) {
-                if(isset($today[$room][$time_t]["id"])) {
-                    $id    = $today[$room][$time_t]["id"];
-                    $color = $today[$room][$time_t]["color"];
-                    $descr = s($today[$room][$time_t]["data"]);
-                    $long_descr = s($today[$room][$time_t]["long_descr"]);
-                    $double_booked = $today[$room][$time_t]["double_booked"];
+            foreach ($rooms as $room) {
+                if(isset($today[$room->id][$time_t]["id"])) {
+                    $id    = $today[$room->id][$time_t]["id"];
+                    $color = $today[$room->id][$time_t]["color"];
+                    $descr = s($today[$room->id][$time_t]["data"]);
+                    $long_descr = s($today[$room->id][$time_t]["long_descr"]);
+                    $double_booked = $today[$room->id][$time_t]["double_booked"];
                     if($double_booked) $color='DoubleBooked';
                 } else {
                     unset($id);
@@ -376,7 +375,7 @@ if (!empty($area)) {
                         }
                         echo "<center>";
                         $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php',
-                                                  array('room'=>$room, 'area'=>$area, 'year'=>$year, 'month'=>$month, 'day'=>$cday));
+                                                  array('room'=>$room->id, 'area'=>$area, 'year'=>$year, 'month'=>$month, 'day'=>$day));
                         if( $enable_periods ) {
                             echo "<a href=\"".($editurl->out(true, array('period'=>$time_t_stripped)))."\">";
                         } else {
@@ -392,6 +391,7 @@ if (!empty($area)) {
                     } else {
                         echo '&nbsp;';
                     }
+                    $descrs = array();
                 } else if ($double_booked) {
                     $descrs=split("\n",$descr);
                     $long_descrs=split(",",$long_descr);
@@ -434,11 +434,11 @@ if (!empty($area)) {
             }
 
             echo "</tr>\n";
-            reset($rooms);
         }
     }
     echo "</table>\n";
     (isset($output)) ? print $output : '';
     show_colour_key();
 }
+unset($room);
 include "trailer.php";
