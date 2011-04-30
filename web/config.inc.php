@@ -21,7 +21,7 @@
 ###########################################################################
 
 //For integration with Moodle
-require_once("../../../config.php");
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 $cfg_mrbs = get_config('block/mrbs'); //get Moodle config settings for the MRBS block
 ###################
 # Database settings
