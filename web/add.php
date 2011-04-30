@@ -1,17 +1,24 @@
 <?php
 
-# $Id: add.php,v 1.4 2010/01/16 13:28:17 arborrow Exp $
-require_once("../../../config.php");
-require_once "grab_globals.inc.php";
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
 require "config.inc.php";
 require "functions.php";
-require "$dbsys.php";
 require "mrbs_auth.php";
-require_login();
-if (!getAuthorised(2)) {
-    showAccessDenied($day, $month, $year, $area);
-    exit();
-}
 
 $type = required_param('type', PARAM_ALPHA);
 $name = required_param('name', PARAM_TEXT);
@@ -19,29 +26,45 @@ $description = optional_param('description', '', PARAM_TEXT);
 $capacity = optional_param('capacity', 0, PARAM_INT);
 $area = optional_param('area', 0, PARAM_INT);
 
-# This file is for adding new areas/rooms
+$thisurl = new moodle_url('/blocks/mrbs/web/add.php', array('type'=>$type, 'name'=>$name));
+if (!empty($description)) {
+    $thisurl->param('description', $description);
+}
+if ($capacity) {
+    $thisurl->param('capacity', $capacity);
+}
+if ($area) {
+    $thisurl->param('area', $area);
+}
+$PAGE->set_url($thisurl);
 
-# we need to do different things depending on if its a room
-# or an area
+require_login();
+if (!getAuthorised(2)) {
+    showAccessDenied($day, $month, $year, $area);
+    exit();
+}
+if (!confirm_sesskey()) {
+    error('Invalid sesskey');
+}
+
+// This file is for adding new areas/rooms
+
+// we need to do different things depending on if its a room
+// or an area
 
 if ($type == "area") {
-    $area_name_q = slashes($name);
-    //TODO: replace these types of $sql statements with Moodle's insert_record
-    $sql = "insert into $tbl_area (area_name) values ('$area_name_q')";
-    if (sql_command($sql) < 0) fatal_error(1, "<p>" . sql_error());
-    $area = sql_insert_id("$tbl_area", "id");
+    $newarea = new stdClass;
+    $newarea->area_name = $name;
+    $area = $DB->insert_record('mrbs_area', $newarea);
 }
 
 if ($type == "room") {
-    $room_name_q = slashes($name);
-    $description_q = slashes($description);
-    if (empty($capacity)) {
-        $capacity = 0;
-    }
-    //TODO: replace with insert_record
-    $sql = "insert into $tbl_room (room_name, area_id, description, capacity)
-            values ('$room_name_q',$area, '$description_q',$capacity)";
-    if (sql_command($sql) < 0) fatal_error(1, "<p>" . sql_error());
+    $newroom = new stdClass;
+    $newroom->room_name = $name;
+    $newroom->description = $description;
+    $newroom->capacity = $capacity;
+    $newroom->area_id = $area;
+    $DB->insert_record('mrbs_room', $newroom);
 }
 
-header("Location: admin.php?area=$area");
+redirect(new moodle_url('/blocks/mrbs/web/admin.php', array('area'=>$area)));
