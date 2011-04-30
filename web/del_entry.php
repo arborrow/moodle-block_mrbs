@@ -22,6 +22,7 @@ include "mrbs_auth.php";
 include "mrbs_sql.php";
 
 $id = required_param('id', PARAM_INT);
+$series = optional_param('series', 0, PARAM_INT);
 
 $PAGE->set_url('/blocks/mrbs/web/del_entry.php', array('id'=>$id));
 require_login();
