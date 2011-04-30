@@ -312,6 +312,7 @@ function OnAllDayClick() { // Executed when the user clicks on the all_day check
 <H2><?php echo $id ? ($edit_type == "series" ? get_string('editseries','block_mrbs') : get_string('editentry','block_mrbs')) : get_string('addentry','block_mrbs'); ?></H2>
 
 <FORM NAME="main" ACTION="edit_entry_handler.php" METHOD="GET">
+<input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
 
 <TABLE BORDER=0>
 
