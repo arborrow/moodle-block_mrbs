@@ -57,7 +57,7 @@ if( $enable_periods ) {
 $baseurl = new moodle_url('/blocks/mrbs/web/day.php', array('day'=>$day, 'month'=>$month, 'year'=>$year)); // Used as basis for URLs throughout this file
 $thisurl = new moodle_url($baseurl);
 if ($area > 0) {
-    $thisurl->param('area'=>$area);
+    $thisurl->param('area', $area);
 } else {
     $area = get_default_area();
 }
@@ -94,13 +94,10 @@ if ( $pview != 1 ) {
    // depending on the settings in config.inc.php
    if ($area_list_format == "select") {
        //UT
-       echo make_area_select_html('day.php', $area, $year, $month, $day); // from functions.php
+       echo make_area_select_html(new moodle_url('/blocks/mrbs/web/day.php'), $area, $year, $month, $day); // from functions.php
    } else {
        //UT
 	// show the standard html list
-       $sql = "select id, area_name from $tbl_area order by area_name";
-       $res = sql_query($sql);
-
        $areas = $DB->get_records('mrbs_area', null, 'area_name');
        foreach ($areas as $dbarea) {
            echo '<a href="'.($baseurl->out(true, array('area'=>$dbarea->id))).'">';
@@ -116,8 +113,8 @@ if ( $pview != 1 ) {
    //UT
    //insert the goto room form
    $gotoroom = new moodle_url('/blocks/mrbs/web/gotoroom.php');
-   $gotostr = get_string('gotoroom', 'blocks_mrbs');
-   $gostr = get_string('goroom', 'blocks_mrbs');
+   $gotostr = get_string('gotoroom', 'block_mrbs');
+   $gostr = get_string('goroom', 'block_mrbs');
    echo "<td width=\"20%\"><h3>Find a room</h3>
         <form action='$gotoroom' method='get'>
             $gotostr:<input type='text' name='room'>
@@ -325,7 +322,7 @@ if (!empty($area)) {
 
             // convert timestamps to HHMM format without leading zeros
             $time_t = date($format, $t);
-            $hiliteurl->param('timetohighlight'=>$time_t);
+            $hiliteurl->param('timetohighlight', $time_t);
 
             // Show the time linked to the URL for highlighting that time
             echo "<tr>";
@@ -381,8 +378,8 @@ if (!empty($area)) {
                         $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php',
                                                   array('room'=>$room, 'area'=>$area, 'year'=>$year, 'month'=>$month, 'day'=>$cday));
                         if( $enable_periods ) {
-                            echo "<a href=\"".($editurl->out(true, array('period'=>$time_t_stripped)))."\">"
-                                } else {
+                            echo "<a href=\"".($editurl->out(true, array('period'=>$time_t_stripped)))."\">";
+                        } else {
                             echo "<a href=\"".($editurl->out(true, array('hour'=>$hour, 'minute'=>$minute)))."\">";
                         }
                         echo '<img src="'.$OUTPUT->pix_url('new', 'block_mrbs').'" width="10" height="10" border="0"></a>';
@@ -411,7 +408,7 @@ if (!empty($area)) {
                         //if it is booked then show
                         echo " <a href=\"".$viewentry."\" title=\"$long_descrs[$i]\">$descrs[$i]</a><br>";
                     } else {
-                        echo "<a href=\"".$viewentry"\" title=\"$long_descrs[$i]\">&nbsp;\"&nbsp;</a><br>";
+                        echo "<a href=\"".$viewentry."\" title=\"$long_descrs[$i]\">&nbsp;\"&nbsp;</a><br>";
                     }
                 }
                 unset($descrs);
@@ -445,4 +442,3 @@ if (!empty($area)) {
     show_colour_key();
 }
 include "trailer.php";
-

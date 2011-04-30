@@ -71,14 +71,14 @@ if (($weekday = (date("w", $time) - $weekstarts + 7) % 7) > 0)
 }
 
 $baseurl = new moodle_url('/blocks/mrbs/web/week.php', array('day'=>$day, 'month'=>$month, 'year'=>$year)); // Used as the basis for URLs throughout this file
-$thisurl = new moodle_ulr($baseurl);
+$thisurl = new moodle_url($baseurl);
 if ($area > 0) {
-    $thisurl->param('area'=>$area);
+    $thisurl->param('area', $area);
 } else {
     $area = get_default_area();
 }
 if ($room > 0) {
-    $thisurl->param('room'=>$area);
+    $thisurl->param('room', $area);
 } else {
     $room = get_default_room($area);
     // Note $room will be 0 if there are no rooms; this is checked for below.
@@ -352,7 +352,7 @@ for ($t = $starttime; $t <= $endtime; $t += $resolution) {
     $row_class = ($row_class == "even_row") ? "odd_row" : "even_row";
     // use hour:minute format
     $time_t = date($format, $t);
-    $hiliteurl->param('timetohighlight'=>$time_t);
+    $hiliteurl->param('timetohighlight', $time_t);
     // Show the time linked to the URL for highlighting that time:
     echo "<tr>";
     tdcell("red");

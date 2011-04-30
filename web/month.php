@@ -47,12 +47,12 @@ $day = 1;
 $baseurl = new moodle_url('/blocks/mrbs/web/month.php', array('month'=>$month, 'year'=>$year)); // Used as basis for URLs throughout this file
 $thisurl = new moodle_url($baseurl);
 if ($area > 0) {
-    $thisurl->param('area'=>$area);
+    $thisurl->param('area', $area);
 } else {
     $area = get_default_area();
 }
 if ($room > 0) {
-    $thisurl->param('room'=>$room);
+    $thisurl->param('room', $room);
 } else {
     $room = get_default_room($area);
     // Note $room will be 0 if there are no rooms; this is checked for below.
@@ -123,7 +123,7 @@ if ($area_list_format == "select") {
     // UT
     $dbareas = $DB->get_records('mrbs_area', null, 'area_name');
     $areaurl = new moodle_url($baseurl);
-    foreach ($areas as $dbarea) {
+    foreach ($dbareas as $dbarea) {
         if ($pview != 1) {
             $areaurl->param('area', $dbarea->id);
             echo '<a href="'.$areaurl.'">';
@@ -155,7 +155,7 @@ if ($area_list_format == "select") {
     //UT
     $rooms = $DB->get_records('mrbs_room', array('area_id'=>$area), 'room_name');
     $roomurl = new moodle_url($baseurl, array('area'=>$area));
-    for ($rooms as $dbroom) {
+    foreach ($rooms as $dbroom) {
         $roomurl->param('room', $dbroom->id);
         echo '<a href="'.$roomurl.'">';
         if ($dbroom->id == $room) {
