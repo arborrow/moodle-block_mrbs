@@ -41,8 +41,8 @@ function mrbsForceMove($room_id, $starttime, $endtime,$name,$id=null){
         r.room_name,
         r.description,
         r.area_id
-              FROM {mrbs_entry} AS e
-              JOIN {mrbs_room} AS r
+              FROM {mrbs_entry} e
+              JOIN {mrbs_room} r
               ON e.room_id = r.id
              WHERE ((e.start_time >= ? AND e.end_time < ?)
              OR (e.start_time < ? AND e.end_time > ?)
@@ -68,10 +68,10 @@ function mrbsForceMove($room_id, $starttime, $endtime,$name,$id=null){
 
         //Work out how many students so they don't get put in a tiny classroom
         $sizequery='SELECT count(*) as count
-                        FROM {context} AS c
-                            JOIN {role_assignments} AS ra
+                        FROM {context} c
+                            JOIN {role_assignments} ra
                                 ON ra.contextid = c.id AND ra.roleid = ?
-                            JOIN {course} AS co
+                            JOIN {course} co
                                 ON c.contextlevel = ? and c.instanceid = co.id
                         WHERE co.shortname  = ?';
         $shortname = clean_param($oldbooking->entryname,PARAM_TEXT);
@@ -88,12 +88,12 @@ function mrbsForceMove($room_id, $starttime, $endtime,$name,$id=null){
                                 a.area_name,
                                 CONCAT(IF(r.description = ?,1,0),
                                 IF(a.id= ?,1,0)) AS sort
-                             FROM {mrbs_room} AS r
-                             JOIN {mrbs_area} AS a
+                             FROM {mrbs_room} r
+                             JOIN {mrbs_area} a
                                 ON r.area_id = a.id
-                             JOIN {mrbs_entry} AS e
+                             JOIN {mrbs_entry} e
                                 ON r.id= e.room_id
-                             WHERE ( SELECT COUNT(*) FROM {mrbs_entry} AS e2
+                             WHERE ( SELECT COUNT(*) FROM {mrbs_entry} e2
                                  WHERE ((e2.start_time >= ? AND e2.end_time < ?)
                                  OR (e2.start_time < ? AND e2.end_time > ?)
                                  OR (e2.start_time < ? AND e2.end_time >= ?))
