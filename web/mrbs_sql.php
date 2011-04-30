@@ -111,8 +111,6 @@ function mrbsDelEntry($user, $id, $series, $all)
 	if ($repeat_id < 0)
 		return 0;
 
-	$sql = "SELECT create_by, id, entry_type FROM $tbl_entry WHERE ";
-
 	if($series) {
         $params = array('repeat_id'=>$repeat_id);
 	} else {
