@@ -1,18 +1,38 @@
 <?php
-// $Id: edit_entry_handler.php,v 1.15 2009/06/19 10:32:36 mike1989 Exp $
-require_once("../../../config.php"); //for Moodle integration
-require_once "grab_globals.inc.php";
+
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 include "config.inc.php";
 include "functions.php";
-include "$dbsys.php";
 include "mrbs_auth.php";
 include "mrbs_sql.php";
-require_login();
+
 $day = optional_param('day', 0, PARAM_INT);
 $month = optional_param('month', 0, PARAM_INT);
-$year = optional_param('year', 0, PARAM_INT); 
-$area = optional_param('area', get_default_area(),  PARAM_INT);
+$year = optional_param('year', 0, PARAM_INT);
+$area = optional_param('area', 0,  PARAM_INT);
+$period = optional_param('period', 0, PARAM_INT);
+$hour = optional_param('hour', 0, PARAM_INT);
+$minute = optional_param('minute', 0, PARAM_INT);
+$duration = optional_param('duration', 0, PARAM_INT);
+$dur_units = optional_param('dur_units', 0, PARAM_INT);
 $create_by = optional_param('create_by', '', PARAM_TEXT);
+$name = optional_param('name', '', PARAM_TEXT);
+$description = optional_param('description', '', PARAM_TEXT);
 $id = optional_param('id', 0, PARAM_INT);
 $rep_type = optional_param('rep_type', 0, PARAM_INT);
 $rep_end_month = optional_param('rep_end_month', 0, PARAM_INT);
@@ -23,14 +43,13 @@ $rep_day = optional_param('rep_day',NULL, PARAM_RAW);
 $rep_opt = optional_param('rep_opt','',PARAM_SEQUENCE);
 $rep_enddate = optional_param('rep_enddate',0,PARAM_INT);
 $forcebook = optional_param('forcebook',FALSE,PARAM_BOOL);
+$edit_type = optional_param('edit_type','',PARAM_TEXT);
+$type = optional_param('type', '', PARAM_TEXT);
+$all_day = optional_param('all_day', false, PARAM_BOOL);
+$rooms = optional_param('rooms', array(), PARAM_INT);
+$doublebook = optional_param('doublebook', 0, PARAM_INT);
 
-# $all_day
-# echo $rep_type;
-
-// $rooms - followup and see how this is passed -ab.
-// $edit_type  - followup and see how this is passed -ab.
-
-#If we dont know the right date then make it up 
+//If we dont know the right date then make it up
 if(($day==0) or ($month==0) or ($year==0))
 {
     $day   = date("d");
@@ -38,8 +57,13 @@ if(($day==0) or ($month==0) or ($year==0))
     $year  = date("Y");
 }
 
-// if(empty($area)) // handled with optional_param above -ab.
-//     $area = get_default_area();
+if (!$area) {
+    $area = get_default_area();
+}
+
+//TODO - put in some proper params for this (low priority)
+$PAGE->set_url(new moodle_url('/blocks/mrbs/web/edit_entry_handler.php'));
+require_login();
 
 if(!getAuthorised(1))
 {
@@ -53,6 +77,10 @@ if(!getWritable($create_by, getUserName()))
     exit;
 }
 
+if (!confirm_sesskey()) {
+    error('Invalid sesskey');
+}
+
 if ($name == '')
 {
      print_header_mrbs($day, $month, $year, $area);
@@ -60,32 +88,32 @@ if ($name == '')
      echo get_string('must_set_description','block_mrbs');
      echo $OUTPUT->footer();
      exit;
-}       
+}
 
-# Support locales where ',' is used as the decimal point
+// Support locales where ',' is used as the decimal point
 $duration = preg_replace('/,/', '.', $duration);
 
 if( $enable_periods ) {
 	$resolution = 60;
 	$hour = 12;
 	$minute = $period;
-        $max_periods = count($periods);
-        if( $dur_units == "periods" && ($minute + $duration) > $max_periods )
+    $max_periods = count($periods);
+    if( $dur_units == "periods" && ($minute + $duration) > $max_periods )
         {
             $duration = (24*60*floor($duration/$max_periods)) + ($duration%$max_periods);
         }
-        if( $dur_units == "days" && $minute == 0 )
+    if( $dur_units == "days" && $minute == 0 )
         {
-		$dur_units = "periods";
-                $duration = $max_periods + ($duration-1)*60*24;
+            $dur_units = "periods";
+            $duration = $max_periods + ($duration-1)*60*24;
         }
-    }
+}
 
 // Units start in seconds
 $units = 1.0;
 
 switch($dur_units)
-{
+    {
     case "years":
         $units *= 52;
     case "weeks":
@@ -99,12 +127,12 @@ switch($dur_units)
         $units *= 60;
     case "seconds":
         break;
-}
+    }
 
 // Units are now in "$dur_units" numbers of seconds
 
 
-if(isset($all_day) && ($all_day == "yes"))
+if($all_day)
 {
     if( $enable_periods )
     {
@@ -136,8 +164,8 @@ else
     $starttime = mktime($hour, $minute, 0, $month, $day, $year, is_dst($month, $day, $year, $hour));
     $endtime   = mktime($hour, $minute, 0, $month, $day, $year, is_dst($month, $day, $year, $hour)) + ($units * $duration);
 
-    # Round up the duration to the next whole resolution unit.
-    # If they asked for 0 minutes, push that up to 1 resolution unit.
+    // Round up the duration to the next whole resolution unit.
+    // If they asked for 0 minutes, push that up to 1 resolution unit.
     $diff = $endtime - $starttime;
     if (($tmp = $diff % $resolution) != 0 || $diff == 0)
         $endtime += $resolution - $tmp;
@@ -149,41 +177,42 @@ if(isset($rep_type) && isset($rep_end_month) && isset($rep_end_day) && isset($re
     // Get the repeat entry settings
     $rep_enddate = mktime($hour, $minute, 0, $rep_end_month, $rep_end_day, $rep_end_year);
     } else {
-        $rep_type = 0; 
+        $rep_type = 0;
     }
 
 if(!isset($rep_day))
     $rep_day = array();
 
-# For weekly repeat(2), build string of weekdays to repeat on:
+// For weekly repeat(2), build string of weekdays to repeat on:
 $rep_opt = "";
 if (($rep_type == 2) || ($rep_type == 6))
     for ($i = 0; $i < 7; $i++) $rep_opt .= empty($rep_day[$i]) ? "0" : "1";
 
 
-# Expand a series into a list of start times:
-if ($rep_type != 0)
+// Expand a series into a list of start times:
+if ($rep_type != 0) {
     $reps = mrbsGetRepeatEntryList($starttime, isset($rep_enddate) ? $rep_enddate : 0,
         $rep_type, $rep_opt, $max_rep_entrys, $rep_num_weeks);
+}
 
-# When checking for overlaps, for Edit (not New), ignore this entry and series:
+// When checking for overlaps, for Edit (not New), ignore this entry and series:
 $repeat_id = 0;
 if ($id>0)
 {
     $ignore_id = $id;
-    $repeat_id = sql_query1("SELECT repeat_id FROM $tbl_entry WHERE id=$id");
+    $repeat_id = $DB->get_field('mrbs_entry', 'repeat_id', array('id'=>$id));
     if ($repeat_id < 0)
         $repeat_id = 0;
 }
 else
     $ignore_id = 0;
 
-# Acquire mutex to lock out others trying to book the same slot(s).
-if (!sql_mutex_lock("$tbl_entry"))
-    fatal_error(1, get_string('failed_to_acquire','block_mrbs'));
-    
-# Check for any schedule conflicts in each room we're going to try and
-# book in
+// Acquire mutex to lock out others trying to book the same slot(s).
+//if (!sql_mutex_lock("$tbl_entry"))
+//fatal_error(1, get_string('failed_to_acquire','block_mrbs'));
+
+// Check for any schedule conflicts in each room we're going to try and
+// book in
 $err = "";
 $forcemoveoutput='';
 foreach ( $rooms as $room_id ) {
@@ -191,14 +220,14 @@ foreach ( $rooms as $room_id ) {
   {
     if(count($reps) < $max_rep_entrys)
     {
-        
+
         for($i = 0; $i < count($reps); $i++)
         {
-	    # calculate diff each time and correct where events
-	    # cross DST
+	    // calculate diff each time and correct where events
+	    // cross DST
             $diff = $endtime - $starttime;
             $diff += cross_dst($reps[$i], $reps[$i] + $diff);
-	    $tmp = mrbsCheckFree($room_id, $reps[$i], $reps[$i] + $diff, $ignore_id, $repeat_id);
+            $tmp = mrbsCheckFree($room_id, $reps[$i], $reps[$i] + $diff, $ignore_id, $repeat_id);
             if(!empty($tmp))
                 $err = $err . $tmp;
         }
@@ -216,17 +245,6 @@ foreach ( $rooms as $room_id ) {
          //do this so that it thinks no clashes were found
          $tmp='';
     } else if($doublebook and has_capability('block/mrbs:doublebook', get_context_instance(CONTEXT_SYSTEM))) {
-//        $sql = 'SELECT entry.id AS entryid,
-//                entry.name as entryname,
-//                entry.create_by,
-//                room.room_name,
-//                entry.start_time,
-//              FROM '.$CFG->prefix.'mrbs_entry as entry
-//                join '.$CFG->prefix.'mrbs_room as room on entry.room_id = room.id
-//             WHERE room.id = '.$room_id.'
-//             AND ((entry.start_time>='.$starttime.' AND entry.end_time<'.$endtime.')
-//             OR (entry.start_time<'.$starttime.' AND entry.end_time>'.$starttime.')
-//             OR (entry.start_time<'.$endtime.' AND entry.end_time>='.$endtime.'))';
         $sql = 'SELECT entry.id AS entryid,
                 entry.name as entryname,
                 entry.create_by,
@@ -238,7 +256,7 @@ foreach ( $rooms as $room_id ) {
              AND ((entry.start_time >= ? AND entry.end_time < ?)
              OR (entry.start_time < ? AND entry.end_time> ?)
              OR (entry.start_time < ? AND entry.end_time>= ?))';
-//        if($clashingbookings = get_records_sql($sql)) {
+
         $clashingbookings = get_records_sql($sql,array($room_id, $starttime, $endtime, $starttime, $starttime, $endtime, $endtime));
             foreach($clashingbookings as $clashingbooking) {
                 $oldbookinguser = $DB->get_record('user', array('username'=> $clashingbooking->create_by));
@@ -258,11 +276,11 @@ foreach ( $rooms as $room_id ) {
 
         }
 
-//    }else{
+  //    }else{
 //        // If the user hasn't confirmed they want to double book, check the room is free.
 //    $err .= mrbsCheckFree($room_id, $starttime, $endtime-1, $ignore_id, 0);
 //    }
-} # end foreach rooms
+} // end foreach rooms
 
 if(empty($err))
 {
@@ -272,7 +290,7 @@ if(empty($err))
             $new_id = mrbsCreateRepeatingEntrys($starttime, $endtime,   $rep_type, $rep_enddate, $rep_opt,
                                       $room_id,   $create_by, $name,     $type,        $description,
                                       isset($rep_num_weeks) ? $rep_num_weeks : 0);
-                               
+
             //Add to moodle logs
             add_to_log(SITEID, 'mrbs', 'add booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);
             // Send a mail to the Administrator
@@ -288,12 +306,11 @@ if(empty($err))
                     if (MAIL_DETAILS)
                     {
                         $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
-                        $sql .= "FROM $tbl_room r, $tbl_area a ";
-                        $sql .= "WHERE r.id=$room_id AND r.area_id = a.id";
-                        $res = sql_query($sql);
-                        $row = sql_row($res, 0);
-                        $room_name = $row[1];
-                        $area_name = $row[3];
+                        $sql .= "FROM {mrbs_room} r, {mrbs_area} a ";
+                        $sql .= "WHERE r.id=? AND r.area_id = a.id";
+                        $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
+                        $room_name = $dbroom->room_name;
+                        $area_name = $dbroom->area_name;
                     }
                     // If this is a modified entry then call
                     // getPreviousEntryData to prepare entry comparison.
@@ -307,13 +324,13 @@ if(empty($err))
         }
         else
         {
-            # Mark changed entry in a series with entry_type 2:
+            // Mark changed entry in a series with entry_type 2:
             if ($repeat_id > 0)
                 $entry_type = 2;
             else
                 $entry_type = 0;
 
-            # Create the entry:
+            // Create the entry:
             $new_id = mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $room_id,
                                      $create_by, $name, $type, $description);
             //Add to moodle logs
@@ -331,12 +348,11 @@ if(empty($err))
                     if (MAIL_DETAILS)
                     {
                         $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
-                        $sql .= "FROM $tbl_room r, $tbl_area a ";
-                        $sql .= "WHERE r.id=$room_id AND r.area_id = a.id";
-                        $res = sql_query($sql);
-                        $row = sql_row($res, 0);
-                        $room_name = $row[1];
-                        $area_name = $row[3];
+                        $sql .= "FROM {mrbs_room} r, {mrbs_area} a ";
+                        $sql .= "WHERE r.id=? AND r.area_id = a.id";
+                        $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
+                        $room_name = $dbroom->room_name;
+                        $area_name = $dbroom->area_name;
                     }
                     // If this is a modified entry then call
                     // getPreviousEntryData to prepare entry comparison.
@@ -348,38 +364,39 @@ if(empty($err))
                 }
             }
         }
-    } # end foreach $rooms
+    } // end foreach $rooms
 
-    # Delete the original entry
+    // Delete the original entry
     if($id>0)
         mrbsDelEntry(getUserName(), $id, ($edit_type == "series"), 1);
 
-    sql_mutex_unlock("$tbl_entry");
-    
+    //    sql_mutex_unlock("$tbl_entry");
+
     $area = mrbsGetRoomArea($room_id);
-    
-    # Now its all done go back to the day view
-    redirect($CFG->wwwroot.'/blocks/mrbs/web/day.php?year='.$year.'&month='.$month.'&day='.$day.'&area='.$area,$forcemoveoutput,20);
+
+    // Now its all done go back to the day view
+    $dayurl = new moodle_url('/blocks/mrbs/web/day.php', array('year'=>$year, 'month'=>$month, 'day'=>$day, 'area'=>$area));
+    redirect($dayurl,$forcemoveoutput,20);
     exit;
 }
 
-# The room was not free.
-sql_mutex_unlock("$tbl_entry");
+// The room was not free.
 
 if(strlen($err))
 {
     print_header_mrbs($day, $month, $year, $area);
-    
+
     echo "<H2>" . get_string('sched_conflict','block_mrbs') . "</H2>";
     if(!isset($hide_title))
     {
         echo get_string('conflict','block_mrbs');
         echo "<UL>";
     }
-    
+
     echo $err;
     if(has_capability('block/mrbs:doublebook', get_context_instance(CONTEXT_SYSTEM))) {
-        echo '<form method="post" action="'.$CFG->wwwroot.'/blocks/mrbs/web/edit_entry_handler.php">';
+        $thisurl = new moodle_url('/blocks/mrbs/web/edit_entry_handler.php');
+        echo '<form method="post" action="'.$thisurl.'">';
         echo '<input type="hidden" name="name" value="'.$name.'" />';
         echo '<input type="hidden" name="description" value="'.$description.'" />';
         echo '<input type="hidden" name="day" value="'.$day.'" />';
@@ -412,12 +429,11 @@ if(strlen($err))
         echo '</form>';
     }
 
-    
+
     if(!isset($hide_title))
         echo "</UL>";
 }
 
 echo "<a href=\"$returl\">".get_string('returncal','block_mrbs')."</a><p>";
 
-include "trailer.php"; 
-?>
+include "trailer.php";
