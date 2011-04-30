@@ -52,7 +52,9 @@ for($i = -6; $i <= 7; $i++)
 
 echo "<BR><B>".get_string('viewweek','block_mrbs').":</B>\n";
 
-if (!empty($room)) $params .= "&room=$room";
+if (!empty($room)) {
+    $params['room'] = $room;
+}
 
 $ctime = mktime(0, 0, 0, $month, $day, $year);
 // How many days to skip back to first day of week:
