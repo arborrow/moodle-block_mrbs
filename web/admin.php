@@ -68,7 +68,7 @@ echo '<th><center><b>'.get_string('rooms','block_mrbs').' ';
 if (isset($area_name)) {
     echo get_string('in','block_mrbs')." ".s($area_name);
 }
-echo '</b></center></th></tr><tr><td>';
+echo '</b></center></th></tr><tr><td class="border">';
 
 // This cell has the areas
 $areas = $DB->get_records('mrbs_area', null, 'area_name');
@@ -86,7 +86,7 @@ if (empty($areas)) {
     }
     echo "</ul>";
 }
-echo '</td><td>';
+echo '</td><td class="border">';
 
 // This one has the rooms
 if ($area) {
@@ -110,11 +110,11 @@ if ($area) {
 $addareaurl = new moodle_url('/blocks/mrbs/web/add.php', array('type'=>'area', 'sesskey'=>sesskey()));
 $addroomurl = new moodle_url($addareaurl, array('type'=>'room', 'area'=>$area));
 
-echo '</tr><tr><td><h3 ALIGN=CENTER>'.get_string('addarea','block_mrbs').'</h3>';
+echo '</tr><tr><td class="border"><h3 ALIGN=CENTER>'.get_string('addarea','block_mrbs').'</h3>';
 echo '<form action="'.($addareaurl->out_omit_querystring()).'" method="post">';
 echo html_writer::input_hidden_params($addareaurl);
 echo '<table><tr><td>'.get_string('name').'</td><td><input type=text name=name></td></tr></table>';
-echo '<input type=submit value="'.get_string('addarea','block_mrbs').'"></form></td><td>';
+echo '<input type=submit value="'.get_string('addarea','block_mrbs').'"></form></td><td class="border">';
 if (0 != $area) {
     echo '<h3 align=center>'.get_string('addroom','block_mrbs').'</h3>';
     echo '<form action="'.$addroomurl->out_omit_querystring().'" method="post">';

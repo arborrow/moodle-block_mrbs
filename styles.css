@@ -18,8 +18,9 @@ background-color:#ffffed; overflow: auto; padding: 1px;}
 
 #mrbscontainer table {margin-bottom: 0; }
 
-#mrbscontainer TD {font-size:10pt; font-family:arial,sans-serif; border-width:1;
+#mrbscontainer TD {font-size:10pt; font-family:arial,sans-serif;
 vertical-align:top; padding: 1px;}
+#mrbscontainer TD.border {border-width: 1px; padding: 3px;}
 #mrbscontainer TD.header {color:black; font-family:verdana,sans-serif; border-width:0;
 background-color:#ffffdd; font-size:26pt}
 
