@@ -46,7 +46,7 @@ function authValidateUser($user, $pass) {
     return 1;
 }
 
-function authGetUserLevel($user, $lev1_admin) {
+function authGetUserLevel($user) {
     // HACK For Moodle 1.7 With Roles Block...
     $context = get_context_instance(CONTEXT_SYSTEM, SITEID);
 
