@@ -1,24 +1,50 @@
 <?php
-// $Id: edit_area_room.php,v 1.7 2008/09/30 23:31:08 arborrow Exp $
-require_once("../../../config.php"); //for Moodle integration
-require_once "grab_globals.inc.php";
+
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
 include "config.inc.php";
 include "functions.php";
-include "$dbsys.php";
 include "mrbs_auth.php";
-require_login();
+
+// Passed in when starting to edit
 $day = optional_param('day', 0, PARAM_INT);
 $month = optional_param('month', 0, PARAM_INT);
 $year = optional_param('year', 0, PARAM_INT);
+$room = optional_param('room', 0, PARAM_INT);
+$area = optional_param('area', 0, PARAM_INT);
+
+// Editing general
 $change_done = optional_param('change_done', 0, PARAM_BOOL);
-$room = optional_param('room', 0, PARAM_INT); 
-$area_name = optional_param('area_name', '', PARAM_TEXT);
+
+// Editing room
+$room_name = optional_param('room_name', '', PARAM_TEXT);
+$description = optional_param('description', '', PARAM_TEXT);
 $capacity = optional_param('capacity', 0, PARAM_INT);
+$room_admin_email = optional_param('room_admin_email', '', PARAM_TEXT);
+$change_room = optional_param('change_room', false, PARAM_TEXT);
 
-// $room_admin_email = optional_param('room_admin_email', 0, PARAM_BOOL); //not sure if this is from config or passed from URL -ab. 
-// $area = optional_param('area', 0, PARAM_INT); this may be passed from URL and should probably be checked; however, I need to review the logic in other places first -ab.
+// Editing area
+$area_name = optional_param('area_name', '', PARAM_TEXT);
+$area_admin_email = optional_param('area_admin_email', '', PARAM_TEXT);
+$change_area = optional_param('change_area', false, PARAM_TEXT);
 
-#If we dont know the right date then make it up
+// $room_admin_email = optional_param('room_admin_email', 0, PARAM_BOOL); //not sure if this is from config or passed from URL -ab.
+
+//If we dont know the right date then make it up
 if(($day==0) or ($month==0) or ($year==0))
 {
 	$day   = date("d");
@@ -26,10 +52,25 @@ if(($day==0) or ($month==0) or ($year==0))
 	$year  = date("Y");
 }
 
+$thisurl = new moodle_url('/blocks/mrbs/web/edit_area_room.php', array('day'=>$day, 'month'=>$month, 'year'=>$year, 'sesskey'=>sesskey()));
+if ($room) {
+    $thisurl->param('room', $room);
+}
+if ($area) {
+    $thisurl->param('area', $area);
+}
+
+$PAGE->set_url($thisurl);
+require_login();
+
 if(!getAuthorised(2))
 {
+    //UT
 	showAccessDenied($day, $month, $year, $area);
 	exit();
+}
+if (!confirm_sesskey()) {
+    error('Invalid sesskey');
 }
 
 // Done changing area or room information?
@@ -37,23 +78,20 @@ if (($change_done))
 {
 	if (!empty($room)) // Get the area the room is in
 	{
-		$area = sql_query1("SELECT area_id from $tbl_room where id=$room");
+        $area = $DB->get_field('mrbs_room', 'area_id', array('id'=>$room));
 	}
-	Header("Location: admin.php?day=$day&month=$month&year=$year&area=$area");
+    $adminurl = new moodle_url('/blocks/mrbs/web/admin.php', array('day'=>$day, 'month'=>$month, 'year'=>$year, 'area'=>$area));
+    redirect($adminurl);
 	exit();
 }
 
 print_header_mrbs($day, $month, $year, isset($area) ? $area : "");
 
-?>
+echo $OUTPUT->heading(get_string('editroomarea','block_mrbs'), 2);
 
-<h2><?php echo get_string('editroomarea','block_mrbs') ?></h2>
+echo '<table>';
 
-<table border=1>
-
-<?php
 if($room>0) {
-    (!isset($room_admin_email)) ? $room_admin_email = '': '';
     $emails = explode(',', $room_admin_email);
     $valid_email = TRUE;
     foreach ($emails as $email)
@@ -62,98 +100,82 @@ if($room>0) {
         // does not return TRUE
         if (!get_user_by_email($email) && ('' != $room_admin_email)) {
             $valid_email = FALSE;
-            notice(get_string('no_user_with_email','block_mrbs',$email));
+            echo $OUTPUT->box(get_string('no_user_with_email','block_mrbs',$email));
         }
     }
-    //
-	if ( isset($change_room) && (FALSE != $valid_email) )
+
+	if ( $change_room && $valid_email )
 	{
-        if (empty($capacity)) $capacity = 0;
-		$sql = "UPDATE $tbl_room SET room_name='" . slashes($room_name)
-			. "', description='" . slashes($description)
-			. "', capacity=$capacity, room_admin_email='"
-            . slashes($room_admin_email) . "' WHERE id=$room";
-		if (sql_command($sql) < 0)
-			fatal_error(0, get_string('update_room_failed','block_mrbs') . sql_error());
+        $updroom = new stdClass;
+        $updroom->id = $room;
+        $updroom->room_name = $room_name;
+        $updroom->description = $description;
+        $updroom->capacity = $capacity;
+        $updroom->room_admin_email = $room_admin_email;
+
+        $DB->update_record('mrbs_room', $updroom);
 	}
 
-	$res = sql_query("SELECT * FROM $tbl_room WHERE id=$room");
-	if (! $res) fatal_error(0, get_string('error_room','block_mrbs') . $room . get_string('not_found','block_mrbs'));
-	$row = sql_row_keyed($res, 0);
-	sql_free($res);
-?>
-<h3 ALIGN=CENTER><?php echo get_string('editroom','block_mrbs') ?></h3>
-<form action="edit_area_room.php" method="post">
-<input type=hidden name="room" value="<?php echo $row["id"]?>">
-<CENTER>
-<TABLE>
-<TR><TD><?php echo get_string('name') ?>:       </TD><TD><input type=text name="room_name" value="<?php
-echo htmlspecialchars($row["room_name"]); ?>"></TD></TR>
-<TR><TD><?php echo get_string('description') ?></TD><TD><input type=text name=description value="<?php
-echo htmlspecialchars($row["description"]); ?>"></TD></TR>
-<TR><TD><?php echo get_string('capacity','block_mrbs') ?>:   </TD><TD><input type=text name=capacity value="<?php
-echo $row["capacity"]; ?>"></TD></TR>
-<TR><TD><?php echo get_string('room_admin_email','block_mrbs') ?></TD><TD><input type=text name=room_admin_email MAXLENGTH=75 value="<?php
-echo htmlspecialchars($row["room_admin_email"]); ?>"></TD>
-<?php if (FALSE == $valid_email) {
-    echo ("<TD>&nbsp;</TD><TD><STRONG>" . get_string('emailmustbereal') . "<STRONG></TD>");
-} ?></TR>
-</TABLE>
-<input type=submit name="change_room"
-value="<?php echo get_string('savechanges') ?>">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type=submit name="change_done" value="<?php echo get_string('backadmin','block_mrbs') ?>">
-</CENTER>
-</form>
-<?php } ?>
+    $dbroom = get_record('mrbs_room', array('id'=>$room), '*', MUST_EXIST);
+    echo '<h3 ALIGN=CENTER>'.get_string('editroom','block_mrbs').'</h3>';
+    echo '<form action="'.$thisurl->out_omit_querystring().'" method="post">';
+    echo '<input type="hidden" name="room" value="'.$dbroom->id.'">';
+    echo '<input type="hidden" name="sesskey" value="'.sesskey().'">';
+    echo '<CENTER><TABLE>';
+    echo '<TR><TD>'.get_string('name').': </TD><TD><input type="text" name="room_name" value="'.s($dbroom->room_name).'"></TD></TR>';
+    echo '<TR><TD>'.get_string('description').'</TD><TD><input type="text" name="description" value="'.s($dbroom->description).'"></TD></TR>';
+    echo '<TR><TD>'.get_string('capacity','block_mrbs').':   </TD><TD><input type="text" name="capacity" value="'.$dbroom->capacity.'"></TD></TR>';
+    echo '<TR><TD>'.get_string('room_admin_email','block_mrbs').': </TD><TD><input type="text" name="room_admin_email" MAXLENGTH=75 value="'.s($dbroom->room_admin_email).'"></TD>';
+    if (!$valid_email) {
+        echo ("<TD>&nbsp;</TD><TD><STRONG>" . get_string('emailmustbereal') . "<STRONG></TD>");
+    }
+    echo '</TR></TABLE>';
+    echo '<input type="submit" name="change_room" value="'.get_string('savechanges').'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    echo '<input type="submit" name="change_done" value="'.get_string('backadmin','block_mrbs').'">';
+    echo '</CENTER></form>';
+}
 
-<?php
-if(!empty($area))
+if ($area)
 {
-    (!isset($area_admin_email)) ? $area_admin_email = '': '';
     $emails = explode(',', $area_admin_email);
     $valid_email = TRUE;
     foreach ($emails as $email)
     {
         // if no email address is entered, this is OK, even if isValidInetAddress
         // does not return TRUE
+        $email = trim($email);
         if (!get_user_by_email($email) && ('' != $area_admin_email)) {
             $valid_email = FALSE;
-            notice(get_string('no_user_with_email','block_mrbs',$email));
+            echo $OUTPUT->box(get_string('no_user_with_email','block_mrbs',$email));
         }
     }
-    //
-    if ( isset($change_area) && (FALSE != $valid_email) )
+
+    if ( $change_area && $valid_email )
 	{
-		$sql = "UPDATE $tbl_area SET area_name='" . slashes($area_name)
-			. "', area_admin_email='" . slashes($area_admin_email)
-            . "' WHERE id=$area";
-		if (sql_command($sql) < 0)
-			fatal_error(0, get_string('update_area_failed','block_mrbs') . sql_error());
+        $updarea = new stdClass;
+        $updarea->id = $area;
+        $updarea->area_name = $area_name;
+        $updarea->area_admin_email = $area_admin_email;
+        $DB->update_record('mrbs_area', $updarea);
 	}
 
-	$res = sql_query("SELECT * FROM $tbl_area WHERE id=$area");
-	if (! $res) fatal_error(0, get_string('error_area','block_mrbs') . $area . get_string('not_found','block_mrbs'));
-	$row = sql_row_keyed($res, 0);
-	sql_free($res);
-?>
-<h3 ALIGN=CENTER><?php echo get_string('editarea','block_mrbs') ?></h3>
-<form action="edit_area_room.php" method="post">
-<input type=hidden name="area" value="<?php echo $row["id"]?>">
-<CENTER>
-<TABLE>
-<TR><TD><?php echo get_string('name') ?>:       </TD><TD><input type=text name="area_name" value="<?php
-echo htmlspecialchars($row["area_name"]); ?>"></TD></TR>
-<TR><TD><?php echo get_string('area_admin_email','block_mrbs') ?>:       </TD><TD><input type=text name="area_admin_email" MAXLENGTH=75 value="<?php
-echo htmlspecialchars($row["area_admin_email"]); ?>"></TD>
-<?php if (FALSE == $valid_email) {
-    echo ("<TD>&nbsp;</TD><TD><STRONG>" . get_string('emailmustbereal') . "</STRONG></TD>");
-} ?></TR>
-</TABLE>
-<input type=submit name="change_area"
-value="<?php echo get_string('savechanges') ?>">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type=submit name="change_done" value="<?php echo get_string('backadmin','block_mrbs') ?>">
-</CENTER>
-</form>
-<?php } ?>
-</TABLE>
-<?php include "trailer.php" ?>
+    $dbarea = $DB->get_record('mrbs_area', array('id'=>$area), '*', MUST_EXIST);
+
+    echo '<h3 ALIGN=CENTER>'.get_string('editarea','block_mrbs').'</h3>';
+    echo '<form action="'.$thisurl->out_omit_querystring().'" method="post">';
+    echo '<input type="hidden" name="area" value="'.$dbarea->id.'">';
+    echo '<input type="hidden" name="sesskey" value="'.sesskey().'">';
+    echo '<CENTER><TABLE>';
+    echo '<TR><TD>'.get_string('name').':       </TD><TD><input type="text" name="area_name" value="'.s($dbarea->area_name).'"></TD></TR>';
+    echo '<TR><TD>'.get_string('area_admin_email','block_mrbs').':       </TD><TD><input type="text" name="area_admin_email" MAXLENGTH=75 value="'.s($dbarea->area_admin_email).'"></TD>';
+    if (!$valid_email) {
+        echo "<TD>&nbsp;</TD><TD><STRONG>" . get_string('emailmustbereal') . "</STRONG></TD>";
+    }
+    echo '</TR></TABLE>';
+    echo '<input type=submit name="change_area" value="'.get_string('savechanges').'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    echo '<input type=submit name="change_done" value="'.get_string('backadmin','block_mrbs').'">';
+    echo '</CENTER></form>';
+}
+echo '</TABLE>';
+
+include "trailer.php";
