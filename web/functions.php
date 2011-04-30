@@ -27,6 +27,8 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) //if 
 {
     global $mrbs_company, $mrbs_company_url, $search_str, $locale_warning, $pview;
     global $OUTPUT, $PAGE;
+    global $javascript_cursor;
+
     $cfg_mrbs = get_config('block/mrbs');
     $strmrbs = get_string('blockname','block_mrbs');
 
@@ -57,6 +59,9 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) //if 
 
     // Load extra javascript
     $PAGE->requires->js('/blocks/mrbs/web/roomsearch.js', true); // For the 'ChangeOptionDays' function
+    if ($javascript_cursor) {
+        $PAGE->requires->js('/blocks/mrbs/web/xbLib.js', true);
+    }
 
     echo $OUTPUT->header();
 

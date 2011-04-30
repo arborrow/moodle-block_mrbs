@@ -100,10 +100,10 @@ else
 // Browser-independant style sheet rules scan.
 function xbForEachCssRule(callback, ref)
     {
-    if (document.styleSheets) for (var i=0; i<document.styleSheets.length; i++) 
+    if (document.styleSheets) for (var i=0; i<document.styleSheets.length; i++)
         {
         var sheet = document.styleSheets.item(i);
-        // xbDump("Style sheet " + i, "h3"); 
+        // xbDump("Style sheet " + i, "h3");
         // xbDumpProps(sheet);
         // If the browser is kind enough for having already split the CSS rules as specified by DOM... (NS6)
         if (sheet.cssRules) for (var j=0; j<sheet.cssRules.length; j++)
@@ -154,7 +154,7 @@ function xbForEachCssRule(callback, ref)
 function ForEachChild(obj, callback, ref)
   {
   if (!obj) return null;
-  
+
   var children = null;
   if (obj.childNodes)           // DOM-compliant browsers
     children = obj.childNodes;
@@ -162,9 +162,9 @@ function ForEachChild(obj, callback, ref)
     children = obj.children;
   else
     return null;
-    
+
   var nChildren = children.length;
-  for (var i=0; i<nChildren; i++) 
+  for (var i=0; i<nChildren; i++)
     {
     var result = callback(children[i], ref);
     if (result) return result;
@@ -235,8 +235,8 @@ var GetNodeColorClass = function(node)
     {
     return node.className;
     }
-var SetNodeColorClass = function(node, colorClass) 
-    { 
+var SetNodeColorClass = function(node, colorClass)
+    {
     node.className = colorClass;  // Use the TD.highlight color from mrbs.css.
     }
 
@@ -386,13 +386,13 @@ function InitActiveCell(show, left, right, method, message)
 
     // Finally combine the last 2 results to generate the SetNodeColorClass function.
     if (useCssClass)			 // DOM-compliant browsers
-        SetNodeColorClass = function(node, colorClass) 
-            { 
+        SetNodeColorClass = function(node, colorClass)
+            {
             xbDump("SetNodeColorClass(" + colorClass + ")");
             node.className = colorClass;  // Use the TD.highlight color from mrbs.css.
             }
     else				 // Pre-DOM browsers like Opera 6
-        SetNodeColorClass = function(node, colorClass) 
+        SetNodeColorClass = function(node, colorClass)
             {
             xbDump("SetNodeColorClass(" + colorClass + ")");
             if (colorClass == "highlight") colorClass = highlightColor; // Cannot use the CSS color class. Use the color computed above.

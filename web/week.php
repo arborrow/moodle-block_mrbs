@@ -296,7 +296,6 @@ if ($debug_flag)
 // Must be included before the beginnning of the main table.
 if ($javascript_cursor) // If authorized in config.inc.php, include the javascript cursor management.
     {
-        echo "<SCRIPT language=\"JavaScript\" type=\"text/javascript\" src=\"xbLib.js\"></SCRIPT>\n";
         echo "<SCRIPT language=\"JavaScript\">InitActiveCell("
             . ($show_plus_link ? "true" : "false") . ", "
             . "true, "
