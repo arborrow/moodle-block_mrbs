@@ -1,19 +1,28 @@
 <?php
-# $Id: view_entry.php,v 1.13 2009/12/27 19:15:18 arborrow Exp $
-require_once("../../../config.php"); //for Moodle integration
-require_once "grab_globals.inc.php";
+
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 include "config.inc.php";
 include "functions.php";
-include "$dbsys.php";
-
-if ($CFG->forcelogin) {
-    require_login();
-}
 
 $id = required_param('id', PARAM_INT);
 $day = optional_param('day', 0, PARAM_INT);
 $month = optional_param('month', 0, PARAM_INT);
-$year = optional_param('year', 0, PARAM_INT); 
+$year = optional_param('year', 0, PARAM_INT);
 $area = optional_param('area', 0, PARAM_INT);
 $room = optional_param('room', 0, PARAM_INT);
 $series = optional_param('series', 0, PARAM_INT);
@@ -22,189 +31,175 @@ $pview = optional_param('pview', 0, PARAM_INT);
 //if the booking belongs to the user looking at it, they probably want to edit it
 if($record=$DB->get_record('mrbs_entry',array('id'=>$id))) {
     if(strtolower($record->create_by)==strtolower($USER->username)) {
-        Header("Location: edit_entry.php?id=$id");
+        redirect(new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id)));
     }
 }
 
-#If we dont know the right date then make it up
+//If we dont know the right date then make it up
 if(($day==0) or ($month==0) or ($year==0)) {
 	$day   = date("d");
 	$month = date("m");
 	$year  = date("Y");
 }
 
-if($area==0) {
+$thisurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('day'=>$day, 'month'=>$month, 'year'=>$year, 'id'=>$id));
+
+if($area) {
+    $thisurl->param('area', $area);
+} else {
     $area = get_default_area();
 }
+if ($room) {
+    $thisurl->param('room', $room);
+}
+if ($series) {
+    $thisurl->param('series', $series);
+}
+if ($pview) {
+    $thisurl->param('pview', $pview);
+}
+
+$PAGE->set_url($thisurl);
+require_login();
 
 print_header_mrbs($day, $month, $year, $area);
 
 if ($series) {
-    $sql = "SELECT $tbl_repeat.name,
-            $tbl_repeat.description,
-	        $tbl_repeat.create_by,
-	        $tbl_room.room_name,
-	        $tbl_area.area_name,
-	        $tbl_repeat.type,
-	        $tbl_repeat.room_id,
-	        $tbl_repeat.timestamp,
-	        ($tbl_repeat.end_time - $tbl_repeat.start_time),
-	        $tbl_repeat.start_time,
-	        $tbl_repeat.end_time,
-	        $tbl_repeat.rep_type,
-	        $tbl_repeat.end_date,
-	        $tbl_repeat.rep_opt,
-	        $tbl_repeat.rep_num_weeks
-			FROM  $tbl_repeat, $tbl_room, $tbl_area
-			WHERE $tbl_repeat.room_id = $tbl_room.id 
-			AND $tbl_room.area_id = $tbl_area.id 
-			AND $tbl_repeat.id=$id";
+    $sql = "SELECT re.name,
+            re.description,
+	        re.create_by,
+	        r.room_name,
+	        a.area_name,
+	        re.type,
+	        re.room_id,
+	        re.timestamp,
+	        (re.end_time - re.start_time) duration,
+	        re.start_time,
+	        re.end_time,
+	        re.rep_type,
+	        re.end_date,
+	        re.rep_opt,
+	        re.rep_num_weeks
+	        u.id as userid,
+           	concat(u.firstname,' ',u.lastname) as fullname
+			FROM  {mrbs_repeat} re left join {user} u on u.username = re.create_by, {mrbs_room} r, {mrbs_area} a
+			WHERE re.room_id = r.id
+			AND r.area_id = a.id
+			AND re.id= ?";
 } else {
-	$sql = "SELECT $tbl_entry.name,
-	        $tbl_entry.description,
-	        $tbl_entry.create_by,
-	        $tbl_room.room_name,
-	        $tbl_area.area_name,
-	        $tbl_entry.type,
-	        $tbl_entry.room_id,
-	        $tbl_entry.timestamp,
-	       	($tbl_entry.end_time - $tbl_entry.start_time),
-	        $tbl_entry.start_time,
-	        $tbl_entry.end_time,
-	        $tbl_entry.repeat_id,
-	        {$CFG->prefix}user.id as userid,
-           	concat({$CFG->prefix}user.firstname,' ',{$CFG->prefix}user.lastname) as fullname
-			FROM  $tbl_entry left join {$CFG->prefix}user on {$CFG->prefix}user.username = $tbl_entry.create_by, $tbl_room, $tbl_area 
-			WHERE $tbl_entry.room_id = $tbl_room.id
-			AND $tbl_room.area_id = $tbl_area.id
-			AND $tbl_entry.id=$id";
+	$sql = "SELECT e.name,
+	        e.description,
+	        e.create_by,
+	        r.room_name,
+	        a.area_name,
+	        e.type,
+	        e.room_id,
+	        e.timestamp,
+	       	(e.end_time - e.start_time) duration,
+	        e.start_time,
+	        e.end_time,
+	        e.repeat_id,
+	        u.id as userid,
+           	concat(u.firstname,' ',u.lastname) as fullname
+			FROM  {mrbs_entry} e left join {user} u on u.username = e.create_by, {mrbs_room}, {mrbs_area}
+			WHERE e.room_id = r.id
+			AND r.area_id = a.id
+			AND e.id= ?";
 }
 
-$res = sql_query($sql);
-if (! $res) {
-    fatal_error(0, sql_error());
-}
+$booking = $DB->get_record_sql($sql, array($id), MUST_EXIST);
 
-if(sql_count($res) < 1) {
-	fatal_error(0, ($series ? get_string('invalid_series_id','block_mrbs') : get_string('invalid_entry_id','block_mrbs')));
-}
-
-$row = sql_row($res, 0);
-sql_free($res);
-
-# Note: Removed stripslashes() calls from name and description. Previous
-# versions of MRBS mistakenly had the backslash-escapes in the actual database
-# records because of an extra addslashes going on. Fix your database and
-# leave this code alone, please.
-$name         = htmlspecialchars($row[0]);
-$description  = htmlspecialchars($row[1]);
-$create_by    = "<a href='{$CFG->wwwroot}/user/view.php?id=$row[12]'>".htmlspecialchars($row[13]).'</a>';
-$room_name    = htmlspecialchars($row[3]);
-$area_name    = htmlspecialchars($row[4]);
-$type         = $row[5];
-$room_id      = $row[6];
-$updated      = time_date_string($row[7]);
-# need to make DST correct in opposite direction to entry creation
-# so that user see what he expects to see
-$duration     = $row[8] - cross_dst($row[9], $row[10]);
+// Note: Removed stripslashes() calls from name and description. Previous
+// versions of MRBS mistakenly had the backslash-escapes in the actual database
+// records because of an extra addslashes going on. Fix your database and
+// leave this code alone, please.
+$name         = s($booking->name);
+$description  = s($booking->description);
+$userurl      = new moodle_url('/user/view.php', array('id'=>$booking->userid));
+$create_by    = '<a href="'.$userurl.'">'.s($booking->fullname).'</a>';
+$room_name    = s($booking->room_name);
+$area_name    = s($booking->area_name);
+$type         = $booking->type;
+$room_id      = $booking->room_id;
+$updated      = time_date_string($booking->timestamp);
+// need to make DST correct in opposite direction to entry creation
+// so that user see what he expects to see
+$duration     = $booking->duration - cross_dst($booking->start_time, $booking->end_time);
 
 if ($enable_periods) {
-	list( $start_period, $start_date) =  period_date_string($row[9]);
+	list( $start_period, $start_date) =  period_date_string($booking->start_time);
 } else {
-    $start_date = time_date_string($row[9]);
+    $start_date = time_date_string($booking->start_time);
 }
 
 if ($enable_periods) {
-    list( , $end_date) =  period_date_string($row[10], -1);
+    list( , $end_date) =  period_date_string($booking->end_time, -1);
 } else {
-    $end_date = time_date_string($row[10]);
+    $end_date = time_date_string($booking->end_time);
 }
 
 $rep_type = 0;
 
 if ($series == 1) {
-	$rep_type     = $row[11];
-	$rep_end_date = userdate($row[12], '%A %d %B %Y');
-	$rep_opt      = $row[13];
-	$rep_num_weeks = $row[14];
-	# I also need to set $id to the value of a single entry as it is a
-	# single entry from a series that is used by del_entry.php and
-	# edit_entry.php
-	# So I will look for the first entry in the series where the entry is
-	# as per the original series settings
-	$sql = "SELECT id
-			FROM $tbl_entry
-			WHERE repeat_id=\"$id\" AND entry_type=\"1\"
-			ORDER BY start_time
-			LIMIT 1";
-	$res = sql_query($sql);
-	if (!$res) {
-	    fatal_error(0, sql_error());
+	$rep_type     = $booking->rep_type;
+	$rep_end_date = userdate($booking->end_date, '%A %d %B %Y');
+	$rep_opt      = $booking->rep_opt;
+	$rep_num_weeks = $booking->num_weeks;
+	// I also need to set $id to the value of a single entry as it is a
+	// single entry from a series that is used by del_entry.php and
+	// edit_entry.php
+	// So I will look for the first entry in the series where the entry is
+	// as per the original series settings
+    $entry = $DB->get_records('mrbs_entry', array('repeat_id'=>$id, 'entry_type'=>1), 'start_time', 'id', 0, 1);
+    if (empty($entry)) {
+		// if all entries in series have been modified then
+		// as a fallback position just select the first entry
+		// in the series
+		// hopefully this code will never be reached as
+		// this page will display the start time of the series
+		// but edit_entry.php will display the start time of the entry
+        $entry = $DB->get_records('mrbs_entry', array('repeat_id'=>$id), 'start_time', 'id', 0, 1);
 	}
-	if (sql_count($res) < 1) {
-		# if all entries in series have been modified then
-		# as a fallback position just select the first entry
-		# in the series
-		# hopefully this code will never be reached as
-		# this page will display the start time of the series
-		# but edit_entry.php will display the start time of the entry
-		sql_free($res);
-		$sql = "SELECT id 
-				FROM $tbl_entry
-				WHERE repeat_id=\"$id\"
-				ORDER BY start_time
-				LIMIT 1";
-		$res = sql_query($sql);
-		if (! $res) {
-		    fatal_error(0, sql_error());
-		}
-	}
-	$row = sql_row($res, 0);
-	$id = $row[0];
-	sql_free($res);
+    $entry = reset($entry); // Get the first (and only) record
+    $id = $entry->id;
 } else {
-	$repeat_id = $row[11];
+	$repeat_id = $booking->repeat_id;
 	if ($repeat_id != 0) {
-		$res = sql_query("SELECT rep_type, end_date, rep_opt, rep_num_weeks	FROM $tbl_repeat WHERE id=$repeat_id");
-		if (! $res) { 
-		    fatal_error(0, sql_error());
+        $repeat = get_record('mrbs_repeat', array('id'=>$repeat_id));
+        if ($repeat) {
+			$rep_type     = $repeat->rep_type;
+			$rep_end_date = userdate($repeat->end_date, '%A %d %B %Y');
+			$rep_opt      = $repeat->rep_opt;
+			$rep_num_weeks = $repeat->rep_num_weeks;
 		}
-		if (sql_count($res) == 1) {
-			$row = sql_row($res, 0);
-			$rep_type     = $row[0];
-			$rep_end_date = userdate($row[1], '%A %d %B %Y');
-			$rep_opt      = $row[2];
-			$rep_num_weeks = $row[3];
-		}
-		sql_free($res);
 	}
 }
-
 
 $enable_periods ? toPeriodString($start_period, $duration, $dur_units) : toTimeString($duration, $dur_units);
 
 $repeat_key = "rep_type_" . $rep_type;
 
-# Now that we know all the data we start drawing it
+// Now that we know all the data we start drawing it
 
 ?>
 
 <H3>
-    <?php 
+    <?php
     if ($course = $DB->get_record('course',array('shortname'=>$name))) {
-        echo "<a href={$CFG->wwwroot}/course/view.php?id=$course->id>$name</a>";
+        $courseurl = new moodle_url('/course/view.php', array('id'=>$course->id));
+        echo '<a href="'.$courseurl.'">'.$name.'</a>';
         $sizequery="SELECT count(*) as size
-                    FROM {$CFG->prefix}context 
-                        JOIN {$CFG->prefix}role_assignments ON {$CFG->prefix}role_assignments.contextid = {$CFG->prefix}context.id 
-                            AND {$CFG->prefix}role_assignments.roleid=5 
-                        JOIN {$CFG->prefix}course ON {$CFG->prefix}context.contextlevel = 50 
-                            AND {$CFG->prefix}context.instanceid = {$CFG->prefix}course.id 
-                    WHERE {$CFG->prefix}course.id  ='$course->id'";
-        $size=get_record_sql($sizequery);
+                    FROM {context} cx
+                        JOIN {role_assignments} ra ON ra.contextid = cx.id
+                            AND ra.roleid=5
+                        JOIN {course} c ON cx.contextlevel = 50
+                            AND cx.instanceid = c.id
+                    WHERE c.id  = ?";
+        $size = $DB->get_record_sql($sizequery, array($course->id));
         echo '<br />class size: '.$size->size;
     } else {
         echo $name;
-    } 
+    }
     ?>
 </H3>
 
@@ -251,10 +246,10 @@ $repeat_key = "rep_type_" . $rep_type;
 if ($rep_type != 0) {
 	$opt = "";
 	if (($rep_type == 2) || ($rep_type == 6)) {
-		# Display day names according to language and preferred weekday start.
+		// Display day names according to language and preferred weekday start.
 		for ($i = 0; $i < 7; $i++) {
 			$daynum = ($i + $weekstarts) % 7;
-			if ($rep_opt[$daynum]) { 
+			if ($rep_opt[$daynum]) {
 			    $opt .= day_name($daynum) . " ";
 			}
 		}
@@ -277,13 +272,15 @@ if ($rep_type != 0) {
 <?php
 
 if (!$series) {
-    echo "<a href=\"edit_entry.php?id=$id\">". get_string('editentry','block_mrbs') ."</a>";
+    $editurl = new moodle_url('/blocks/mrbs/web/edit.php', array('id'=>$id));
+    echo '<a href="'.$editurl.'">'. get_string('editentry','block_mrbs') ."</a>";
 }
 if($repeat_id) {
     echo " - ";
 }
 if($repeat_id || $series ) {
-    echo "<a href=\"edit_entry.php?id=$id&edit_type=series&day=$day&month=$month&year=$year\">".get_string('editseries','block_mrbs')."</a>";
+    $editurl = new moodle_url('/blocks/mrbs/web/edit.php', array('id'=>$id, 'edit_type'=>'series', 'day'=>$day, 'month'=>$month, 'year'=>$year));
+    echo '<a href="'.$editurl.'">'.get_string('editseries','block_mrbs')."</a>";
 }
 
 ?>
@@ -292,7 +289,8 @@ if($repeat_id || $series ) {
 <?php
 
 if (!$series) {
-    echo "<A HREF=\"del_entry.php?id=$id&series=0\" onClick=\"return confirm('".get_string('confirmdel','block_mrbs')."');\">".get_string('deleteentry','block_mrbs')."</A>";
+    $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array('id'=>$id, 'series'=>0, 'sesskey'=>sesskey()));
+    echo '<A HREF="'.$delurl.'" onClick="return confirm("'.get_string('confirmdel','block_mrbs').'");">'.get_string('deleteentry','block_mrbs')."</A>";
 }
 
 if($repeat_id) {
@@ -300,14 +298,15 @@ if($repeat_id) {
 }
 
 if($repeat_id || $series ) {
-    echo "<A HREF=\"del_entry.php?id=$id&series=1&day=$day&month=$month&year=$year\" onClick=\"return confirm('".get_string('confirmdel','block_mrbs')."');\">".get_string('deleteseries','block_mrbs')."</A>";
+    $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array('id'=>$id, 'series'=>1, 'sesskey'=>sesskey(), 'day'=>$day, 'month'=>$month, 'year'=>$year));
+    echo '<A HREF="'.$delurl.'" onClick="return confirm("'.get_string('confirmdel','block_mrbs').'");">'.get_string('deleteseries','block_mrbs')."</A>";
 }
 
 ?>
 
 <br />
 
-<?php 
+<?php
 
 if (isset($HTTP_REFERER)) { //remove the link if displayed from an email
 ?>
@@ -315,8 +314,8 @@ if (isset($HTTP_REFERER)) { //remove the link if displayed from an email
 <?php
 }
 
-if (strtolower($USER->username) <> strtolower($create_by)) {
+if (strtolower($USER->username) != strtolower($create_by)) {
     include "request_vacate.php";
 }
 
-include "trailer.php"; ?>
+include "trailer.php";
