@@ -64,5 +64,3 @@ function authGetUserLevel($user) {
         return 0;
     }
 }
-
-?>
