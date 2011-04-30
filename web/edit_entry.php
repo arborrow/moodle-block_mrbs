@@ -566,15 +566,18 @@ if ( ( ( $id==0 ) ) Xor ( isset( $rep_type ) && ( $rep_type != 0 ) && ( "series"
 
     <?php
     if($id){ //always be able to delete entry and if part of a series then add option to delete entire series.
-        echo "<NOSCRIPT><a id=\"dellink\" HREF=\"del_entry.php?id=$id&series=0\">".get_string('deleteentry','block_mrbs')."</A></NOSCRIPT>"
+        $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array('id'=>$id, 'series'=>0, 'sesskey'=>sesskey()));
+        echo "<NOSCRIPT><a id=\"dellink\" HREF=\"".$delurl."\">".get_string('deleteentry','block_mrbs')."</A></NOSCRIPT>"
                 ."<script type=\"text/javascript\">
-                    document.writeln('<a href=\"#\" onClick=\"if(confirm(\'".get_string('confirmdel','block_mrbs')."\')){document.location=\'del_entry.php?id=$id&series=0\';}\">".get_string('deleteentry','block_mrbs')."</a>');
+                    document.writeln('<a href=\"#\" onClick=\"if(confirm(\'".get_string('confirmdel','block_mrbs')."\')){document.location=\'".$delurl."\';}\">".get_string('deleteentry','block_mrbs')."</a>');
                  </script>";
         if($rep_id) {
+            $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array('id'=>$id, 'series'=>1, 'sesskey'=>sesskey(),
+                                                                             'day'=>$day, 'month'=>$month, 'year'=>$year));
             echo " - ";
-            echo "<NOSCRIPT><a id=\"dellink\" HREF=\"del_entry.php?id=$id&series=1&day=$day&month=$month&year=$year\">".get_string('deleteentry','block_mrbs')."</A></NOSCRIPT>"
+            echo "<NOSCRIPT><a id=\"dellink\" HREF=\"".$delurl."\">".get_string('deleteentry','block_mrbs')."</A></NOSCRIPT>"
                 ."<script type=\"text/javascript\">
-                    document.writeln('<a href=\"#\" onClick=\"if(confirm(\'".get_string('confirmdel','block_mrbs')."\')){document.location=\'del_entry.php?id=$id&series=1&day=$day&month=$month&year=$year\';}\">".get_string('deleteseries','block_mrbs')."</a>');
+                    document.writeln('<a href=\"#\" onClick=\"if(confirm(\'".get_string('confirmdel','block_mrbs')."\')){document.location=\'".$delurl."\';}\">".get_string('deleteseries','block_mrbs')."</a>');
                  </script>";
         }
     }
