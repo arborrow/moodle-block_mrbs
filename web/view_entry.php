@@ -101,7 +101,7 @@ if ($series) {
 	        e.repeat_id,
 	        u.id as userid,
            	concat(u.firstname,' ',u.lastname) as fullname
-			FROM  {mrbs_entry} e left join {user} u on u.username = e.create_by, {mrbs_room}, {mrbs_area}
+			FROM  {mrbs_entry} e left join {user} u on u.username = e.create_by, {mrbs_room} r, {mrbs_area} a
 			WHERE e.room_id = r.id
 			AND r.area_id = a.id
 			AND e.id= ?";
@@ -272,14 +272,14 @@ if ($rep_type != 0) {
 <?php
 
 if (!$series) {
-    $editurl = new moodle_url('/blocks/mrbs/web/edit.php', array('id'=>$id));
+    $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id));
     echo '<a href="'.$editurl.'">'. get_string('editentry','block_mrbs') ."</a>";
 }
 if($repeat_id) {
     echo " - ";
 }
 if($repeat_id || $series ) {
-    $editurl = new moodle_url('/blocks/mrbs/web/edit.php', array('id'=>$id, 'edit_type'=>'series', 'day'=>$day, 'month'=>$month, 'year'=>$year));
+    $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id, 'edit_type'=>'series', 'day'=>$day, 'month'=>$month, 'year'=>$year));
     echo '<a href="'.$editurl.'">'.get_string('editseries','block_mrbs')."</a>";
 }
 
