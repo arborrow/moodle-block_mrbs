@@ -1,3 +1,18 @@
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 function RoomSearch(){
 //check for force book- if ticked we should be able to select any room
 
@@ -88,23 +103,22 @@ function RoomSearch(){
     }
     xmlHttp.open("GET","roomsearch_ss.php"+searchstring,true);
     xmlHttp.send(null);
-
-
-
 }
 
+var mrbs_weekdaynames = null;
+
+function SetWeekDayNames(mon, tue, wed, thu, fri, sat, sun) {
+    mrbs_weekdaynames=new Array(7);
+    mrbs_weekdaynames[1]=mon;
+    mrbs_weekdaynames[2]=tue;
+    mrbs_weekdaynames[3]=wed;
+    mrbs_weekdaynames[4]=thu;
+    mrbs_weekdaynames[5]=fri;
+    mrbs_weekdaynames[6]=sat;
+    mrbs_weekdaynames[0]=sun;
+}
 
 function ChangeOptionDays(formObj, prefix, updatefreerooms, roomsearch){
-
-    var week=new Array(7);
-    week[1]="Mon";
-    week[2]="Tue";
-    week[3]="Wed";
-    week[4]="Thu";
-    week[5]="Fri";
-    week[6]="Sat";
-    week[0]="Sun";
-
 
     var DaysObject = eval("formObj." + prefix + "day");
     var currentDay = DaysObject.selectedIndex;
@@ -127,7 +141,7 @@ function ChangeOptionDays(formObj, prefix, updatefreerooms, roomsearch){
 
     while (i.getMonth()==month){
 
-      DaysObject.options[i.getDate()-1] = new Option(week[i.getDay()]+" "+i.getDate(),i.getDate());
+      DaysObject.options[i.getDate()-1] = new Option(mrbs_weekdaynames[i.getDay()]+" "+i.getDate(),i.getDate());
       i.setTime(i.getTime() + 86400000);
     }
    DaysObject.selectedIndex = currentDay;
