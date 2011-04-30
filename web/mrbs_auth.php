@@ -83,8 +83,8 @@ function showAccessDenied($day, $month, $year, $area)
     global $HTTP_REFERER;
 
     print_header_mrbs($day, $month, $year, $area);
-    error('accessdenied','block_mrbs');
-    error('norights','block_mrbs');
+    print_error('accessdenied','block_mrbs');
+    print_error('norights','block_mrbs');
     echo('<a href ="'.$HTTP_REFERER.'">' .get_string('returnprev','block_mrbs'). '</a>' );
     echo $OUTPUT->footer();
 }
