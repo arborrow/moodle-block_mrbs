@@ -197,11 +197,10 @@ if (!empty($area)) {
             if(empty($today[$entry->rid][date($format,$t)])) {
                 $today[$entry->rid][date($format,$t)]["id"]    = $entry->eid;
                 $today[$entry->rid][date($format,$t)]["color"] = $entry->type;
-                $today[$entry->rid][date($format,$t)]["data"]  .= "";
-                $today[$entry->rid][date($format,$t)]["long_descr"]  .= "";
+                $today[$entry->rid][date($format,$t)]["data"]  = "";
+                $today[$entry->rid][date($format,$t)]["long_descr"]  = "";
                 $today[$entry->rid][date($format,$t)]["double_booked"]  = false;
             } else {
-                //UT
                 $today[$entry->rid][date($format,$t)]["id"]    .= ','.$entry->eid;
                 $today[$entry->rid][date($format,$t)]["data"]  .= "\n";
                 $today[$entry->rid][date($format,$t)]["long_descr"]  .= ",";
