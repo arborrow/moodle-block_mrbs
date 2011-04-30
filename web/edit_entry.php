@@ -1,152 +1,166 @@
 <?php
-# $Id: edit_entry.php,v 1.17 2009/12/27 19:15:18 arborrow Exp $
-require_once("../../../config.php"); //for Moodle integration
-require_once('grab_globals.inc.php');
+
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
 include "config.inc.php";
 include "functions.php";
-include "$dbsys.php";
 include "mrbs_auth.php";
-require_login();
-global $twentyfourhour_format;
+
+global $twentyfourhour_format, $morningstarts;
 
 $day = optional_param('day', 0, PARAM_INT);
 $month = optional_param('month', 0, PARAM_INT);
-$year = optional_param('year', 0, PARAM_INT); 
-$area = optional_param('area', get_default_area(),  PARAM_INT);
+$year = optional_param('year', 0, PARAM_INT);
+$area = optional_param('area', 0,  PARAM_INT);
 $edit_type = optional_param('edit_type', '', PARAM_ALPHA);
-$rep_id = optional_param('rep_id', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
-$room_id = optional_param('room_id', 0, PARAM_INT);
-$start_hour = optional_param('start_hour', 0, PARAM_INT);
-// $morningstarts = optional_param('morningstarts', 0, PARAM_INT); //I believe this is coming from somewhere else - not URL - ab.
-// $rep_type could use a closer look but I believe this is not passed via URL -ab.
-$start_min = optional_param('start_min', 0, PARAM_INT);
-$rep_num_weeks = optional_param('rep_num_weeks', 0, PARAM_INT); 
-$force = optional_param('force', FALSE, PARAM_BOOL); 
-$duration = optional_param('duration', 60, PARAM_INT);
+$room = optional_param('room', 0, PARAM_INT);
+$hour = optional_param('hour', '', PARAM_INT);
+$minute = optional_param('minute', '', PARAM_INT);
+$force = optional_param('force', FALSE, PARAM_BOOL);
+$period = optional_param('period', 0, PARAM_INT);
 $all_day = optional_param('all_day', FALSE, PARAM_BOOL);
-$series = optional_param('series', 0, PARAM_INT);
-$create_by = optional_param('create_by', 0, PARAM_INT);
 
-#If we dont know the right date then make it up
+//If we dont know the right date then make it up
 if(($day==0) or ($month==0) or ($year==0)) {
 	$day   = date("d");
 	$month = date("m");
 	$year  = date("Y");
 }
-// if(empty($area)) //handled by optional_param -ab
-//	$area = get_default_area();
 
-// if(!isset($edit_type)) //handled by optional_param -ab
-// 	$edit_type = "";
+$thisurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('day'=>$day, 'month'=>$month, 'year'=>$year));
+
+if ($area) {
+    $thisurl->param('area', $area);
+} else {
+    $area = get_default_area();
+}
+if ($id) {
+    $thisurl->param('id', $id);
+}
+if ($force) {
+    $thisurl->param('force', $force);
+}
+if ($room) {
+    $thisurl->param('room', $room);
+}
+if (!empty($edit_type)) {
+    $thisurl->param('edit_type', $edit_type);
+}
+if (!empty($hour)) {
+    $thisurl->param('hour', $hour);
+}
+if (!empty($minute)) {
+    $thisurl->param('minute', $minute);;
+}
+
+$PAGE->set_url($thisurl);
+require_login();
 
 if(!getAuthorised(1)) {
 	showAccessDenied($day, $month, $year, $area);
 	exit;
 }
 
-# This page will either add or modify a booking
 
-# We need to know:
-#  Name of booker
-#  Description of meeting
-#  Date (option select box for day, month, year)
-#  Time
-#  Duration
-#  Internal/External
 
-# Firstly we need to know if this is a new booking or modifying an old one
-# and if it's a modification we need to get all the old data from the db.
-# If we had $id passed in then it's a modification.
+// This page will either add or modify a booking
+
+// We need to know:
+//  Name of booker
+//  Description of meeting
+//  Date (option select box for day, month, year)
+//  Time
+//  Duration
+//  Internal/External
+
+// Firstly we need to know if this is a new booking or modifying an old one
+// and if it's a modification we need to get all the old data from the db.
+// If we had $id passed in then it's a modification.
 if ($id>0) {
-	$sql = "SELECT name, create_by, description, start_time, end_time, type, room_id, entry_type, repeat_id, timestamp 
-			FROM $tbl_entry 
-			WHERE id=$id";
-	$res = sql_query($sql);
-	if (! $res) { 
-	    fatal_error(1, sql_error());
-	}
-	if (sql_count($res) != 1) {
-	    fatal_error(1, get_string('entryid','block_mrbs') . $id . get_string('not_found','block_mrbs'));
-	}
-	$row = sql_row($res, 0);
-	sql_free($res);
+    //UT
+    $entry = $DB->get_record('mrbs_entry', array('id'=>$id), '*', MUST_EXIST);
 	// Note: Removed stripslashes() calls from name and description. Previous
 	// versions of MRBS mistakenly had the backslash-escapes in the actual database
 	// records because of an extra addslashes going on. Fix your database and
 	// leave this code alone, please.
-	$name        = $row[0];
-	$create_by   = $row[1];
-	$description = $row[2];
-    $start_time   = $row[3];
-	$start_day   = userdate($row[3], '%d');
-	$start_month = userdate($row[3], '%m');
-	$start_year  = userdate($row[3], '%Y');
-	$start_hour  = userdate($row[3], '%H');
-	$start_min   = userdate($row[3], '%M');
-    $end_time    = $row[4];
-	$duration    = $row[4] - $row[3] - cross_dst($row[3], $row[4]);
-	$type        = $row[5];
-	$room_id     = $row[6];
+	$name        = $entry->name;
+	$create_by   = $entry->create_by;
+	$description = $entry->description;
+    $start_time   = $entry->start_time;
+	$start_day   = userdate($entry->start_time, '%d');
+	$start_month = userdate($entry->start_time, '%m');
+	$start_year  = userdate($entry->start_time, '%Y');
+	$start_hour  = userdate($entry->start_time, '%H');
+	$start_min   = userdate($entry->start_time, '%M');
+    $end_time    = $entry->end_time;
+	$duration    = $entry->end_time - $entry->start_time - cross_dst($entry->start_time, $entry->end_time);
+	$type        = $entry->type;
+	$room_id     = $entry->room_id;
     //put this here so that a move can be coded into the get data
     if(!empty($room)) {
         $room_id=$room;
     }
-	$entry_type  = $row[7];
-	$rep_id      = $row[8];
-	
+	$entry_type  = $entry->entry_type;
+	$rep_id      = $entry->repeat_id;
+
 	if($entry_type >= 1) {
-		$sql = "SELECT rep_type, start_time, end_date, rep_opt, rep_num_weeks, timestamp
-		        FROM $tbl_repeat WHERE id=$rep_id";
-		
-		$res = sql_query($sql);
-		if (! $res) {
-		    fatal_error(1, sql_error());
-		}
-		if (sql_count($res) != 1) {
-		    fatal_error(1, get_string('repeat_id','block_mrbs') . $rep_id . get_string('not_found','block_mrbs'));
-		}
-		$row = sql_row($res, 0);
-		sql_free($res);
-		$rep_type = $row[0];
+        //UT
+        $repeat = $DB->get_record('mrbs_repeat', array('id'=>$rep_id), '*', MUST_EXIST);
+		$rep_type = $repeat->rep_type;
 
 		if($edit_type == "series") {
-			$start_day   = (int)userdate($row[1], '%d');
-			$start_month = (int)userdate($row[1], '%m');
-			$start_year  = (int)userdate($row[1], '%Y');
-			
-			$rep_end_day   = (int)userdate($row[2], '%d');
-			$rep_end_month = (int)userdate($row[2], '%m');
-			$rep_end_year  = (int)userdate($row[2], '%Y');
-			
+			$start_day   = (int)userdate($repeat->start_time, '%d');
+			$start_month = (int)userdate($repeat->start_time, '%m');
+			$start_year  = (int)userdate($repeat->start_time, '%Y');
+
+			$rep_end_day   = (int)userdate($repeat->end_date, '%d');
+			$rep_end_month = (int)userdate($repeat->end_date, '%m');
+			$rep_end_year  = (int)userdate($repeat->end_date, '%Y');
+
 			switch($rep_type) {
 				case 2:
 				case 6:
-					$rep_day[0] = $row[3][0] != "0";
-					$rep_day[1] = $row[3][1] != "0";
-					$rep_day[2] = $row[3][2] != "0";
-					$rep_day[3] = $row[3][3] != "0";
-					$rep_day[4] = $row[3][4] != "0";
-					$rep_day[5] = $row[3][5] != "0";
-					$rep_day[6] = $row[3][6] != "0";
+					$rep_day[0] = $repeat->rep_opt[0] != "0";
+					$rep_day[1] = $repeat->rep_opt[1] != "0";
+					$rep_day[2] = $repeat->rep_opt[2] != "0";
+					$rep_day[3] = $repeat->rep_opt[3] != "0";
+					$rep_day[4] = $repeat->rep_opt[4] != "0";
+					$rep_day[5] = $repeat->rep_opt[5] != "0";
+					$rep_day[6] = $repeat->rep_opt[6] != "0";
 
 					if ($rep_type == 6)
 					{
-						$rep_num_weeks = $row[4];
+						$rep_num_weeks = $repeat->rep_num_weeks;
 					}
-					
+
 					break;
-				
+
 				default:
 					$rep_day = array(0, 0, 0, 0, 0, 0, 0);
 			}
 		} else {
-			$rep_type     = $row[0];
-			$rep_end_date = userdate($row[2], '%A %d %B %Y');
-			$rep_opt      = $row[3];
+			$rep_type     = $repeat->rep_type;
+			$rep_end_date = userdate($repeat->end_date, '%A %d %B %Y');
+			$rep_opt      = $repeat->rep_opt;
 		}
 	}
 } else { // It is a new booking. The data comes from whichever button the user clicked
+    //UT
 	$edit_type   = "series";
 	$name        = getUserName();
 	$create_by   = getUserName();
@@ -155,14 +169,13 @@ if ($id>0) {
 	$start_month = $month;
 	$start_year  = $year;
     // Avoid notices for $hour and $minute if periods is enabled
-    (isset($hour)) ? $start_hour = $hour : '';
-	(isset($minute)) ? $start_min = $minute : '';
-    //$duration    = ($enable_periods ? 60 : 60 * 60);
+    $start_hour = $hour;
+	$start_min = $minute;
+    $duration    = ($enable_periods ? 60 : 60 * 60);
 	$type        = "I";
 	$room_id     = $room;
-        $start_time = mktime(12,$period,00,$start_month,$start_day,$start_year);
-    unset($id);
-       $end_time=$start_time;
+    $start_time = mktime(12,$period,00,$start_month,$start_day,$start_year);
+    $end_time=$start_time;
 	$rep_id        = 0;
 	$rep_type      = 0;
 	$rep_end_day   = $day;
@@ -171,18 +184,19 @@ if ($id>0) {
 	$rep_day       = array(0, 0, 0, 0, 0, 0, 0);
 }
 
-# These next 4 if statements handle the situation where
-# this page has been accessed directly and no arguments have
-# been passed to it.
-# If we have not been provided with a room_id
+// These next 4 if statements handle the situation where
+// this page has been accessed directly and no arguments have
+// been passed to it.
+// If we have not been provided with a room_id
 if ($room_id==0  ) {
-	$sql = "SELECT id FROM $tbl_room LIMIT 1";
-	$res = sql_query($sql);
-	$row = sql_row($res, 0);
-	$room_id = $row[0];
+    //UT
+    $dbroom = $DB->get_records('mrbs_room', null, 'room_name', 'id', 0, 1);
+    if ($dbroom) {
+        $room_id = $dbroom->id;
+    }
 }
 
-# If we have not been provided with starting time
+// If we have not been provided with starting time
 if (empty($start_hour) && $morningstarts<10) {
     $start_hour = "0$morningstarts";
 }
@@ -202,17 +216,18 @@ if (empty($rep_num_weeks)) {
 
 $enable_periods ? toPeriodString($start_min, $duration, $dur_units) : toTimeString($duration, $dur_units);
 
-#now that we know all the data to fill the form with we start drawing it
+//now that we know all the data to fill the form with we start drawing it
 
 if(!getWritable($create_by, getUserName())) {
 	showAccessDenied($day, $month, $year, $area);
 	exit;
 }
 
+$PAGE->requires->js('/blocks/mrbs/web/updatefreerooms.js', true);
+
 print_header_mrbs($day, $month, $year, $area);
 
 ?>
-<SCRIPT type="text/javascript" src="updatefreerooms.js"></SCRIPT> 
 <SCRIPT LANGUAGE="JavaScript">
 
 <?php
@@ -294,7 +309,7 @@ function OnAllDayClick() { // Executed when the user clicks on the all_day check
 }
 </SCRIPT>
 
-<H2><?php echo isset($id) ? ($edit_type == "series" ? get_string('editseries','block_mrbs') : get_string('editentry','block_mrbs')) : get_string('addentry','block_mrbs'); ?></H2>
+<H2><?php echo $id ? ($edit_type == "series" ? get_string('editseries','block_mrbs') : get_string('editentry','block_mrbs')) : get_string('addentry','block_mrbs'); ?></H2>
 
 <FORM NAME="main" ACTION="edit_entry_handler.php" METHOD="GET">
 
@@ -370,18 +385,13 @@ while (list(,$unit) = each($units))
 
 
 <?php
-      # Determine the area id of the room in question first
-      $sql = "select area_id from $tbl_room where id=$room_id";
-      $res = sql_query($sql);
-      $row = sql_row($res, 0);
-      $area_id = $row[0];
-      # determine if there is more than one area
-      $sql = "select id from $tbl_area";
-      $res = sql_query($sql);
-      $num_areas = sql_count($res);
-      # if there is more than one area then give the option
-      # to choose areas.
-      if( $num_areas > 1 ) {
+ // Determine the area id of the room in question first
+$area_id = $DB->get_field('mrbs_room', 'area_id', array('id'=>$room_id), MUST_EXIST);
+// determine if there is more than one area
+$areas = $DB->get_records('mrbs_area', null, 'area_name');
+// if there is more than one area then give the option
+// to choose areas.
+if( count($areas) > 1 ) {
 
 ?>
 <script language="JavaScript">
@@ -392,49 +402,46 @@ while (list(,$unit) = each($units))
 this.document.writeln("<tr><td class=CR><b><?php echo get_string('areas','block_mrbs') ?>:</b></td><td class=CL valign=top>");
 this.document.writeln("          <select name=\"areas\" onChange=\"updateFreeRooms()\">");
 <?php
-# get list of areas
-$sql = "select id, area_name from $tbl_area order by area_name";
-$res = sql_query($sql);
-if ($res) for ($i = 0; ($row = sql_row($res, $i)); $i++)
-{
+// get list of areas
+
+foreach ($areas as $dbarea) {
 	$selected = "";
-	if ($row[0] == $area_id) {
+	if ($dbarea->id == $area_id) {
 		$selected = "SELECTED";
 	}
-	print "this.document.writeln(\"            <option $selected value=\\\"".$row[0]."\\\">".$row[1]."\")\n";
+	print "this.document.writeln(\"            <option $selected value=\\\"".$dbarea->id."\\\">".$dbarea->area_name."\")\n";
 }
 
-//Add special IT option
-    print "this.document.writeln(\"            <option  value=\\\"IT\\\">".get_string('computerrooms','block_mrbs')."\")\n";
+print "this.document.writeln(\"            <option  value=\\\"IT\\\">".get_string('computerrooms','block_mrbs')."\")\n";
 ?>
 this.document.writeln("          </select>");
 this.document.writeln("</td></tr>");
 // -->
 </script>
 <?php
-} # if $num_areas
+} // if $num_areas
 ?>
 <tr><td class=CR><b><?php echo get_string('rooms','block_mrbs') ?>:</b></td>
   <td class=CL valign=top><table><tr><td><select name="rooms[]" multiple="yes">
   <?php
-        # select the rooms in the area determined above
-	$sql = "select id, room_name from $tbl_room where area_id=$area_id order by room_name";
-   	$res = sql_query($sql);
+// select the rooms in the area determined above
+//$sql = "select id, room_name from $tbl_room where area_id=$area_id order by room_name";
+$rooms = $DB->get_records('mrbs_room', array('area_id'=>$area_id), 'room_name');
 
-
-   	if ($res) for ($i = 0; ($row = sql_row($res, $i)); $i++)
-   	{
-		$selected = "";
-		if ($row[0] == $room_id) {
-			$selected = "SELECTED";
-		}
-        echo "<option $selected value=\"".$row[0]."\">".$row[1]."($row[2] Capacity:$row[3])";
-        // store room names for emails
-        $room_names[$i] = $row[1];
-   	}
+$i = 0;
+foreach ($rooms as $dbroom) {
+    $selected = "";
+    if ($dbroom->id == $room_id) {
+        $selected = "SELECTED";
+    }
+    echo "<option $selected value=\"".$dbroom->id."\">".s($dbroom->room_name)." (".s($dbroom->description)." Capacity:$dbroom->capacity)";
+    // store room names for emails
+    $room_names[$i] = $dbroom->room_name;
+    $i++;
+}
   ?>
   </select></td><td><?php echo get_string('ctrl_click','block_mrbs') ?></td></tr>
-  <tr><td><?php echo get_string('dontshowoccupied', 'block_mrbs') ?><input name="nooccupied" id="nooccupied" type="checkbox" checked="checked" onclick="updateFreeRooms()" /></td><td></td></tr>
+  <tr><td><label for="nooccupied"><?php echo get_string('dontshowoccupied', 'block_mrbs') ?></label><input name="nooccupied" id="nooccupied" type="checkbox" checked="checked" onclick="updateFreeRooms()" /></td><td></td></tr>
 
   </table>
     </td></tr>
@@ -445,7 +452,7 @@ this.document.writeln("</td></tr>");
 //If this is an imported booking, forcably mark it as edited so that changes are not overridden on next import
 if(($type == 'K') or ($type == 'L')){
     echo '<OPTION VALUE=L SELECTED >'.$typel['L'].'</option>\n';
-}else{  
+}else{
     for ($c = "A"; $c <= "J"; $c++){
         if (!empty($typel[$c])){
 		    echo "<OPTION VALUE=$c" . ($type == $c ? " SELECTED" : "") . ">$typel[$c]\n";
@@ -455,7 +462,7 @@ if(($type == 'K') or ($type == 'L')){
 ?></SELECT></TD></TR>
 <tr><td>
 <?php if(has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM))){
-    echo'<b>Forceably book (automatically move other bookings):<input type="checkbox" name="forcebook" value="TRUE"';
+    echo'<label for="mrbsforcebook"><b>Forceably book (automatically move other bookings):</b></label></td><td><input id="mrbsforcebook" type="checkbox" name="forcebook" value="TRUE"';
     if ($force)echo '"CHECKED"';
     echo' onClick="document.getElementById(\'nooccupied\').checked=!this.checked; updateFreeRooms();">';
 }?>
@@ -469,14 +476,14 @@ if(($type == 'K') or ($type == 'L')){
 <?php
 
 
-for($i = 0; $i<7; $i++) //manually setting this to 7 since that is how many repetition types there are -arb quick and dirty hack 
+for($i = 0; $i<7; $i++) //manually setting this to 7 since that is how many repetition types there are -arb quick and dirty hack
 {
-	echo "<INPUT NAME=\"rep_type\" TYPE=\"RADIO\" VALUE=\"" . $i . "\"";
+	echo "<INPUT ID=\"radiorepeat".$i."\" NAME=\"rep_type\" TYPE=\"RADIO\" VALUE=\"" . $i . "\"";
 
 	if($i == $rep_type)
 		echo " CHECKED";
 
-	echo ">" . get_string('rep_type_'.$i,'block_mrbs') . "\n";
+	echo '><label for="radiorepeat'.$i.'">' . get_string('rep_type_'.$i,'block_mrbs') . "</label>\n";
 }
 
 ?>
@@ -492,13 +499,13 @@ for($i = 0; $i<7; $i++) //manually setting this to 7 since that is how many repe
  <TD CLASS=CR><B><?php echo get_string('rep_rep_day','block_mrbs')?></B> <?php echo get_string('rep_for_weekly','block_mrbs')?></TD>
  <TD CLASS=CL>
 <?php
-# Display day name checkboxes according to language and preferred weekday start.
+// Display day name checkboxes according to language and preferred weekday start.
 for ($i = 0; $i < 7; $i++)
 {
 	$wday = ($i + $weekstarts) % 7;
-	echo "<INPUT NAME=\"rep_day[$wday]\" TYPE=CHECKBOX";
+	echo "<INPUT ID=\"chkrepeatday".$i."\" NAME=\"rep_day[$wday]\" TYPE=CHECKBOX";
 	if ($rep_day[$wday]) echo " CHECKED";
-	echo ">" . day_name($wday) . "\n";
+	echo '><label for="chkrepeatday'.$i.'">'. day_name($wday) . "</label>\n";
 }
 ?>
  </TD>
@@ -517,7 +524,7 @@ else
 		$opt = "";
 		if ($rep_type == 2)
 		{
-			# Display day names according to language and preferred weekday start.
+			// Display day names according to language and preferred weekday start.
 			for ($i = 0; $i < 7; $i++)
 			{
 				$wday = ($i + $weekstarts) % 7;
