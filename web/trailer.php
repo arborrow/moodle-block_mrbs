@@ -1,6 +1,21 @@
 <?php
-# $Id: trailer.php,v 1.6 2008/08/04 01:17:51 arborrow Exp $
-require_once("../../../config.php"); //for Moodle integration
+
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 if ( $pview != 1 ) {
 
 echo "<P><HR><B>".get_string('viewday','block_mrbs').":</B>\n";
@@ -15,9 +30,9 @@ if(!isset($day))
 	$day = strftime("%d");
 
 if (empty($area))
-	$params = "";
+	$params = array();
 else
-	$params = "&area=$area";
+	$params = array('area'=>$area);
 
 for($i = -6; $i <= 7; $i++)
 {
@@ -30,7 +45,8 @@ for($i = -6; $i <= 7; $i++)
 	$cday   = date("d", $ctime);
 	if ($i != -6) echo " | ";
 	if ($i == 0) echo '<b>[ ';
-	echo "<a href=\"day.php?year=$cyear&month=$cmonth&day=$cday$params\">$str</a>\n";
+    $url = new moodle_url('/blocks/mrbs/web/day.php', array_merge(array('year'=>$cyear, 'month'=>$cmonth, 'day'=>$cday), $params));
+	echo "<a href=\"".$url."\">$str</a>\n";
 	if ($i == 0) echo ']</b> ';
 }
 
@@ -39,9 +55,9 @@ echo "<BR><B>".get_string('viewweek','block_mrbs').":</B>\n";
 if (!empty($room)) $params .= "&room=$room";
 
 $ctime = mktime(0, 0, 0, $month, $day, $year);
-# How many days to skip back to first day of week:
+// How many days to skip back to first day of week:
 $skipback = (date("w", $ctime) - $weekstarts + 7) % 7;
-	
+
 for ($i = -4; $i <= 4; $i++)
 {
 	$ctime = mktime(0, 0, 0, $month, $day + 7 * $i - $skipback, $year);
@@ -61,7 +77,8 @@ for ($i = -4; $i <= 4; $i++)
 		$str = userdate($ctime, empty($dateformat)? "%b %d" : "%d %b");
 	}
 	if ($i == 0) echo '<b>[ ';
-	echo "<a href=\"week.php?year=$cyear&month=$cmonth&day=$cday$params\">$str</a>\n";
+    $url = new moodle_url('/blocks/mrbs/web/week.php', array_merge(array('year'=>$cyear, 'month'=>$cmonth, 'day'=>$cday), $params));
+	echo "<a href=\"".$url."\">$str</a>\n";
 	if ($i == 0) echo ']</b> ';
 }
 
@@ -70,19 +87,22 @@ for ($i = -2; $i <= 6; $i++)
 {
 	$ctime = mktime(0, 0, 0, $month + $i, 1, $year);
 	$str = userdate($ctime, "%b %Y");
-	
+
 	$cmonth = date("m", $ctime);
 	$cyear  = date("Y", $ctime);
 	if ($i != -2) echo " | ";
 	if ($i == 0) echo '<b>[ ';
-	echo "<a href=\"month.php?year=$cyear&month=$cmonth$params\">$str</a>\n";
+    $url = new moodle_url('/blocks/mrbs/web/month.php', array_merge(array('year'=>$cyear, 'month'=>$cmonth), $params));
+	echo "<a href=\"".$url."\">$str</a>\n";
 	if ($i == 0) echo ']</b> ';
 }
 
 echo "<HR>";
-echo '<p><center><a href="' . basename($PHP_SELF) . '?' . $QUERY_STRING . '&pview=1">' . get_string('ppreview','block_mrbs') . '</a></center><p>';
+$thisurl = new moodle_url($PAGE->url, array('pview'=>1));
+echo '<p><center><a href="'.$thisurl.'">' . get_string('ppreview','block_mrbs') . '</a></center><p>';
 
 }
 
+echo '</div>';  // Close 'mrbscontainer'
+
 echo $OUTPUT->footer();
-?>
