@@ -124,11 +124,11 @@ if ( $pview != 1 ) {
    }
    echo "<td width=\"20%\"><h3>Find a room</h3>
         <form action='$gotoroom' method='get'>
-            $gotostr:<input type='text' name='room' value='$gotoval'>$gotomsg
+            $gotostr:<input type='text' name='room' value='$gotoval'>
             <input type='hidden' name='day' value='$day'>
             <input type='hidden' name='month' value='$month'>
             <input type='hidden' name='year' value='$year'>
-            <input type='submit' value='$gostr'>
+            <input type='submit' value='$gostr'>$gotomsg
         </form></td>";
 
    //Draw the three month calendars

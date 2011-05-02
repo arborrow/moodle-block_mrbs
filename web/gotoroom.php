@@ -53,12 +53,11 @@ $sql = "SELECT area_id, area_name FROM {mrbs_room} AS r JOIN {mrbs_area} AS a ON
 
 $area = $DB->get_record_sql($sql, array($room, '0'.$room), IGNORE_MULTIPLE);
 if ($area) {
-    $area = reset($area);
     $areaurl = new moodle_url('/blocks/mrbs/web/day.php',
                               array('day'=>$day, 'month'=>$month, 'year'=>$year, 'area'=>$area->area_id));
     redirect($areaurl);
 } else {
-    $notfoundurl = new moodle_url('blocks/mrbs/web/day.php',
+    $notfoundurl = new moodle_url('/blocks/mrbs/web/day.php',
                                   array('day'=>$day, 'month'=>$month, 'year'=>$year, 'roomnotfound'=>$room));
-    redirect($areaurl);
+    redirect($notfoundurl);
 }
