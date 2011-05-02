@@ -38,8 +38,7 @@ if (($day==0) or ($month==0) or ($year==0))
         $day--;
 }
 
-$thisurl = new moodle_url('/blocks/mrbs/web/day.php', array('day'=>$day, 'month'=>$month, 'year'=>$year, 'room'=>$room));
-
+$thisurl = new moodle_url('/blocks/mrbs/web/gotoroom.php', array('day'=>$day, 'month'=>$month, 'year'=>$year, 'room'=>$room));
 $PAGE->set_url($thisurl);
 require_login();
 
