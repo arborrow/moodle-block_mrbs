@@ -155,7 +155,7 @@ HTML2END;
           <A HREF="$adminurl">$adminstr</A>
               </TD>
               <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-          <A HREF="report.php"><?php echo get_string('report') ?></A>
+          <A HREF="$reporturl">$reportstr</A>
               </TD>
               <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
                 <FORM METHOD=GET ACTION="$searchurl">
