@@ -43,7 +43,7 @@ if ($area) {
     $area = get_default_area();
 }
 if ($advanced) {
-    $thisurl->param('advanced', $advanced):
+    $thisurl->param('advanced', $advanced);
 }
 if ($search_str) {
     $thisurl->param('searchstr', $search_str);
@@ -83,10 +83,10 @@ echo "<H3>" . get_string('search_results','block_mrbs') . " \"<font color=\"blue
 $now = mktime(0, 0, 0, $month, $day, $year);
 
 // This is the main part of the query predicate, used in both queries:
-$sql_pred = "( " . $DB->sql_like("e.create_by", '?', false)
-    . " OR " . $DB->sql_like("e.name", '?', false)
-    . " OR " . $DB->sql_like("e.description", '?', false)
-		. ") AND e.end_time > ?";
+$sql_pred = "( " . $DB->sql_like("create_by", '?', false)
+    . " OR " . $DB->sql_like("name", '?', false)
+    . " OR " . $DB->sql_like("description", '?', false)
+		. ") AND end_time > ?";
 $params = array($search_str, $search_str, $search_str, $now);
 
 
@@ -110,13 +110,15 @@ if ($search_pos <= 0) {
 	$search_pos = $total - ($total % $search["count"]);
 }
 
+$sql_pred = str_replace(array('create_by',   'name',   'description'),
+                        array('e.create_by', 'e.name', 'e.description'), $sql_pred);
+
 // Now we set up the "real" query using LIMIT to just get the stuff we want.
 $sql = "SELECT e.id, e.create_by, e.name, e.description, e.start_time, r.area_id, r.room_name
         FROM {mrbs_entry} e, {mrbs_room} r
         WHERE $sql_pred
         AND e.room_id = r.id
-        ORDER BY e.start_time asc "
-    . //sql_syntax_limit($search["count"], $search_pos);
+        ORDER BY e.start_time asc ";
 
 // this is a flag to tell us not to display a "Next" link
 $result = $DB->get_records_sql($sql, $params, $search_pos, $search['count']);
