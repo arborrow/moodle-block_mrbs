@@ -80,11 +80,10 @@ function getWritable($creator, $user)
  */
 function showAccessDenied($day, $month, $year, $area)
 {
-    global $HTTP_REFERER;
+    global $SERVER, $OUTPUT;
 
     print_header_mrbs($day, $month, $year, $area);
-    print_error('accessdenied','block_mrbs');
-    print_error('norights','block_mrbs');
-    echo('<a href ="'.$HTTP_REFERER.'">' .get_string('returnprev','block_mrbs'). '</a>' );
+    echo $OUTPUT->box(get_string('accessdenied', 'block_mrbs').'<br/>'.get_string('norights', 'block_mrbs'), 'generalbox boxaligncenter');
+    echo '<br/>';
     echo $OUTPUT->footer();
 }
