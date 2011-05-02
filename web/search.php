@@ -1,22 +1,34 @@
 <?php
-# $Id: search.php,v 1.6 2009/06/03 08:55:49 mike1989 Exp $
-require_once("../../../config.php"); //for Moodle integration
-require_once "grab_globals.inc.php";
+
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 include "config.inc.php";
 include "functions.php";
-include "$dbsys.php";
 
-if ($CFG->forcelogin) {
-        require_login();
-    }
 $day = optional_param('day', 0, PARAM_INT);
 $month = optional_param('month', 0, PARAM_INT);
-$year = optional_param('year', 0, PARAM_INT); 
-$area = optional_param('area', get_default_area(),  PARAM_INT);
+$year = optional_param('year', 0, PARAM_INT);
+$area = optional_param('area', 0,  PARAM_INT);
 $advanced = optional_param('advanced', 0, PARAM_BOOL);
 $search_str = optional_param('search_str', 0, PARAM_TEXT); //may break some searches due to over-checking -ab.
+$total = optional_param('total', 0, PARAM_INT);
+$search_pos = optional_param('search_pos', 0, PARAM_INT);
 
-#If we dont know the right date then make it up 
+//If we dont know the right date then make it up
 if(($day==0) or ($month==0) or ($year==0))
 {
 	$day   = date("d");
@@ -24,18 +36,23 @@ if(($day==0) or ($month==0) or ($year==0))
 	$year  = date("Y");
 }
 
-// if(empty($area)) //handled by optional_param above -ab.
-// 	$area = get_default_area();
-
-# Need all these different versions with different escaping.
-# search_str must be left as the html-escaped version because this is
-# used as the default value for the search box in the header.
-if (!empty($search_str)) 
-{
-	$search_text = unslashes($search_str);
-	$search_url = urlencode($search_text);
-	$search_str = htmlspecialchars($search_text);
+$thisurl = new moodle_url('/blocks/mrbs/web/search.php', array('day'=>$day, 'month'=>$month, 'year'=>$year));
+if ($area) {
+    $thisurl->param('area', $area);
+} else {
+    $area = get_default_area();
 }
+if ($advanced) {
+    $thisurl->param('advanced', $advanced):
+}
+if ($search_str) {
+    $thisurl->param('searchstr', $search_str);
+}
+if ($search_pos) {
+    $thisurl->param('search_pos', $search_pos);
+}
+$PAGE->set_url($thisurl);
+require_login();
 
 print_header_mrbs($day, $month, $year, $area);
 
@@ -60,47 +77,50 @@ if (!$search_str)
 	exit;
 }
 
-# now is used so that we only display entries newer than the current time
-echo "<H3>" . get_string('search_results','block_mrbs') . " \"<font color=\"blue\">$search_str</font>\"</H3>\n";
+// now is used so that we only display entries newer than the current time
+echo "<H3>" . get_string('search_results','block_mrbs') . " \"<font color=\"blue\">".s($search_str)."</font>\"</H3>\n";
 
 $now = mktime(0, 0, 0, $month, $day, $year);
 
-# This is the main part of the query predicate, used in both queries:
-$sql_pred = "( " . sql_syntax_caseless_contains("E.create_by", $search_text)
-		. " OR " . sql_syntax_caseless_contains("E.name", $search_text)
-		. " OR " . sql_syntax_caseless_contains("E.description", $search_text)
-		. ") AND E.end_time > $now";
+// This is the main part of the query predicate, used in both queries:
+$sql_pred = "( " . $DB->sql_like("e.create_by", '?', false)
+    . " OR " . $DB->sql_like("e.name", '?', false)
+    . " OR " . $DB->sql_like("e.description", '?', false)
+		. ") AND e.end_time > ?";
+$params = array($search_str, $search_str, $search_str, $now);
 
-# The first time the search is called, we get the total
-# number of matches.  This is passed along to subsequent
-# searches so that we don't have to run it for each page.
-if(!isset($total))
-	$total = sql_query1("SELECT count(*) FROM $tbl_entry E WHERE $sql_pred");
 
-if($total <= 0)
-{
+// The first time the search is called, we get the total
+// number of matches.  This is passed along to subsequent
+// searches so that we don't have to run it for each page.
+if(!$total) {
+	$total = $DB->count_records_select('mrbs_entry', $sql_pred, $params);
+    $thisurl->param('total', $total);
+}
+
+if($total <= 0) {
 	echo "<B>" . get_string('nothingtodisplay') . "</B>\n";
 	include "trailer.php";
 	exit;
 }
 
-if(!isset($search_pos) || ($search_pos <= 0))
+if ($search_pos <= 0) {
 	$search_pos = 0;
-elseif($search_pos >= $total)
+} else if ($search_pos >= $total) {
 	$search_pos = $total - ($total % $search["count"]);
+}
 
-# Now we set up the "real" query using LIMIT to just get the stuff we want.
-$sql = "SELECT E.id, E.create_by, E.name, E.description, E.start_time, R.area_id, R.room_name
-        FROM $tbl_entry E, $tbl_room R
+// Now we set up the "real" query using LIMIT to just get the stuff we want.
+$sql = "SELECT e.id, e.create_by, e.name, e.description, e.start_time, r.area_id, r.room_name
+        FROM {mrbs_entry} e, {mrbs_room} r
         WHERE $sql_pred
-        AND E.room_id = R.id
-        ORDER BY E.start_time asc "
-    . sql_syntax_limit($search["count"], $search_pos);
+        AND e.room_id = r.id
+        ORDER BY e.start_time asc "
+    . //sql_syntax_limit($search["count"], $search_pos);
 
-# this is a flag to tell us not to display a "Next" link
-$result = sql_query($sql);
-if (! $result) fatal_error(0, sql_error());
-$num_records = sql_count($result);
+// this is a flag to tell us not to display a "Next" link
+$result = $DB->get_records_sql($sql, $params, $search_pos, $search['count']);
+$num_records = count($result);
 
 $has_prev = $search_pos > 0;
 $has_next = $search_pos < ($total-$search["count"]);
@@ -109,34 +129,34 @@ if($has_prev || $has_next)
 {
 	echo "<B>" . get_string('records','block_mrbs') . ($search_pos+1) . get_string('through','block_mrbs') . ($search_pos+$num_records) . get_string('of','block_mrbs') . $total . "</B><BR>";
 
-	# display a "Previous" button if necessary
+	// display a "Previous" button if necessary
 	if($has_prev)
 	{
-		echo "<A HREF=\"search.php?search_str=$search_url&search_pos=";
-		echo max(0, $search_pos-$search["count"]);
-		echo "&total=$total&year=$year&month=$month&day=$day\">";
+        $pos = max(0, $search_pos-$search["count"]);
+		echo '<A HREF="'.$thisurl->out(true, array('search_pos', $pos)).'">';
 	}
 
 	echo "<B>" . get_string('previous') . "</B>";
 
-	if($has_prev)
+	if($has_prev) {
 		echo "</A>";
+    }
 
-	# print a separator for Next and Previous
+	// print a separator for Next and Previous
 	echo(" | ");
 
-	# display a "Previous" button if necessary
+	// display a "Previous" button if necessary
 	if($has_next)
 	{
-		echo "<A HREF=\"search.php?search_str=$search_url&search_pos=";
-		echo max(0, $search_pos+$search["count"]);
-		echo "&total=$total&year=$year&month=$month&day=$day\">";
+        $pos = max(0, $search_pos+$search["count"]);
+        echo '<a href="'.$pos->out(true, array('search_pos', $pos)).'">';
 	}
 
 	echo "<B>". get_string('next') ."</B>";
 
-	if($has_next)
+	if($has_next) {
 		echo "</A>";
+    }
 }
 ?>
   <P>
@@ -150,27 +170,28 @@ if($has_prev || $has_next)
     <TH><?php echo get_string('start_date','block_mrbs') ?></TH>
    </TR>
 <?php
-for ($i = 0; ($row = sql_row($result, $i)); $i++)
-{
+foreach ($result as $entry) {
+    $viewurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('id'=>$entry->id));
 	echo "<TR>";
-	echo "<TD><A HREF=\"view_entry.php?id=$row[0]\">".get_string('view')."</A></TD>\n";
-	echo "<TD>" . htmlspecialchars($row[1]) . "</TD>\n";
-	echo "<TD>" . htmlspecialchars($row[2]) . "</TD>\n";
-    echo "<TD>" . htmlspecialchars($row[6]) . "</TD>\n";
-	echo "<TD>" . htmlspecialchars($row[3]) . "</TD>\n";
+	echo "<TD><A HREF=\"".$viewurl."\">".get_string('view')."</A></TD>\n";
+	echo "<TD>" . s($entry->create_by) . "</TD>\n";
+	echo "<TD>" . s($entry->name) . "</TD>\n";
+    echo "<TD>" . s($entry->room_name) . "</TD>\n";
+	echo "<TD>" . s($entry->description) . "</TD>\n";
 	// generate a link to the day.php
-	$link = getdate($row[4]);
-	echo "<TD><A HREF=\"day.php?day=$link[mday]&month=$link[mon]&year=$link[year]&area=$row[5]\">";
+	$link = getdate($entry->start_time);
+    $dayurl = new moodle_url('/blocks/mrbs/web/day.php',
+                             array('day'=>$link['mday'], 'month'=>$link['mon'], 'year'=>$link['year'],
+                                   'area'=>$entry->area_id));
+	echo "<TD><A HREF=\"".$dayurl."\">";
 	if(empty($enable_periods)){
-        	$link_str = time_date_string($row[4]);
-        }
-        else {
-        	list(,$link_str) = period_date_string($row[4]);
-        }
-        echo "$link_str</A></TD>";
+        $link_str = time_date_string($entry->start_time);
+    } else {
+        list(,$link_str) = period_date_string($entry->start_time);
+    }
+    echo "$link_str</A></TD>";
 	echo "</TR>\n";
 }
 
 echo "</TABLE>\n";
 include "trailer.php";
-?>
