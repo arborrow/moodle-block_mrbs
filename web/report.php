@@ -36,11 +36,11 @@ $To_year= optional_param('To_year', 0, PARAM_INT);
 $submitform = optional_param('submitform', false, PARAM_TEXT);
 
 // followup what the most appropriate default values should be - ab
-$areamatch= optional_param('areamatch', '', PARAM_ALPHA);
-$roommatch= optional_param('roommatch', '', PARAM_ALPHA);
-$namematch= optional_param('namematch', '', PARAM_ALPHA);
-$descrmatch= optional_param('descrmatch', '', PARAM_ALPHA);
-$creatormatch= optional_param('creatormatch', '', PARAM_ALPHA);
+$areamatch= optional_param('areamatch', '', PARAM_TEXT);
+$roommatch= optional_param('roommatch', '', PARAM_TEXT);
+$namematch= optional_param('namematch', '', PARAM_TEXT);
+$descrmatch= optional_param('descrmatch', '', PARAM_TEXT);
+$creatormatch= optional_param('creatormatch', '', PARAM_TEXT);
 
 $summarize=optional_param('summarize', 1, PARAM_INT);
 $sortby= optional_param('sortby', 'r',  PARAM_ALPHA);
@@ -156,7 +156,7 @@ function reporton(&$item, &$last_area_room, &$last_date, $sortby, $display) {
 	echo "<hr><table width=\"100%\">\n";
 
 	// Brief Description (title), linked to view_entry:
-    $viewurl = new moodle_url('/blocks/mrbs/view_entry.php', array('id'=>$id));
+    $viewurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('id'=>$item->id));
 	echo "<tr><td class=\"BL\"><a href=\"".$viewurl."\">"
 		. s($item->name) . "</a></td>\n";
 
@@ -200,7 +200,11 @@ function accumulate(&$row, &$count, &$hours, $report_start, $report_end,
 	&$room_hash, &$name_hash) {
 	global $sumby;
 	// Use brief description or created by as the name:
-	$name = s($row[($sumby == "d" ? 3 : 6)]);
+    if ($sumby == "d") {
+        $name = s($item->description);
+    } else {
+        $name = s($item->create_by);
+    }
     // Area and room separated by break:
 	$room = s($item->area_name) . "<br>" . s($item->room_name);
 	// Accumulate the number of bookings for this room and name:
@@ -219,7 +223,11 @@ function accumulate_periods(&$item, &$count, &$hours, $report_start, $report_end
     $max_periods = count($periods);
 
 	// Use brief description or created by as the name:
-	$name = s($row[($sumby == "d" ? 3 : 6)]);
+    if ($sumby == "d") {
+        $name = s($item->description);
+    } else {
+        $name = s($item->create_by);
+    }
     // Area and room separated by break:
 	$room = s($item->area_name) . "<br>" . s($item->room_name);
 	// Accumulate the number of bookings for this room and name:
@@ -492,6 +500,7 @@ foreach( $typel as $key => $val )
       <input type="radio" name="sumby" value="c"<?php if ($sumby=="c") echo " checked";
         echo ">" . get_string('sum_by_creator','block_mrbs');?>
     </td></tr>
+          <tr><td>&nbsp;</td><td><?php print_string('help_wildcard', 'block_mrbs'); ?></td></tr>
 <tr><td colspan="2" align="center"><input name="submitform" type="submit" value="<?php echo get_string('submitquery','block_mrbs') ?>">
 </td></tr>
 </table>
@@ -526,11 +535,11 @@ if ($submitform) {
     $params = array($report_end, $report_start);
 
 	if (!empty($areamatch)) {
-		$sql .= " AND" .  $DB->sql_like("a.area_name", '?', false);
+		$sql .= " AND " .  $DB->sql_like("a.area_name", '?', false);
         $params[] = $areamatch;
     }
 	if (!empty($roommatch)) {
-		$sql .= " AND" .  $DB->sql_like("r.room_name", '?', false);
+		$sql .= " AND " .  $DB->sql_like("r.room_name", '?', false);
         $params[] = $roommatch;
     }
 	if (!empty($typematch)) {
@@ -551,15 +560,15 @@ if ($submitform) {
 		}
 	}
 	if (!empty($namematch)) {
-		$sql .= " AND" .  $DB->sql_like("e.name", '?', false);
+		$sql .= " AND " .  $DB->sql_like("e.name", '?', false);
         $params[] = $namematch;
     }
 	if (!empty($descrmatch)) {
-		$sql .= " AND" .  $DB->sql_like("e.description", '?', false);
+		$sql .= " AND " .  $DB->sql_like("e.description", '?', false);
         $params[] = $descrmatch;
     }
     if (!empty($creatormatch)) {
-        $sql .= " AND" .  $DB->sql_like("e.create_by", '?', false);
+        $sql .= " AND " .  $DB->sql_like("e.create_by", '?', false);
         $params[] = $creatormatch;
     }
 

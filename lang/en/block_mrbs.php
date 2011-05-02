@@ -164,6 +164,7 @@ $string['gotoroom']           = 'Go to';
 $string['gotothismonth']      = 'Go To This Month';
 $string['gotothisweek']       = 'Go To This Week';
 $string['gototoday']          = 'Go To Today';
+$string['help_wildcard']      = 'Note: Use the % symbol as a wildcard in any of the text boxes';
 $string['highlight_line']     = 'Highlight this line';
 $string['hours']              = 'hours';
 $string['hybrid']            = 'hybrid';
