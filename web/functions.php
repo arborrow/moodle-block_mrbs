@@ -23,7 +23,11 @@ require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for 
 
 $pview = optional_param('pview', 0, PARAM_INT);
 
-function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) //if values are not passed assume NULL
+function print_user_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) {
+    print_header_mrbs($day, $month, $year, $area, true);
+}
+
+function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL, $userview = false) //if values are not passed assume NULL
 {
     global $mrbs_company, $mrbs_company_url, $search_str, $locale_warning, $pview;
     global $OUTPUT, $PAGE;
@@ -85,7 +89,12 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) //if 
 
         $titlestr = get_string('mrbs', 'block_mrbs');
         $homeurl = new moodle_url('/blocks/mrbs/web/index.php');
+
         $gotostr = get_string('goto', 'block_mrbs');
+        $gotourl = new moodle_url('/blocks/mrbs/web/day.php');
+        if ($userview) {
+            $gotourl = new moodle_url('/blocks/mrbs/web/userweek.php');
+        }
 
         $roomsearchstr = get_string('roomsearch', 'block_mrbs');
         $roomsearchurl = new moodle_url('/blocks/mrbs/web/roomsearch.php');
@@ -116,7 +125,7 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) //if 
                 </FONT>
               </TD>
               <TD CLASS="banner" BGCOLOR="#C0E0FF">
-                <FORM ACTION="day.php" METHOD=GET name="Form1">
+                <FORM ACTION="$gotourl" METHOD=GET name="Form1">
                   <FONT SIZE=2>
 HTML1END;
 
@@ -137,20 +146,27 @@ HTML1END;
                 </FORM>
               </TD>
 HTML2END;
-        if (has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM))) {
-            echo'<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
+        if (!$userview) {
+            if (has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM))) {
+                echo'<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
                   <a href="edit_entry.php?force=TRUE">Forcibly book a room</a>
               </TD>';
-        }
+            }
 
-        echo <<<HTML3END
+            echo <<<HTML3END
               <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
 <a target="popup" title="$roomsearchstr" href="$roomsearchurl" onclick="this.target='popup'; return openpopup('$roomsearchurl', 'popup', 'toolbar=1,location=0,scrollbars,resizable,width=500,height=400', 0);">$roomsearchstr</a>
               </TD>
+HTML3END;
 
+        } // !$userview
+        echo <<<HTML4END
               <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
           <A HREF="$helpurl">$helpstr</A>
               </TD>
+HTML4END;
+        if (!$userview) {
+            echo <<<HTML5END
               <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
           <A HREF="$adminurl">$adminstr</A>
               </TD>
@@ -164,19 +180,20 @@ HTML2END;
                   <INPUT TYPE=HIDDEN NAME=day        VALUE="$day"        >
                   <INPUT TYPE=HIDDEN NAME=month      VALUE="$month"        >
                   <INPUT TYPE=HIDDEN NAME=year       VALUE="$year"        >
-HTML3END;
-        if (!empty($area)) {
-            echo "<INPUT TYPE=HIDDEN NAME=area VALUE=$area>\n";
-        }
-        echo <<<HTML4END
-                </FORM>
-              </TD>
+HTML5END;
+            if (!empty($area)) {
+                echo "<INPUT TYPE=HIDDEN NAME=area VALUE=$area>\n";
+            }
+            echo '</FORM></TD>';
+        } // !$userview
+
+        echo <<<HTML6END
             </TR>
           </TABLE>
         </TD>
       </TR>
     </TABLE>
-HTML4END;
+HTML6END;
     }
 }
 
