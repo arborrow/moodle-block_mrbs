@@ -105,7 +105,7 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) //if 
 
         echo <<<HTML1END
 
-    <TABLE WIDTH="100%">
+    <TABLE WIDTH="100%" class="banner" >
       <TR>
         <TD BGCOLOR="#5B69A6">
           <TABLE WIDTH="100%" BORDER=0>

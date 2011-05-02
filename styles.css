@@ -49,6 +49,7 @@ background-color:#ffffdd; font-size:26pt}
 background-color:#999999;
 border-width:1; border-color:#999999; vertical-align:top; padding: 1px;}
 #mrbscontainer TD.banner {vertical-align:middle; background-color:#C0E0FF}
+#mrbscontainer TABLE.banner { margin-bottom: 1em; }
 
 #mrbscontainer TD.blue {background-color:#F0F0FF}
 #mrbscontainer TD.red  {background-color:#FFF0F0}
