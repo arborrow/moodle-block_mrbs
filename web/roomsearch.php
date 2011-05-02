@@ -1,32 +1,44 @@
 <?php
-# $Id: roomsearch.php,v 1.2 2009/06/03 08:40:20 mike1989 Exp $
-require_once("../../../config.php"); //for Moodle integration
-require_once('grab_globals.inc.php');
+
+// This file is part of the MRBS block for Moodle
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 include "config.inc.php";
 include "functions.php";
-include "userfunctions.php";
-include "$dbsys.php";
 include "mrbs_auth.php";
+
 require_login();
 global $twentyfourhour_format;
 
 $day = optional_param('day', 0, PARAM_INT);
 $month = optional_param('month', 0, PARAM_INT);
-$year = optional_param('year', 0, PARAM_INT); 
+$year = optional_param('year', 0, PARAM_INT);
 $area = optional_param('area', get_default_area(),  PARAM_INT);
 $edit_type = optional_param('edit_type', '', PARAM_ALPHA);
 $id = optional_param('id', 0, PARAM_INT);
 $room_id = optional_param('room_id', 0, PARAM_INT);
 $start_hour = optional_param('start_hour', 0, PARAM_INT);
-// $morningstarts = optional_param('morningstarts', 0, PARAM_INT); //I believe this is coming from somewhere else - not URL - ab.
 // $rep_type could use a closer look but I believe this is not passed via URL -ab.
 $start_min = optional_param('start_min', 0, PARAM_INT);
-$rep_num_weeks = optional_param('rep_num_weeks', 0, PARAM_INT); 
-$force = optional_param('force', FALSE, PARAM_BOOL); 
+$rep_num_weeks = optional_param('rep_num_weeks', 0, PARAM_INT);
+$force = optional_param('force', FALSE, PARAM_BOOL);
 $duration = optional_param('duration', 1, PARAM_INT);
 $all_day = optional_param('all_day', FALSE, PARAM_BOOL);
 
-#If we dont know the right date then make it up
+//If we dont know the right date then make it up
 if(($day==0) or ($month==0) or ($year==0))
 {
     $day   = date("d");
@@ -45,7 +57,7 @@ if(($day==0) or ($month==0) or ($year==0))
 
 
 
-<script type="text/javascript" src="roomsearch.js"></script> 
+<script type="text/javascript" src="roomsearch.js"></script>
 <SCRIPT LANGUAGE="JavaScript">
 function OnAllDayClick() // Executed when the user clicks on the all_day checkbox.
 {
@@ -66,6 +78,18 @@ function OnAllDayClick() // Executed when the user clicks on the all_day checkbo
   RoomSearch()
 }
 </SCRIPT>
+<?php
+    // Set the weekday names for the 'ChangeOptionDays' function
+    echo '<script type="text/javascript">SetWeekDayNames(';
+    echo '"'.get_string('mon', 'calendar').'", ';
+    echo '"'.get_string('tue', 'calendar').'", ';
+    echo '"'.get_string('wed', 'calendar').'", ';
+    echo '"'.get_string('thu', 'calendar').'", ';
+    echo '"'.get_string('fri', 'calendar').'", ';
+    echo '"'.get_string('sat', 'calendar').'", ';
+    echo '"'.get_string('sun', 'calendar').'"';
+    echo ');</script>';
+?>
 </head><body>
 <h2><?php echo get_string('search');?></H2>
 
@@ -76,7 +100,7 @@ function OnAllDayClick() // Executed when the user clicks on the all_day checkbo
 <!-- Date selectors -->
     <TR><TD CLASS=CR><B><?php echo get_string('date')?></B></TD>
      <TD CLASS=CL>
-      <?php genDateSelector("", $start_day, $start_month, $start_year,false,true) ?>
+      <?php genDateSelector("", $day, $month, $year,false,true) ?>
       <SCRIPT LANGUAGE="JavaScript">ChangeOptionDays(document.main, '');</SCRIPT>
      </TD>
     </TR>
@@ -109,7 +133,7 @@ function OnAllDayClick() // Executed when the user clicks on the all_day checkbo
     }
     ?>
         </SELECT>
-    
+
     </TD></TR>
 
 <!-- Duration selectors -->
@@ -122,7 +146,7 @@ function OnAllDayClick() // Executed when the user clicks on the all_day checkbo
         $units = array("periods", "days");
     else
         $units = array("minutes", "hours", "days", "weeks");
-    
+
     while (list(,$unit) = each($units))
     {
         echo "<OPTION VALUE=$unit";
