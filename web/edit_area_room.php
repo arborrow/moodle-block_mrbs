@@ -116,7 +116,7 @@ if($room>0) {
         $DB->update_record('mrbs_room', $updroom);
 	}
 
-    $dbroom = get_record('mrbs_room', array('id'=>$room), '*', MUST_EXIST);
+    $dbroom = $DB->get_record('mrbs_room', array('id'=>$room), '*', MUST_EXIST);
     echo '<h3 ALIGN=CENTER>'.get_string('editroom','block_mrbs').'</h3>';
     echo '<form action="'.$thisurl->out_omit_querystring().'" method="post">';
     echo '<input type="hidden" name="room" value="'.$dbroom->id.'">';

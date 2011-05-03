@@ -165,7 +165,7 @@ if ($series == 1) {
 } else {
 	$repeat_id = $booking->repeat_id;
 	if ($repeat_id != 0) {
-        $repeat = get_record('mrbs_repeat', array('id'=>$repeat_id));
+        $repeat = $DB->get_record('mrbs_repeat', array('id'=>$repeat_id));
         if ($repeat) {
 			$rep_type     = $repeat->rep_type;
 			$rep_end_date = userdate($repeat->end_date, '%A %d %B %Y');

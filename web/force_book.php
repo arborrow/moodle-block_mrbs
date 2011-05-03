@@ -122,7 +122,7 @@ function mrbsForceMove($room_id, $starttime, $endtime,$name,$id=null){
         $findroomresult=$DB->get_record_sql($findroomquery,$params);
 
         $subject=get_string('bookingmoved','block_mrbs');
-        $langvars=new object();
+        $langvars=new stdClass;
         $langvars->name=$oldbooking->entryname;
         $langvars->id=$oldbooking->entryid;
         $langvars->oldroom=$oldbooking->room_name;
@@ -132,7 +132,7 @@ function mrbsForceMove($room_id, $starttime, $endtime,$name,$id=null){
         $langvars->starttime=$hrstarttime;
         $langvars->newbookingname=$name;
 
-        $booking = new object;
+        $booking = new stdClass;
         $booking->id=$oldbooking->entryid;
         $booking->room_id=$findroomresult->id;
 
@@ -142,7 +142,7 @@ function mrbsForceMove($room_id, $starttime, $endtime,$name,$id=null){
         }else{
             $booking->type=$oldbooking->type;
         }
-        if($findroomresult and update_record('mrbs_entry',$booking) and $oldbookingowner=$DB->get_record('user',array('username'=>$oldbooking->create_by))){
+        if($findroomresult and $DB->update_record('mrbs_entry',$booking) and $oldbookingowner=$DB->get_record('user',array('username'=>$oldbooking->create_by))){
             $message=get_string('bookingmovedmessage','block_mrbs',$langvars);
             $output.= '<br>'.get_string('bookingmovedshort','block_mrbs',$langvars);
             email_to_user($oldbookingowner,$USER,$subject,$message);

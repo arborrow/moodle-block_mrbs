@@ -26,31 +26,7 @@ $cfg_mrbs = get_config('block/mrbs'); //get Moodle config settings for the MRBS 
 ###################
 # Database settings
 ###################
-/*
-// Commented out as planning to replace all with Moodle DB calls
-
-# Which database system: "pgsql"=PostgreSQL, "mysql"=MySQL, "mysqli"=MySQL via the mysqli PHP extension
-$dbsys = $CFG->dbtype; //"mysql", "pgsql", or "mysqli"
-# Hostname of database server. For pgsql, can use "" instead of localhost
-# to use Unix Domain Sockets instead of TCP/IP.
-$db_host = $CFG->dbhost; //"localhost";
-# Database name:
-$db_database = $CFG->dbname; //"mrbs";
-# Database login user name:
-$db_login = $CFG->dbuser; // "mrbs";
-# Database login password:
-$db_password = $CFG->dbpass; //'mrbs-password';
-# Prefix for table names.  This will allow multiple installations where only
-# one database is available
-$db_tbl_prefix = $CFG->prefix.'mrbs_';
-# Uncomment this to NOT use PHP persistent (pooled) database connections:
-# $db_nopersist = 1; //I'm not going to worry about this for the Moodle block especially as I work toward changing the database calls to Moodle ones
-$tbl_area   = $db_tbl_prefix . "area";
-$tbl_entry  = $db_tbl_prefix . "entry";
-$tbl_repeat = $db_tbl_prefix . "repeat";
-$tbl_room   = $db_tbl_prefix . "room";
-$tbl_users  = $db_tbl_prefix . "users";
-*/
+// All database calls now use Moodle DB directly - no settings needed here
 
 ################################
 # Site identification information
@@ -174,7 +150,7 @@ $default_report_days = $cfg_mrbs->default_report_days;
 $search["count"] = $cfg_mrbs->search_count;
 
 # Page refresh time (in seconds). Set to 0 to disable
-$refresh_rate = $cfg_mrbs->refresh_rate;
+//$refresh_rate = $cfg_mrbs->refresh_rate;
 
 # should areas be shown as a list or a drop-down select box?
 $area_list_format = $cfg_mrbs->area_list_format;

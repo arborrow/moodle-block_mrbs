@@ -34,8 +34,8 @@ $output='';
 if (file_exists($cfg_mrbs->cronfile)) {
     if ($mrbs_sessions = fopen($cfg_mrbs->cronfile,'r')) {
         $output.= get_string('startedimport','block_mrbs')."\n";
-        set_field_select('mrbs_entry', 'type', 'M', 'type=\'K\' and start_time > unix_timestamp()'); // Change old imported (type K) records to temporary type M
         $now = time();
+        $DB->set_field_select('mrbs_entry', 'type', 'M', 'type=\'K\' and start_time > ?', array($now)); // Change old imported (type K) records to temporary type M
         while ($array = fgetcsv($mrbs_sessions)) { //import timetable into mrbs
             $csvrow=new object;
             $csvrow->start_time=clean_param($array[0],PARAM_TEXT);
@@ -170,11 +170,13 @@ function room_id_lookup($name) {
   */
 function is_timetabled($name,$time) {
     global $CFG;
-    if (get_record_sql('select * from '.$CFG->prefix.'mrbs_entry where name=\''.$name.'\' and start_time = '.$time.' and type=\'L\'', true)) {
+    if ($DB->get_record('mrbs_entry', array('name'=>$name, 'start_time'=>$time, 'type'=>'L'))) {
         return true;
-    } else if($record = get_record_sql('select * from '.$CFG->prefix.'mrbs_entry where name=\''.$name.'\' and start_time = '.$time.' and type=\'M\'', true)) {
-        $record->type = 'K';
-        if (update_record('mrbs_entry', $record)) {
+    } else if ($record = $DB->get_record('mrbs_entry', array('name'=>$name, 'start_time'=>$time, 'type'=>'M'))) {
+        $upd = new stdClass;
+        $upd->id = $record->id;
+        $upd->type = 'K';
+        if ($DB->update_record('mrbs_entry', $upd)) {
             return true;
         } else {
            return false;

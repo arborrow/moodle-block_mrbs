@@ -257,7 +257,7 @@ foreach ( $rooms as $room_id ) {
              OR (entry.start_time < ? AND entry.end_time> ?)
              OR (entry.start_time < ? AND entry.end_time>= ?))';
 
-        $clashingbookings = get_records_sql($sql,array($room_id, $starttime, $endtime, $starttime, $starttime, $endtime, $endtime));
+        $clashingbookings = $DB->get_records_sql($sql, array($room_id, $starttime, $endtime, $starttime, $starttime, $endtime, $endtime));
             foreach($clashingbookings as $clashingbooking) {
                 $oldbookinguser = $DB->get_record('user', array('username'=> $clashingbooking->create_by));
                 $langvars->user = $USER->firstname.' '.$USER->lastname;

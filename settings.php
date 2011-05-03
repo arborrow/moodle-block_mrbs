@@ -106,8 +106,10 @@ $settings->settings->default_report_days->plugin='block/mrbs';
 $settings->add(new admin_setting_configtext('search_count', get_string('config_search_count', 'block_mrbs'), get_string('config_search_count2', 'block_mrbs'), 20, PARAM_INT));
 $settings->settings->search_count->plugin='block/mrbs';
 
+/*
 $settings->add(new admin_setting_configtext('refresh_rate', get_string('config_refresh_rate', 'block_mrbs'), get_string('config_refresh_rate2', 'block_mrbs'), 0, PARAM_INT));
 $settings->settings->refresh_rate->plugin='block/mrbs';
+*/
 
 $options = array('list' => get_string('list'),'select' => get_string('select'));
 $settings->add(new admin_setting_configselect('area_list_format', get_string('config_area_list_format', 'block_mrbs'), get_string('config_area_list_format2', 'block_mrbs'), 'list', $options));
