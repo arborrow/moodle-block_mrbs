@@ -18,7 +18,7 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
 require "config.inc.php";
 require "functions.php";
-require "mrbs_auth.php";
+require_once ("mrbs_auth.php");
 
 $type = required_param('type', PARAM_ALPHA);
 $name = required_param('name', PARAM_TEXT);

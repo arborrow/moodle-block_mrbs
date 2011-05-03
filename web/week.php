@@ -20,10 +20,9 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 include "config.inc.php";
 include "functions.php";
-include "mrbs_auth.php";
+require_once('mrbs_auth.php');
 include "mincals.php";
 
-//UT
 $day = optional_param('day', 0, PARAM_INT);
 $month = optional_param('month',0,  PARAM_INT);
 $year = optional_param('year', 0, PARAM_INT);

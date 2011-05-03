@@ -18,7 +18,7 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
 require "config.inc.php";
 require "functions.php";
-require "mrbs_auth.php";
+require_once("mrbs_auth.php");
 
 $day=optional_param('day',0 ,PARAM_INT);
 $month=optional_param('month', 0 ,PARAM_INT);

@@ -18,7 +18,7 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 include "config.inc.php";
 include "functions.php";
-include "mrbs_auth.php";
+require_once('mrbs_auth.php');
 include "mrbs_sql.php";
 
 require_login();

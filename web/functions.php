@@ -20,6 +20,7 @@ require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for 
 // $pview must be defined. if it's not then there's errors generated all
 // over the place. so we test to see if it is set, and if not then set
 // it.
+require_once('mrbs_auth.php');
 
 $pview = optional_param('pview', 0, PARAM_INT);
 
@@ -30,7 +31,7 @@ function print_user_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) 
 function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL, $userview = false) //if values are not passed assume NULL
 {
     global $mrbs_company, $mrbs_company_url, $search_str, $locale_warning, $pview;
-    global $OUTPUT, $PAGE;
+    global $OUTPUT, $PAGE, $USER;
     global $javascript_cursor;
 
     $cfg_mrbs = get_config('block/mrbs');
@@ -112,6 +113,9 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL, $user
         $searchurl = new moodle_url('/blocks/mrbs/web/search.php');
         $searchadvurl = new moodle_url($searchurl, array('advanced'=>1));
 
+        $level = authGetUserLevel($USER->id);
+        $canadmin = $level >= 2;
+
         echo <<<HTML1END
 
     <TABLE WIDTH="100%" class="banner" >
@@ -153,47 +157,33 @@ HTML2END;
               </TD>';
             }
 
-            echo <<<HTML3END
-              <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-<a target="popup" title="$roomsearchstr" href="$roomsearchurl" onclick="this.target='popup'; return openpopup('$roomsearchurl', 'popup', 'toolbar=1,location=0,scrollbars,resizable,width=500,height=400', 0);">$roomsearchstr</a>
-              </TD>
-HTML3END;
+            echo '<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>';
+            echo '<a target="popup" title="'.$roomsearchstr.'" href="'.$roomsearchurl.'" ';
+            echo 'onclick="this.target=\'popup\'; return openpopup(\''.$roomsearchurl.'\', \'popup\', \'toolbar=1,location=0,scrollbars,resizable,width=500,height=400\', 0);">';
+            echo $roomsearchstr.'</a></TD>';
 
         } // !$userview
-        echo <<<HTML4END
-              <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-          <A HREF="$helpurl">$helpstr</A>
-              </TD>
-HTML4END;
+
+        echo '<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER><A HREF="'.$helpurl.'">'.$helpstr.'</A></TD>';
+
         if (!$userview) {
-            echo <<<HTML5END
-              <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-          <A HREF="$adminurl">$adminstr</A>
-              </TD>
-              <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-          <A HREF="$reporturl">$reportstr</A>
-              </TD>
-              <TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-                <FORM METHOD=GET ACTION="$searchurl">
-           <FONT SIZE=2><A HREF="$searchadvurl">$searchstr</A> </FONT>
-                  <INPUT TYPE=TEXT   NAME="search_str" VALUE="$search_str" SIZE=10>
-                  <INPUT TYPE=HIDDEN NAME=day        VALUE="$day"        >
-                  <INPUT TYPE=HIDDEN NAME=month      VALUE="$month"        >
-                  <INPUT TYPE=HIDDEN NAME=year       VALUE="$year"        >
-HTML5END;
+            if ($canadmin) {
+                echo '<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER><A HREF="'.$adminurl.'">'.$adminstr.'</A></TD>';
+            }
+            echo '<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER><A HREF="'.$reporturl.'">'.$reportstr.'</A></TD>';
+            echo '<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER><FORM METHOD=GET ACTION="$searchurl">';
+            echo '<FONT SIZE=2><A HREF="'.$searchadvurl.'">'.$searchstr.'</A></FONT>
+                  <INPUT TYPE=TEXT   NAME="search_str" VALUE="'.$search_str.'" SIZE=10>
+                  <INPUT TYPE=HIDDEN NAME=day        VALUE="'.$day.'"        >
+                  <INPUT TYPE=HIDDEN NAME=month      VALUE="'.$month.'"        >
+                  <INPUT TYPE=HIDDEN NAME=year       VALUE="'.$year.'"        >';
             if (!empty($area)) {
                 echo "<INPUT TYPE=HIDDEN NAME=area VALUE=$area>\n";
             }
             echo '</FORM></TD>';
         } // !$userview
 
-        echo <<<HTML6END
-            </TR>
-          </TABLE>
-        </TD>
-      </TR>
-    </TABLE>
-HTML6END;
+        echo '</TR> </TABLE> </TD> </TR> </TABLE>';
     }
 }
 
