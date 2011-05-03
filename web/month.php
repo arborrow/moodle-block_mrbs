@@ -22,7 +22,6 @@ include "functions.php";
 require_once('mrbs_auth.php');
 include "mincals.php";
 
-//UT
 $month = optional_param('month', date("m"), PARAM_INT);
 $year = optional_param('year', date("Y"), PARAM_INT);
 $area = optional_param('area', 0,  PARAM_INT);
@@ -115,12 +114,10 @@ if ($pview != 1) {
 
 // show either a select box or the normal html list
 if ($area_list_format == "select") {
-    //UT
     echo make_area_select_html('month.php', $area, $year, $month, $day); // from functions.php
     $this_area_name = s($DB->get_field('mrbs_area', 'area_name', array('id'=>$area)));
     $this_room_name = s($DB->get_field('mrbs_room', 'room_name', array('id'=>$room)));
 } else {
-    // UT
     $dbareas = $DB->get_records('mrbs_area', null, 'area_name');
     $areaurl = new moodle_url($baseurl);
     foreach ($dbareas as $dbarea) {
@@ -149,10 +146,8 @@ if ( $pview != 1 ) {
 
 // should we show a drop-down for the room list, or not?
 if ($area_list_format == "select") {
-    //UT
     echo make_room_select_html('month.php', $area, $room, $year, $month, $day); // from functions.php
 } else {
-    //UT
     $rooms = $DB->get_records('mrbs_room', array('area_id'=>$area), 'room_name');
     $roomurl = new moodle_url($baseurl, array('area'=>$area));
     foreach ($rooms as $dbroom) {
@@ -172,7 +167,6 @@ if ($area_list_format == "select") {
 if ( $pview != 1 ) {
     echo "</td>\n";
 
-    //UT
     //Draw the three month calendars
     minicals($year, $month, $day, $area, $room, 'month');
     echo "</tr></table>\n";
@@ -180,7 +174,6 @@ if ( $pview != 1 ) {
 
 // Don't continue if this area has no rooms:
 if ($room <= 0) {
-    //UT
     echo $OUTPUT->heading(get_string('no_rooms_for_area','block_mrbs'));
     include "trailer.php";
     exit;
@@ -202,7 +195,6 @@ $i= mktime(12, 0, 0, $month+1, 1, $year);
 $ty = date("Y",$i);
 $tm = date("n",$i);
 if ($pview != 1) {
-    //UT
     $thismonth = new moodle_url($baseurl, array('area'=>$area, 'room'=>$room));
     $thismonth->remove_params('month', 'year');
     $monthbefore = new moodle_url($thismonth, array('month'=>$ym, 'year'=>$yy));
@@ -233,7 +225,6 @@ for ($day_num = 1; $day_num<=$days_in_month; $day_num++) {
                                        array($room, $midnight_tonight[$day_num], $midnight[$day_num]), 'start_time');
 
     foreach ($entries as $entry) {
-        //UT
 	    if ($debug_flag) {
         	echo "<br>DEBUG: result id {$entry->id}, starts {$entry->start_time}, ends {$entry->end_time}\n";
             echo "<br>DEBUG: Entry {$entry->id} day $day_num\n";
@@ -250,7 +241,6 @@ for ($day_num = 1; $day_num<=$days_in_month; $day_num++) {
         // will incorrectly line break after a -.
 
         if (empty($enable_periods)) {
-            //UT
             switch (cmp3($entry->start_time, $midnight[$day_num]) . cmp3($entry->end_time, $midnight_tonight[$day_num] + 1)) {
             case "> < ":         // Starts after midnight, ends before midnight
             case "= < ":         // Starts at midnight, ends before midnight
@@ -279,9 +269,10 @@ for ($day_num = 1; $day_num<=$days_in_month; $day_num++) {
                 break;
             }
 	    } else {
-            //UT
-            $start_str = ereg_replace(" ", "&nbsp;", period_time_string($entry->start_time));
-            $end_str   = ereg_replace(" ", "&nbsp;", period_time_string($entry->end_time, -1));
+            //$start_str = ereg_replace(" ", "&nbsp;", period_time_string($entry->start_time));
+            //$end_str   = ereg_replace(" ", "&nbsp;", period_time_string($entry->end_time, -1));
+            $start_str = ereg_replace("&nbsp;", " ", period_time_string($entry->start_time));
+            $end_str   = ereg_replace("&nbsp;", " ", period_time_string($entry->end_time, -1));
             switch (cmp3($entry->start_time, $midnight[$day_num]) . cmp3($entry->end_time, $midnight_tonight[$day_num] + 1)) {
             case "> < ":         // Starts after midnight, ends before midnight
             case "= < ":         // Starts at midnight, ends before midnight
@@ -359,7 +350,6 @@ for ($weekcol = 0; $weekcol < $weekday_start; $weekcol++)
 // Draw the days of the month:
 for ($cday = 1; $cday <= $days_in_month; $cday++)
 {
-    //UT
     if ($weekcol == 0) echo "</tr><tr>\n";
     $dayurl = new moodle_url('/blocks/mrbs/web/day.php', array('year'=>$year, 'month'=>$month, 'day'=>$cday, 'area'=>$area));
     echo "<td valign=top height=100 class=\"month\"><div class=\"monthday\"><a href=\"".$dayurl."\">$cday</a>&nbsp;\n";
@@ -411,7 +401,7 @@ for ($cday = 1; $cday <= $days_in_month; $cday++)
                 }
                 case "both":
                 {
-                    echo "<a href=\"".$viewentry_url."\" title=\""
+                    echo "<a href=\"".$viewentry_url."\" title=\"\">"
                         . s($d[$cday]["data"][$i]) . " "
                         . s(substr($d[$cday]["shortdescrip"][$i], 0, 6)) . "</a>";
                     break;
@@ -432,8 +422,7 @@ for ($cday = 1; $cday <= $days_in_month; $cday++)
             echo "BeginActiveCell();\n";
             echo "// -->\n</SCRIPT>";
         }
-        //UT
-        $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php',
+         $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php',
                                   array('room'=>$room, 'area'=>$area, 'year'=>$year, 'month'=>$month, 'day'=>$cday));
         if ($enable_periods) {
             echo '<a href="'.($editurl->out(true, array('period'=>0))).'">';
@@ -446,9 +435,9 @@ for ($cday = 1; $cday <= $days_in_month; $cday++)
             echo "EndActiveCell();\n";
             echo "// -->\n</SCRIPT>";
         }
-    }
-    else
+    } else {
         echo '&nbsp;';
+    }
     echo "</td>\n";
     if (++$weekcol == 7) $weekcol = 0;
 }
