@@ -360,7 +360,7 @@ for ($t = $starttime; $t <= $endtime; $t += $resolution) {
         echo '<a href="'.$hiliteurl.'"  title="'.get_string('highlight_line', 'block_mrbs').'">';
         echo $periods[$time_t_stripped] . "</a></td>";
     } else {
-        echo '<a href="'.$hilite_url.'" title="'.get_string('highlight_line','block_mrbs').'">';
+        echo '<a href="'.$hiliteurl.'" title="'.get_string('highlight_line','block_mrbs').'">';
         echo userdate($t, hour_min_format()) . "</a></td>";
     }
 
