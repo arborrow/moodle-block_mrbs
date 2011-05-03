@@ -489,6 +489,8 @@ function round_t_up($t, $resolution, $am7)
 // displayed.
 function make_area_select_html( $link, $current, $year, $month, $day )
 {
+    global $DB;
+
 	$out_html = "
 <form name=\"areaChangeForm\" method=get action=\"$link\">
   <select name=\"area\" onChange=\"document.areaChangeForm.submit()\">";
@@ -505,7 +507,7 @@ function make_area_select_html( $link, $current, $year, $month, $day )
   <INPUT TYPE=HIDDEN NAME=day        VALUE=\"$day\">
   <INPUT TYPE=HIDDEN NAME=month      VALUE=\"$month\">
   <INPUT TYPE=HIDDEN NAME=year       VALUE=\"$year\">
-  <input type=submit value=\"".get_string('savechanges')."\">
+  <noscript><input type=submit value=\"".get_string('savechanges')."\"></noscript>
 </form>\n";
 
 	return $out_html;
@@ -513,6 +515,8 @@ function make_area_select_html( $link, $current, $year, $month, $day )
 
 function make_room_select_html( $link, $area, $current, $year, $month, $day )
 {
+    global $DB;
+
 	$out_html = "
 <form name=\"roomChangeForm\" method=get action=\"$link\">
   <select name=\"room\" onChange=\"document.roomChangeForm.submit()\">";
@@ -529,7 +533,7 @@ function make_room_select_html( $link, $area, $current, $year, $month, $day )
   <INPUT TYPE=HIDDEN NAME=month      VALUE=\"$month\"        >
   <INPUT TYPE=HIDDEN NAME=year       VALUE=\"$year\"      >
   <INPUT TYPE=HIDDEN NAME=area       VALUE=\"$area\"         >
-  <input type=submit value=\"".get_string('savechanges')."\">
+  <noscript><input type=submit value=\"".get_string('savechanges')."\"></noscript>
 </form>\n";
 
 	return $out_html;
