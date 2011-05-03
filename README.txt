@@ -1,3 +1,8 @@
+This is a work in progress update to Moodle 2.0
+
+It appears to be working, but it is not yet fully tested and should not be used on a production system!
+
+
 * MRBS Block - Bugs, Feature Requests, and Improvements *
 
 If you have any problems installing this block or suggestions for improvement please create an issue in the Moodle tracker (tracker.moodle.org) in the CONTRIB section for the Block: MRBS component located at: http://tracker.moodle.org/secure/IssueNavigator.jspa?reset=true&mode=hide&pid=10033&sorter/order=DESC&sorter/field=priority&resolution=-1&component=10216.
