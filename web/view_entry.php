@@ -271,37 +271,35 @@ if ($rep_type != 0) {
 
 <?php
 
-if (!$series) {
-    $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id));
-    echo '<a href="'.$editurl.'">'. get_string('editentry','block_mrbs') ."</a>";
-}
-if($repeat_id) {
-    echo " - ";
-}
-if($repeat_id || $series ) {
-    $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id, 'edit_type'=>'series', 'day'=>$day, 'month'=>$month, 'year'=>$year));
-    echo '<a href="'.$editurl.'">'.get_string('editseries','block_mrbs')."</a>";
-}
+if (getWritable($booking->create_by, getUserName())) {
+    if (!$series) {
+        $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id));
+        echo '<a href="'.$editurl.'">'. get_string('editentry','block_mrbs') ."</a>";
+    }
+    if($repeat_id) {
+        echo " - ";
+    }
+    if($repeat_id || $series ) {
+        $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id, 'edit_type'=>'series', 'day'=>$day, 'month'=>$month, 'year'=>$year));
+        echo '<a href="'.$editurl.'">'.get_string('editseries','block_mrbs')."</a>";
+    }
 
-?>
-<br />
+    echo '<br />';
 
-<?php
+    if (!$series) {
+        $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array('id'=>$id, 'series'=>0, 'sesskey'=>sesskey()));
+        echo '<A HREF="'.$delurl.'" onClick="return confirm("'.get_string('confirmdel','block_mrbs').'");">'.get_string('deleteentry','block_mrbs')."</A>";
+    }
 
-if (!$series) {
-    $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array('id'=>$id, 'series'=>0, 'sesskey'=>sesskey()));
-    echo '<A HREF="'.$delurl.'" onClick="return confirm("'.get_string('confirmdel','block_mrbs').'");">'.get_string('deleteentry','block_mrbs')."</A>";
-}
+    if($repeat_id) {
+        echo " - ";
+    }
 
-if($repeat_id) {
-    echo " - ";
-}
-
-if($repeat_id || $series ) {
-    $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array('id'=>$id, 'series'=>1, 'sesskey'=>sesskey(), 'day'=>$day, 'month'=>$month, 'year'=>$year));
-    echo '<A HREF="'.$delurl.'" onClick="return confirm("'.get_string('confirmdel','block_mrbs').'");">'.get_string('deleteseries','block_mrbs')."</A>";
-}
-
+    if($repeat_id || $series ) {
+        $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array('id'=>$id, 'series'=>1, 'sesskey'=>sesskey(), 'day'=>$day, 'month'=>$month, 'year'=>$year));
+        echo '<A HREF="'.$delurl.'" onClick="return confirm("'.get_string('confirmdel','block_mrbs').'");">'.get_string('deleteseries','block_mrbs')."</A>";
+    }
+} // Writable
 ?>
 
 <br />
