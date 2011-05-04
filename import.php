@@ -25,6 +25,7 @@
  */
 
 //TODO:maybe set it up like tutorlink etc so that it can take uploaded files directly?
+require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 
 //record time for time taken stat
 $script_start_time=time();
@@ -48,13 +49,16 @@ if (file_exists($cfg_mrbs->cronfile)) {
             $csvrow->description=clean_param($array[7],PARAM_TEXT);
 
             list($year, $month, $day) = split('[/]', $csvrow->first_date);
-            $date = mktime(12,00,00,$month,$day,$year);
+            $date = mktime(00,00,00,$month,$day,$year);
+            // this was set to mktime(12,00,00,$month,$day,$year); - but that was breaking the import times
             $room = room_id_lookup($csvrow->room_name);
             $weeks =str_split($csvrow->weekpattern);
             foreach ($weeks as $week) {
                 if (($week==1) and ($date > $now)) {
                     $start_time = time_to_datetime($date,$csvrow->start_time);
                     $end_time = time_to_datetime($date,$csvrow->end_time);
+                    //echo userdate($date, '%d/%m/%Y %H:%M =>');
+                    //echo userdate($start_time, '%d/%m/%Y %H:%M')."\n";
                     if (!is_timetabled($csvrow->name,$start_time)) { ////only timetable class if it isn't already timetabled elsewhere (class been moved)
                         $entry->start_time=$start_time;
                         $entry->end_time=$end_time;
@@ -67,13 +71,6 @@ if (file_exists($cfg_mrbs->cronfile)) {
                         $newentryid=$DB->insert_record('mrbs_entry',$entry);
 
                         //If there is another non-imported booking there, send emails. It is assumed that simultanious imported classes are intentional
-//                        $sql = "SELECT *
-//                                FROM {$CFG->prefix}mrbs_entry
-//                                WHERE
-//                                    (({$CFG->prefix}mrbs_entry.start_time<$start_time AND {$CFG->prefix}mrbs_entry.end_time>$start_time)
-//                                  OR ({$CFG->prefix}mrbs_entry.start_time<$end_time AND {$CFG->prefix}mrbs_entry.end_time>$end_time)
-//                                  OR ({$CFG->prefix}mrbs_entry.start_time>=$start_time AND {$CFG->prefix}mrbs_entry.end_time<=$end_time ))
-//                                AND mdl_mrbs_entry.room_id = $room AND type<>'K'";
                         $sql = "SELECT *
                                 FROM {mrbs_entry} AS e
                                 WHERE
@@ -169,7 +166,7 @@ function room_id_lookup($name) {
   * @return bool does a previous booking exist?
   */
 function is_timetabled($name,$time) {
-    global $CFG;
+    global $DB;
     if ($DB->get_record('mrbs_entry', array('name'=>$name, 'start_time'=>$time, 'type'=>'L'))) {
         return true;
     } else if ($record = $DB->get_record('mrbs_entry', array('name'=>$name, 'start_time'=>$time, 'type'=>'M'))) {
