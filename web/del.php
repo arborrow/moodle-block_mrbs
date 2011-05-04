@@ -54,7 +54,6 @@ require_login();
 
 if(!getAuthorised(2))
 {
-    //UT
 	showAccessDenied($day, $month, $year, $area);
 	exit();
 }
@@ -92,7 +91,6 @@ if($type == "room")
 
         $bookings = $DB->get_records('mrbs_entry', array('room_id'=>$room));
         if (!empty($bookings)) {
-            //UT
 			echo get_string('deletefollowing','block_mrbs') . ":<ul>";
 
             foreach ($bookings as $booking) {

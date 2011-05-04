@@ -31,20 +31,16 @@ $year  = date("Y");
 switch ($default_view)
 {
 	case "month":
-        //UT
 		$redirect = new moodle_url('/blocks/mrbs/web/month.php', array('year'=>$year, 'month'=>$month));
 		break;
 	case "week":
-        //UT
 		$redirect = new moodle_url('/blocks/mrbs/web/week.php', array('year'=>$year, 'month'=>$month, 'day'=>$day));
 		break;
 	default:
-        //UT
         $redirect = new moodle_url('/blocks/mrbs/web/day.php', array('day'=>$day, 'month'=>$month, 'year'=>$year));
 }
 
 if (!empty($default_room)) {
-    //UT
 	$sql = "select area_id from $tbl_room where id=$default_room";
 	$res = $DB->get_record('mrbs_room', 'area_id', array('id'=>$default_room));
 	if (!empty($res)) {

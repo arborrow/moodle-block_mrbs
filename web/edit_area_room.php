@@ -65,7 +65,6 @@ require_login();
 
 if(!getAuthorised(2))
 {
-    //UT
 	showAccessDenied($day, $month, $year, $area);
 	exit();
 }

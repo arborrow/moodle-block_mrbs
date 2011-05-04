@@ -92,7 +92,6 @@ if(!getAuthorised(1)) {
 // and if it's a modification we need to get all the old data from the db.
 // If we had $id passed in then it's a modification.
 if ($id>0) {
-    //UT
     $entry = $DB->get_record('mrbs_entry', array('id'=>$id), '*', MUST_EXIST);
 	// Note: Removed stripslashes() calls from name and description. Previous
 	// versions of MRBS mistakenly had the backslash-escapes in the actual database
@@ -119,7 +118,6 @@ if ($id>0) {
 	$rep_id      = $entry->repeat_id;
 
 	if($entry_type >= 1) {
-        //UT
         $repeat = $DB->get_record('mrbs_repeat', array('id'=>$rep_id), '*', MUST_EXIST);
 		$rep_type = $repeat->rep_type;
 
@@ -160,7 +158,6 @@ if ($id>0) {
 		}
 	}
 } else { // It is a new booking. The data comes from whichever button the user clicked
-    //UT
 	$edit_type   = "series";
 	$name        = getUserName();
 	$create_by   = getUserName();
@@ -189,7 +186,6 @@ if ($id>0) {
 // been passed to it.
 // If we have not been provided with a room_id
 if ($room_id==0  ) {
-    //UT
     $dbroom = $DB->get_records('mrbs_room', null, 'room_name', 'id', 0, 1);
     if ($dbroom) {
         $room_id = $dbroom->id;
