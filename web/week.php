@@ -31,7 +31,7 @@ $room = optional_param('room', 0, PARAM_INT);
 $debug_flag = optional_param('debug_flag', 0, PARAM_INT);
 $morningstarts_minutes = optional_param('morningstarts_minutes', 0, PARAM_INT);
 $pview = optional_param('pview', 0, PARAM_INT);
-$timetohighlight = optional_param('timetohighlight', 0, PARAM_INT);
+$timetohighlight = optional_param('timetohighlight', -1, PARAM_INT);
 
 $num_of_days = $cfg_mrbs->weeklength;
 if ($num_of_days==0) {

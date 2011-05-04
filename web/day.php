@@ -21,7 +21,6 @@ include "functions.php";
 require_once('mrbs_auth.php');
 include "mincals.php";
 
-//UT
 $day = optional_param('day', 0, PARAM_INT);
 $month = optional_param('month', 0, PARAM_INT);
 $year = optional_param('year', 0, PARAM_INT);
@@ -29,7 +28,7 @@ $area = optional_param('area', 0,  PARAM_INT);
 //$room = optional_param('room', 0, PARAM_INT);
 $morningstarts_minutes = optional_param('morningstarts_minutes', 0, PARAM_INT);
 $debug_flag = optional_param('debug_flag', 0, PARAM_INT);
-$timetohighlight = optional_param('timetohighlight', 0, PARAM_INT);
+$timetohighlight = optional_param('timetohighlight', -1, PARAM_INT);
 $roomnotfound = optional_param('roomnotfound', NULL, PARAM_TEXT);
 
 //If we dont know the right date then make it up
@@ -46,7 +45,6 @@ if (($day==0) or ($month==0) or ($year==0)) {
 
 $format = "Gi";
 if( $enable_periods ) {
-    //UT
 	$format = "i";
 	$resolution = 60;
 	$morningstarts = 12;
@@ -65,7 +63,7 @@ if ($area > 0) {
 if ($morningstarts_minutes > 0) {
     $thisurl->param('morningstarts_minutes', $morningstarts_minutes);
 }
-if ($timetohighlight > 0) {
+if ($timetohighlight >= 0) {
     $thisurl->param('timetohighlight', $timetohighlight);
 }
 
@@ -94,10 +92,8 @@ if ( $pview != 1 ) {
    // need to show either a select box or a normal html list,
    // depending on the settings in config.inc.php
    if ($area_list_format == "select") {
-       //UT
        echo make_area_select_html(new moodle_url('/blocks/mrbs/web/day.php'), $area, $year, $month, $day); // from functions.php
    } else {
-       //UT
 	// show the standard html list
        $areas = $DB->get_records('mrbs_area', null, 'area_name');
        foreach ($areas as $dbarea) {
@@ -111,7 +107,6 @@ if ( $pview != 1 ) {
    }
    echo "</td>\n";
 
-   //UT
    //insert the goto room form
    $gotoroom = new moodle_url('/blocks/mrbs/web/gotoroom.php');
    $gotostr = get_string('gotoroom', 'block_mrbs');
@@ -159,7 +154,6 @@ $td = date("d",$i);
 // Don't continue if there are no areas:
 
 if ($area <= 0) {
-    //UT
     echo "<h1>".get_string('noareas','block_mrbs')."</h1>";
     echo "</table>\n";
     (isset($output)) ? print $output : '';
@@ -170,7 +164,6 @@ if ($area <= 0) {
 
 
 if (!empty($area)) {
-    //UT
     $sql = "SELECT e.id AS eid, r.id AS rid, e.start_time, e.end_time, e.name, e.type,
             e.description
             FROM {mrbs_entry} e, {mrbs_room} r
@@ -218,11 +211,9 @@ if (!empty($area)) {
         // Show the name of the booker in the first segment that the booking
         // happens in, or at the start of the day if it started before today.
         if ($entry->start_time < $am7) {
-            //UT
             $today[$entry->rid][date($format,$am7)]["data"] .= $entry->name;
             $today[$entry->rid][date($format,$am7)]["long_descr"] .= $entry->description;
         } else {
-            //UT
             $today[$entry->rid][date($format,$start_t)]["data"] .= $entry->name;
             $today[$entry->rid][date($format,$start_t)]["long_descr"] .= $entry->description;
         }
@@ -360,7 +351,7 @@ if (!empty($area)) {
                 // We tell if its booked by $id having something in it
                 if (isset($id))
                     $c = $color;
-                elseif (($timetohighlight>0) && ($time_t == $timetohighlight))
+                elseif ($time_t == $timetohighlight)
                     $c = "red";
                 else
                     $c = $row_class; // Use the default color class for the row.
