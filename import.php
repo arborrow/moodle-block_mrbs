@@ -50,7 +50,6 @@ if (file_exists($cfg_mrbs->cronfile)) {
 
             list($year, $month, $day) = split('[/]', $csvrow->first_date);
             $date = mktime(00,00,00,$month,$day,$year);
-            // this was set to mktime(12,00,00,$month,$day,$year); - but that was breaking the import times
             $room = room_id_lookup($csvrow->room_name);
             $weeks =str_split($csvrow->weekpattern);
             foreach ($weeks as $week) {
@@ -191,7 +190,12 @@ function is_timetabled($name,$time) {
   * @return integer date/time in seconds since epoch
   */
 function time_to_datetime($date,$time) {
+    global $cfg_mrbs;
     list($hours,$mins)=explode(':',$time);
+    if ($cfg_mrbs->enable_periods && $hours == 0 && $mins < count($cfg_mrbs->periods)) {
+        $hours = 12;  // Periods are imported as  P1 - 00:00, P2 - 00:01, P3 - 00:02, etc.
+                      // but stored internally as P1 - 12:00, P2 - 12:01, P3 - 12:02, etc.
+    }
     return $date + 60*$mins + 3600*$hours;
 }
 
