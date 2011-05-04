@@ -131,7 +131,7 @@ function mrbsDelEntry($user, $id, $series, $all)
         $removed++;
 	}
 
-	if ($repeat_id > 0 && $DB->count_records('mrbs_table', array('repeat_id'=>$repeat_id))) {
+	if ($repeat_id > 0 && $DB->count_records('mrbs_entry', array('repeat_id'=>$repeat_id)) == 0) {
         $DB->delete_records('mrbs_repeat', array('id'=>$repeat_id));
     }
 
