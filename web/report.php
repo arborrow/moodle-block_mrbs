@@ -35,6 +35,8 @@ $To_year= optional_param('To_year', 0, PARAM_INT);
 
 $submitform = optional_param('submitform', false, PARAM_TEXT);
 
+$typematch = optional_param('typematch', "", PARAM_ALPHA);
+
 // followup what the most appropriate default values should be - ab
 $areamatch= optional_param('areamatch', '', PARAM_TEXT);
 $roommatch= optional_param('roommatch', '', PARAM_TEXT);
@@ -397,7 +399,7 @@ if ($submitform) {
 	// Make default values when the form is reused.
 	$areamatch_default = s($areamatch);
 	$roommatch_default = s($roommatch);
-    (isset($typematch)) ? $typematch_default = $typematch : $typematch_default = "";
+    $typematch_default = $typematch;
 	$namematch_default = s($namematch);
 	$descrmatch_default = s($descrmatch);
     $creatormatch_default = s($creatormatch);
