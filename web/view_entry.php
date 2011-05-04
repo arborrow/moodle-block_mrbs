@@ -306,12 +306,6 @@ if (getWritable($booking->create_by, getUserName())) {
 
 <?php
 
-if (isset($HTTP_REFERER)) { //remove the link if displayed from an email
-?>
-<a href="<?php echo $HTTP_REFERER ?>"><?php echo get_string('returnprev','block_mrbs') ?></a>
-<?php
-}
-
 if (strtolower($USER->username) != strtolower($create_by)) {
     include "request_vacate.php";
 }
