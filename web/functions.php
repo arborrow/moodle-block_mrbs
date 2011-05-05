@@ -171,7 +171,7 @@ HTML2END;
                 echo '<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER><A HREF="'.$adminurl.'">'.$adminstr.'</A></TD>';
             }
             echo '<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER><A HREF="'.$reporturl.'">'.$reportstr.'</A></TD>';
-            echo '<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER><FORM METHOD=GET ACTION="$searchurl">';
+            echo '<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER><FORM METHOD=GET ACTION="'.$searchurl.'">';
             echo '<FONT SIZE=2><A HREF="'.$searchadvurl.'">'.$searchstr.'</A></FONT>
                   <INPUT TYPE=TEXT   NAME="search_str" VALUE="'.$search_str.'" SIZE=10>
                   <INPUT TYPE=HIDDEN NAME=day        VALUE="'.$day.'"        >
