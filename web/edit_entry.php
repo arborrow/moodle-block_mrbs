@@ -185,9 +185,11 @@ if ($id>0) {
 // this page has been accessed directly and no arguments have
 // been passed to it.
 // If we have not been provided with a room_id
+
 if ($room_id==0  ) {
     $dbroom = $DB->get_records('mrbs_room', null, 'room_name', 'id', 0, 1);
     if ($dbroom) {
+        $dbroom = reset($dbroom);
         $room_id = $dbroom->id;
     }
 }
@@ -460,7 +462,7 @@ if(($type == 'K') or ($type == 'L')){
 <tr><td>
 <?php if(has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM))){
     echo'<label for="mrbsforcebook"><b>Forceably book (automatically move other bookings):</b></label></td><td><input id="mrbsforcebook" type="checkbox" name="forcebook" value="TRUE"';
-    if ($force)echo '"CHECKED"';
+    if ($force) echo ' checked="CHECKED"';
     echo' onClick="document.getElementById(\'nooccupied\').checked=!this.checked; updateFreeRooms();">';
 }?>
 
