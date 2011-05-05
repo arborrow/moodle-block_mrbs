@@ -34,14 +34,14 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
 
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2011042600) {
+    if ($oldversion < 2011050500) {
         // Cannot use the built-in Moodle database manipulation commands, as they all assume the prefix
         renameifexists($dbman, 'mrbs_area', $CFG->prefix.'mrbs_area');
         renameifexists($dbman, 'mrbs_entry', $CFG->prefix.'mrbs_area');
         renameifexists($dbman, 'mrbs_repeat', $CFG->prefix.'mrbs_area');
         renameifexists($dbman, 'mrbs_room', $CFG->prefix.'mrbs_area');
 
-        upgrade_block_savepoint(true, 2011042600, 'mrbs');
+        upgrade_block_savepoint(true, 2011050500, 'mrbs');
     }
 
 }
