@@ -15,17 +15,44 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-function renameifexists($dbman, $oldname, $newname) {
+function renameifexists($dbman, $tablename) {
     global $DB, $CFG;
+
+    $oldname = $tablename;
+    $newname = $CFG->prefix.$tablename;
 
     $tbl = $DB->get_records_sql('SELECT table_name FROM information_schema.tables WHERE table_name = ? AND table_schema = ?',
                                 array($oldname, $CFG->dbname));
     if (empty($tbl)) {
+        // Old table does not exist - nothing to do
         return;
+    }
+
+    $newtbl = new xmldb_table($tablename);
+    if ($dbman->table_exists($newtbl)) {
+        // New table already exists
+        $newhasdata = $DB->count_records($tablename);
+        if (!$newhasdata) {
+            // New table exists, but is empty - drop it, then carry on with the rename below
+            $dbman->drop_table($newtbl);
+        } else {
+            $oldhasdata = $DB->count_records_sql('SELECT COUNT(*) FROM '.$oldname);
+            if (!$oldhasdata) {
+                // New table has data, old table does not - just drop the old one
+                $DB->execute('DROP TABLE '.$oldname);
+                return;
+            } else {
+                // Both contain data - display error and halt upgrade
+                echo "Database tables '$oldname' and '$newname' both exist and both contain data<br/>";
+                echo 'There is no way to automatically upgrade the database - please manually delete one of these tables, before trying to upgrade<br/>';
+                die();
+            }
+        }
     }
 
     // I would like to use this function, but it is protected
     //$dbman->execute_sql('ALTER TABLE '.$oldname.' RENAME TO '.$newname);
+    // Rename the old table to the new table name
     $DB->execute('ALTER TABLE '.$oldname.' RENAME TO '.$newname);
 }
 
@@ -34,14 +61,13 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
 
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2011050500) {
+    if ($oldversion < 2011050600) {
         // Cannot use the built-in Moodle database manipulation commands, as they all assume the prefix
-        renameifexists($dbman, 'mrbs_area', $CFG->prefix.'mrbs_area');
-        renameifexists($dbman, 'mrbs_entry', $CFG->prefix.'mrbs_area');
-        renameifexists($dbman, 'mrbs_repeat', $CFG->prefix.'mrbs_area');
-        renameifexists($dbman, 'mrbs_room', $CFG->prefix.'mrbs_area');
+        renameifexists($dbman, 'mrbs_area');
+        renameifexists($dbman, 'mrbs_entry');
+        renameifexists($dbman, 'mrbs_repeat');
+        renameifexists($dbman, 'mrbs_room');
 
-        upgrade_block_savepoint(true, 2011050500, 'mrbs');
+        upgrade_block_savepoint(true, 2011050600, 'mrbs');
     }
-
 }
