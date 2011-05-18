@@ -42,12 +42,19 @@ In April 2011, Davo Smith ( http://www.davodev.co.uk ), on behalf of Synergy Lea
 
 * MRBS Block - Installation *
 
-1) Copy the files into your Moodle blocks folder ($CFG->dirroot/blocks)
+1) Save the zip file somewhere onto your local computer and extract all the files
 
-2) Privileges to use the scheduler are currently based on custom defined capabilities (MRBS_Administrator, MRBS_Scheduler, and MRBS_Viewer).
+2) Create a new 'mrbs' folder in your Moodle blocks folder [moodleroot]/blocks/mrbs
+
+3) Copy all the downloaded files directly into this 'mrbs' folder
+(You should end up with [moodleroot]/blocks/mrbs/block_mrbs.php; [moodleroot]/blocks/mrbs/db/install.xml; [moodleroot]/blocks/mrbs/web/add.php; etc)
+
+4) Log in as 'administrator' and click on the 'Notifications' link (Moodle 1.9) or the 'Home' link (Moodle 2.0)
+
+5) Privileges to use the scheduler are currently based on custom defined capabilities (MRBS_Administrator, MRBS_Scheduler, and MRBS_Viewer).
 Details about making use of these capabilities is found at: http://docs.moodle.org/en/MRBS_block#Installation
 
-3) The MRBS block is primarily intended for use on the Moodle front page (it works on other pages, but note that each instance of the block links to the same set of bookings - it is not possible to create independent sets of bookings by adding the block to multiple pages)
+6) The MRBS block is primarily intended for use on the Moodle front page (it works on other pages, but note that each instance of the block links to the same set of bookings - it is not possible to create independent sets of bookings by adding the block to multiple pages)
 
 * MRBS Block - Links *
 Modules and Plugin entry is at: http://moodle.org/mod/data/view.php?d=13&rid=734
