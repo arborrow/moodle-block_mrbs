@@ -38,7 +38,7 @@ As a result, a number of language and mail related files were no longer needed h
 These are all major patches.
 Because of changes in the way that MRBS handles database calls (they switched in version 1.2.6 to use MDB, not MDB2), Anthony has opted to fork with the MRBS project at version 1.2.5.
 
-In April 2011, Davo Smith ( http://www.davodev.co.uk ), on behalf of Synergy Learning ( http://www.synergy-learning.com/ ) and funded by Landesmedienzentrum Baden-Württemberg (http://www.lmz-bw.de/ ) updated this block to work with Moodle 2.0. This built upon some earlier work by Stephen Bourget, but included updating the block to make use of the Moodle database functionality (for increased security and compatibility with all Moodle supported databases), as well as a number of minor bug fixes, security improvements and general code-cleaning.
+In April 2011, Davo Smith ( http://www.davodev.co.uk ), commissioned by Synergy Learning ( http://www.synergy-learning.com/ ) and Landesmedienzentrum Baden-Württemberg (http://www.lmz-bw.de/ ), updated this block to work with Moodle 2.0. This built upon some earlier work by Stephen Bourget, but included updating the block to make use of the Moodle database functionality (for increased security and compatibility with all Moodle supported databases), as well as a number of minor bug fixes, security improvements and general code-cleaning.
 
 * MRBS Block - Installation *
 
