@@ -747,7 +747,7 @@ function notifyAdminOnBooking($new_entry , $new_id) {
             $uname = ($new_entry) ? $create_by : $mail_previous['createdby'];
             $email = $DB->get_field('user', 'email', array('username'=>$uname));
             if ($email) {
-                $recipientlist[] = $email->email;
+                $recipientlist[] = $email;
             }
         } else { //Moodle should always look up the code so this should never execute especially since MAIL_USERNAME_SUFFIX and MAIL_DOMAIN are not defined
             if ($new_entry) {
