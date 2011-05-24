@@ -986,7 +986,7 @@ function notifyAdminOnDelete($mail_previous)
             $uname = ($new_entry) ? $create_by : $mail_previous['createdby'];
             $email = $DB->get_field('user', 'email', array('username'=>$uname));
             if ($email) {
-                $recipientlist[] = $email->email;
+                $recipientlist[] = $email;
             }
         }
         else { //this should never be the case with the MRBS Moodle block
