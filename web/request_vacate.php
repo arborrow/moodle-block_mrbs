@@ -26,7 +26,8 @@ if (empty($description)) {
 }
 $messagelang->room=$room_name;
 $messagelang->datetime=$start_date;
-$messagelang->href = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id));
+$url = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id));
+$messagelang->href = $url->out();
 
 $message="$USER->firstname $USER->lastname requests that you move $description from room $room_name, $start_date. Please contact them to discuss this.\n\n[Give a reason]";
 
@@ -44,6 +45,7 @@ $message="$USER->firstname $USER->lastname requests that you move $description f
             print_textarea(false, 5, 34, 0, 0, 'message', get_string('requestvacatemessage','block_mrbs',$messagelang));
             echo '<input type="hidden" name="format" value="'.FORMAT_MOODLE.'" />';
         }
+
         //<textarea name = "message" cols=50 rows=10>'.get_string('requestvacatemessage','block_mrbs',$messagelang).'</textarea>
     echo'<input type="hidden" name="format" value="'.FORMAT_MOODLE.'" />
         <br /><input type="submit" value="'.get_string('sendmessage', 'message').'" />

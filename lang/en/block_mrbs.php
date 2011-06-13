@@ -254,7 +254,7 @@ $string['report_only']        = 'Report only';
 $string['report_start']       = 'Report start date';
 $string['requestvacate']      = 'Request that this booking be moved';
 $string['requestvacatemessage']= '{$a->user} requests that you move {$a->description} from room {$a->room}, {$a->datetime}. Please contact them to discuss this.\n\n[Give a reason]';
-$string['requestvacatemessage_html']= '{$a->user} requests that you move <a href=\"{$a->href}\">{$a->description}</a> from room {$a->room}, {$a->datetime}. Please contact them to discuss this.<br /><br />[Give a reason]';
+$string['requestvacatemessage_html']= '{$a->user} requests that you move <a href="{$a->href}">{$a->description}</a> from room {$a->room}, {$a->datetime}. Please contact them to discuss this.<br /><br />[Give a reason]';
 $string['resolution_units'] = ' Minutes';
 $string['returncal']          = 'Return to calendar view';
 $string['returnprev']         = 'Return to previous page';

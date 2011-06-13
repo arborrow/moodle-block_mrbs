@@ -1,6 +1,6 @@
 <?php // $Id: block_mrbs.php,v 1.11 2009/11/07 14:50:34 arborrow Exp $
-// Bearbeitung 20081008 Hilgenstock/Misch  
-// Bearbeitung 20081202 Ralf Krause 
+// Bearbeitung 20081008 Hilgenstock/Misch
+// Bearbeitung 20081202 Ralf Krause
 // Bearbeitung 20091107 Jens-Peter Misch
 $string['about_mrbs'] = 'Über MRBS';
 $string['accessdenied'] = 'Zugang verweigert';
@@ -60,7 +60,7 @@ $string['config_default_view2'] = 'Definition des Anzeigemodus beim Start des MR
 $string['config_enable_periods'] = 'Eigene Zeitangabe';
 $string['config_enable_periods2'] = 'Diese Einstellung ermöglicht die Angabe von eigenen Zeitblöcken für die MRBS-Buchung. Wenn hier \'Nein\' gewählt wird, dann wird ein gleichmäßiges Zeitraster für den Tag erzeugt.';
 $string['config_entry_type'] = 'Typ $a';
-$string['config_entry_type2'] = 'Dieser Typ bezieht sich auf den \'Eintrag hinzufügen\' Dialog. Jeder Typ bezieht sich auf eine andere Farbe. Die Typen werden nach folgender Ordnung angezeigt: \'Typ A\', \'Typ B\', \'Typ C\', etc'; 
+$string['config_entry_type2'] = 'Dieser Typ bezieht sich auf den \'Eintrag hinzufügen\' Dialog. Jeder Typ bezieht sich auf eine andere Farbe. Die Typen werden nach folgender Ordnung angezeigt: \'Typ A\', \'Typ B\', \'Typ C\', etc';
 $string['config_eveningends_min'] = 'Endzeit Minute';
 $string['config_eveningends_min2']  = 'Endzeit (Minute) des Tages. \"Eigene Zeitangabe\" muss deaktiviert sein.';
 $string['config_eveningends'] = 'Endzeit Stunde';
@@ -71,7 +71,7 @@ $string['config_javascript_cursor'] = 'Javascript cursor';
 $string['config_javascript_cursor2'] = 'Wählen Sie \'Nein\', wenn Clients noch alte Browser benutzen, die inkompatibel zu Javascript sind.';
 $string['config_mail_admin_all'] = 'E-Mail an Admin (jede Änderung)';
 $string['config_mail_admin_all2'] = 'Versenden einer E-Mail bei jeglicher Änderung der Buchungen im MRBS';
-$string['config_mail_admin_on_bookings'] = 'E-Mail an Admin'; 
+$string['config_mail_admin_on_bookings'] = 'E-Mail an Admin';
 $string['config_mail_admin_on_bookings2'] = 'Administrator wird per E-Mail informiert wenn neue Buchungen gemacht werden.';
 $string['config_mail_admin_on_delete'] = 'E-Mail an Admin (löschen)';
 $string['config_mail_admin_on_delete2'] = 'E-Mail an den MRBS-Admin bei Raum-/Ressourcen Löschungen';
@@ -83,8 +83,8 @@ $string['config_mail_cc'] = 'Kopie an (CC)';
 $string['config_mail_cc2'] = 'E-Mail-Empfänger in CC-Feld eintragen. Grundeinstellung ist leer. Es können mehrere Empfänger eingetragen werden. Für jeden muss ein Moodle-Account vorhanden sein.' ;
 $string['config_mail_details'] = 'Maildetails';
 $string['config_mail_details2'] = 'Maildetails';
-$string['config_mail_from'] = 'Absender E-Mail'; 
-$string['config_mail_from2'] = 'Setzt die Absenderadresse von MRBS ausgehenden Mails. Default ist die MRBS Administrator E-Mail-Adresse. Die Absenderadresse muss einem Moodle Benutzer zugeordet werden können!'; 
+$string['config_mail_from'] = 'Absender E-Mail';
+$string['config_mail_from2'] = 'Setzt die Absenderadresse von MRBS ausgehenden Mails. Default ist die MRBS Administrator E-Mail-Adresse. Die Absenderadresse muss einem Moodle Benutzer zugeordet werden können!';
 $string['config_mail_recipients'] = 'E-Mail-Empfänger';
 $string['config_mail_recipients2'] = 'Geben Sie die E-Mail der Empfänger ein.  Es können mehrere Empfänger eingetragen werden. Die Trennung erfolgt durch ein Komma zwischen den Adressen \'john@doe.com,scott@tiger.com\'. Für jeden muss ein Moodle-Account vorhanden sein.';
 $string['config_mail_room_admin_on_bookings'] = 'E-Mail an Raum-/Ressourceadmin';
@@ -157,7 +157,7 @@ $string['error_room'] = 'Fehler: Raum ';
 $string['error_send_email'] = 'Fehler beim Versenden der E-Mail an: $a';
 $string['external'] = 'Extern';
 $string['failed_connect_db'] = 'Schwerer Fehler: Kann nicht an Datenbank anbinden';
-$string['failed_to_acquire'] = 'Konnte nicht exclusiv auf die Datenbank zugreifen'; 
+$string['failed_to_acquire'] = 'Konnte nicht exclusiv auf die Datenbank zugreifen';
 $string['finishedimport']  = 'Prozess abgeschlossen, hat: $a Sekunden in Anspruch genommen';
 $string['for_any_questions'] = 'für Fragen, die hier nicht beantwortet sind.';
 $string['fulldescription'] = 'Beschreibung:';
@@ -243,15 +243,15 @@ $string['rep_type_4'] = 'jährlich';
 $string['rep_type_5'] = 'monatlich, entsprechender Tag';
 $string['rep_type_6'] = 'jede n-te Woche';
 $string['rep_type'] = 'Wiederholung?';
-$string['repeat_id'] = 'Wiederholungs ID '; 
+$string['repeat_id'] = 'Wiederholungs ID ';
 $string['report_and_summary'] = 'Bericht und Zusammenfassung';
 $string['report_end'] = 'Bericht Ende:';
 $string['report_on'] = 'Bericht über Termine:';
 $string['report_only'] = 'nur Bericht';
 $string['report_start'] = 'Bericht Beginn:';
 $string['requestvacate']      = 'Anfrage ob diese Resource umgebuchzt werden kann';
-$string['requestvacatemessage']= '$a->user requests that you move $a->description from room $a->room, $a->datetime. Please contact them to discuss this.\n\n[Give a reason]';
-$string['requestvacatemessage_html']= '$a->user requests that you move <a href=\"$a->href\">$a->description</a> from room $a->room, $a->datetime. Please contact them to discuss this.<br /><br />[Give a reason]';
+$string['requestvacatemessage']= '{$a->user} requests that you move {$a->description} from room {$a->room}, {$a->datetime}. Please contact them to discuss this.\n\n[Give a reason]';
+$string['requestvacatemessage_html']= '{$a->user} requests that you move <a href="{$a->href}">{$a->description}</a> from room {$a->room}, {$a->datetime}. Please contact them to discuss this.<br /><br />[Give a reason]';
 $string['resolution_units'] = ' Minuten';
 $string['returncal'] = 'Zurück zur Kalenderansicht';
 $string['returnprev'] = 'Zurück zur vorherigen Seite';

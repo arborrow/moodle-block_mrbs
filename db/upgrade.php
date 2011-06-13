@@ -70,4 +70,6 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
 
         upgrade_block_savepoint(true, 2011050600, 'mrbs');
     }
+
+    return true;
 }
