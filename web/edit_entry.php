@@ -241,6 +241,11 @@ function validate_and_submit ()
 {
   // null strings and spaces only strings not allowed
   if(/(^$)|(^\s+$)/.test(document.forms["main"].name.value)) {
+    alert ( "<?php echo get_string('you_have_not_entered','block_mrbs') . '\n' . get_string('name') ?>");
+    return false;
+  }
+  // null strings and spaces only strings not allowed
+  if(/(^$)|(^\s+$)/.test(document.forms["main"].description.value)) {
     alert ( "<?php echo get_string('you_have_not_entered','block_mrbs') . '\n' . get_string('description') ?>");
     return false;
   }

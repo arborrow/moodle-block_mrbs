@@ -81,7 +81,18 @@ if (!confirm_sesskey()) {
     error('Invalid sesskey');
 }
 
+$name = trim($name);
 if ($name == '')
+{
+     print_header_mrbs($day, $month, $year, $area);
+     echo('<h1>'. get_string('invalid_booking','block_mrbs') . '<h1>');
+     echo get_string('must_set_name','block_mrbs');
+     echo $OUTPUT->footer();
+     exit;
+}
+
+$description = trim($description);
+if ($description == '')
 {
      print_header_mrbs($day, $month, $year, $area);
      echo('<h1>'. get_string('invalid_booking','block_mrbs') . '<h1>');
