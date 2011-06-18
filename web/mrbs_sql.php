@@ -157,7 +157,7 @@ function mrbsDelEntry($user, $id, $series, $all)
  *   non-zero - The entry's ID
  */
 function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $room_id,
-                               $owner, $name, $type, $description)
+                               $owner, $name, $type, $description, $oldid=0)
 {
     global $DB;
 
@@ -177,7 +177,12 @@ function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $r
 	// this is to trap potential negative duration created when DST comes
 	// into effect
 	if( $endtime > $starttime ) {
-        return $DB->insert_record('mrbs_entry', $add);
+        if ($oldid) {
+            $add->id = $oldid;
+            return $DB->update_record('mrbs_entry', $add);
+        } else {
+            return $DB->insert_record('mrbs_entry', $add);
+        }
     }
 
     return 0;

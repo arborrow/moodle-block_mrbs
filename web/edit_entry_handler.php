@@ -332,6 +332,10 @@ if(empty($err))
                     $result = notifyAdminOnBooking(($id==0), $new_id);
                 }
             }
+            // Delete the original entry
+            if($id>0) {
+                mrbsDelEntry(getUserName(), $id, ($edit_type == "series"), 1, $roomadmin);
+            }
         }
         else
         {
@@ -341,9 +345,10 @@ if(empty($err))
             else
                 $entry_type = 0;
 
-            // Create the entry:
+            // Create / update the entry:
             $new_id = mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $room_id,
-                                     $create_by, $name, $type, $description);
+                                            $create_by, $name, $type, $description, $id);
+
             //Add to moodle logs
             add_to_log(SITEID, 'mrbs', 'edit booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);
             // Send a mail to the Administrator
@@ -376,10 +381,6 @@ if(empty($err))
             }
         }
     } // end foreach $rooms
-
-    // Delete the original entry
-    if($id>0)
-        mrbsDelEntry(getUserName(), $id, ($edit_type == "series"), 1);
 
     //    sql_mutex_unlock("$tbl_entry");
 
