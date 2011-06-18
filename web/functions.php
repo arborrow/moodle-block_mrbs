@@ -766,7 +766,11 @@ function notifyAdminOnBooking($new_entry , $new_id) {
         return FALSE;
     }
     //
-    $subject = get_string('mail_subject_entry','block_mrbs');
+    $subjdetails = new stdClass;
+    $subjdetails->date = userdate($starttime, get_string('strftimedateshort'));
+    $subjdetails->user = $create_by;
+    $subject = get_string('mail_subject_entry','block_mrbs', $subjdetails);
+
     if ($new_entry)
     {
         $body = get_string('mail_body_new_entry','block_mrbs') . ": \n\n";
@@ -929,10 +933,14 @@ function notifyAdminOnBooking($new_entry , $new_id) {
     }
     foreach ($recipientlist as $recip) {
         $recipuser = get_user_by_email($recip);
+
         if (($recipuser) && ($result)) {
             $result = email_to_user($recipuser, $fromuser, $subject, $body);
+            if (!$result) {
+                notice(get_string('email_failed', 'block_mrbs'));
+            }
         } else {
-            if ($recipuser<1) {
+            if (!$recipuser) {
                 $result=0;
                 notice(get_string('no_user_with_email','block_mrbs',$recip));
             } else {
