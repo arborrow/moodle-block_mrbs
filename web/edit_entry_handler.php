@@ -49,6 +49,9 @@ $all_day = optional_param('all_day', false, PARAM_BOOL);
 $rooms = optional_param('rooms', array(), PARAM_INT);
 $doublebook = optional_param('doublebook', 0, PARAM_INT);
 
+define('MRBS_ERR_DOUBLEBOOK', 1);
+define('MRBS_ERR_TOOMANY', 2);
+
 //If we dont know the right date then make it up
 if(($day==0) or ($month==0) or ($year==0))
 {
@@ -225,6 +228,7 @@ else
 // Check for any schedule conflicts in each room we're going to try and
 // book in
 $err = "";
+$errtype = 0;
 $forcemoveoutput='';
 foreach ( $rooms as $room_id ) {
   if ($rep_type != 0 && !empty($reps))
@@ -239,13 +243,16 @@ foreach ( $rooms as $room_id ) {
             $diff = $endtime - $starttime;
             $diff += cross_dst($reps[$i], $reps[$i] + $diff);
             $tmp = mrbsCheckFree($room_id, $reps[$i], $reps[$i] + $diff, $ignore_id, $repeat_id);
-            if(!empty($tmp))
+            if(!empty($tmp)) {
                 $err = $err . $tmp;
+                $errtype = MRBS_ERR_DOUBLEBOOK;
+            }
         }
     }
     else
     {
         $err        .= get_string('too_may_entrys','block_mrbs') . "<P>";
+        $errtype = MRBS_ERR_TOOMANY;
         $hide_title  = 1;
     }
   }
@@ -406,7 +413,7 @@ if(strlen($err))
     }
 
     echo $err;
-    if(has_capability('block/mrbs:doublebook', get_context_instance(CONTEXT_SYSTEM))) {
+    if(has_capability('block/mrbs:doublebook', get_context_instance(CONTEXT_SYSTEM)) && $errtype == MRBS_ERR_DOUBLEBOOK) {
         $thisurl = new moodle_url('/blocks/mrbs/web/edit_entry_handler.php');
         echo '<form method="post" action="'.$thisurl.'">';
         echo '<input type="hidden" name="name" value="'.$name.'" />';
@@ -425,8 +432,6 @@ if(strlen($err))
         echo '<input type="hidden" name="rep_day" value="'.$rep_day.'" />';
         echo '<input type="hidden" name="rep_opt" value="'.$rep_opt.'" />';
         echo '<input type="hidden" name="rep_enddate" value="'.$rep_enddate.'" />';
-        echo '<input type="hidden" name="premises" value="'.$premises.'" />';
-        echo '<input type="hidden" name="itav" value="'.$itav.'" />';
         echo '<input type="hidden" name="hour" value="'.$hour.'" />';
         echo '<input type="hidden" name="minute" value="'.$minute.'" />';
         echo '<input type="hidden" name="period" value="'.$period.'" />';
@@ -446,6 +451,7 @@ if(strlen($err))
         echo "</UL>";
 }
 
+$returl = new moodle_url('/blocks/mrbs/web/index.php');
 echo "<a href=\"$returl\">".get_string('returncal','block_mrbs')."</a><p>";
 
 include "trailer.php";
