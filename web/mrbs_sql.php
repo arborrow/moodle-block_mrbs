@@ -179,7 +179,8 @@ function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $r
 	if( $endtime > $starttime ) {
         if ($oldid) {
             $add->id = $oldid;
-            return $DB->update_record('mrbs_entry', $add);
+            $DB->update_record('mrbs_entry', $add);
+            return $oldid;
         } else {
             return $DB->insert_record('mrbs_entry', $add);
         }
