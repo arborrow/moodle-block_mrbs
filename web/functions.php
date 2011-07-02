@@ -963,9 +963,9 @@ function notifyAdminOnBooking($new_entry , $new_id) {
 function notifyAdminOnDelete($mail_previous)
 {
     global $typel, $enable_periods, $auth, $DB;
-    //
-    $recipients = '';
-    (MAIL_ADMIN_ON_BOOKINGS) ? $recipients = MAIL_RECIPIENTS : '';
+
+    $recipientlist = array();
+    (MAIL_ADMIN_ON_BOOKINGS) ? $recipientlist[] = MAIL_RECIPIENTS : '';
     if (MAIL_AREA_ADMIN_ON_BOOKINGS)
     {
         if ('' != $mail_previous['area_admin_email'])
@@ -982,27 +982,17 @@ function notifyAdminOnDelete($mail_previous)
     }
     if (MAIL_BOOKER)
     {
-        if ('moodle' == $auth['type'])
-        {
-            /* It would be possible to move this query within the query in
-               getPreviousEntryData to have all in one central place and to
-               reduce database hits by one. However this is a bad idea. If a
-               user is deleted from your user database, this will prevent all
-               mails to admins when this user previously booked entries will
-               be changed, as no user name will match the booker name */
+        /* It would be possible to move this query within the query in
+           getPreviousEntryData to have all in one central place and to
+           reduce database hits by one. However this is a bad idea. If a
+           user is deleted from your user database, this will prevent all
+           mails to admins when this user previously booked entries will
+           be changed, as no user name will match the booker name */
 
-            $uname = ($new_entry) ? $create_by : $mail_previous['createdby'];
-            $email = $DB->get_field('user', 'email', array('username'=>$uname));
-            if ($email) {
-                $recipientlist[] = $email;
-            }
-        }
-        else { //this should never be the case with the MRBS Moodle block
-            if ( !empty($recipients) && ('' != $mail_previous['createdby']) ) {
-                if ('' != $mail_previous['createdby']) {
-                    $recipientlist[] = str_replace(MAIL_USERNAME_SUFFIX, '', $mail_previous['createdby']) . MAIL_DOMAIN;
-                }
-            }
+        $uname = ($new_entry) ? $create_by : $mail_previous['createdby'];
+        $email = $DB->get_field('user', 'email', array('username'=>$uname));
+        if ($email) {
+            $recipientlist[] = $email;
         }
     }
     // In case mail is allowed but someone forgot to supply email addresses...
@@ -1010,7 +1000,10 @@ function notifyAdminOnDelete($mail_previous)
         return FALSE;
     }
     //
-    $subject = get_string('mail_subject_delete','block_mrbs');
+    $subjdetails = new stdClass;
+    $subjdetails->date = userdate($starttime, get_string('strftimedateshort'));
+    $subjdetails->user = $mail_previous['createdby'];
+    $subject = get_string('mail_subject_delete','block_mrbs', $subjdetails);
     $body = get_string('mail_body_del_entry','block_mrbs') . ": \n\n";
     // Displays deleted entry details
     $body .= "\n" . get_string('namebooker','block_mrbs') . ': ';
