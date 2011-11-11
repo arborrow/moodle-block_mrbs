@@ -1357,3 +1357,24 @@ function to_hr_time($time){
         return date('G:i',$time);
     }
 }
+
+function check_max_advance_days($day, $month, $year) {
+    global $max_advance_days;
+
+    if ($max_advance_days < 0) {
+        return true;
+    }
+
+    $checkdate = new DateTime();
+    $checkdate->setDate($year, $month, $day);
+    $now = new DateTime();
+    if ($checkdate < $now) {
+        return true;
+    }
+    $interval = $now->diff($checkdate);
+    if ($interval->days > $max_advance_days) {
+        return false;
+    }
+
+    return true;
+}

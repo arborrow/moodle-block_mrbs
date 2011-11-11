@@ -104,6 +104,14 @@ if ($description == '')
      exit;
 }
 
+if (!check_max_advance_days($day, $month, $year)) {
+     print_header_mrbs($day, $month, $year, $area);
+     echo('<h1>'. get_string('invalid_booking','block_mrbs') . '<h1>');
+     echo get_string('toofaradvance','block_mrbs', $max_advance_days);
+     echo $OUTPUT->footer();
+     exit;
+}
+
 // Support locales where ',' is used as the decimal point
 $duration = preg_replace('/,/', '.', $duration);
 
