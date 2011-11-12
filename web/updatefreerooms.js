@@ -20,7 +20,11 @@ function updateFreeRooms(){
     dur_units=dur_unitsInput[0].options[dur_unitsInput[0].selectedIndex].value;
 
     areasInput=document.getElementsByName('areas');
-    area=areasInput[0].options[areasInput[0].selectedIndex].value;
+    if (areasInput.length) {
+        area=areasInput[0].options[areasInput[0].selectedIndex].value;
+    } else {
+        area=0;
+    }
 
     //currentroom is put onto edit_entry.php server-side
     searchstring="?day="+day+"&month="+month+"&year="+year+"&period="+period+"&duration="+duration+"&dur_units="+dur_units+"&area="+area+"&currentroom="+currentroom;
@@ -66,8 +70,8 @@ function updateFreeRooms(){
           roomsInput=roomsInput[0];
 
           //remember which room is currently selected
+          var currentSelection=new Array();
           if(roomsInput.selectedIndex!=-1){
-              var currentSelection=new Array();
               for (i=0;i<roomsInput.length;i++){
                   currentSelection[roomsInput.options[i].value]=roomsInput.options[i].selected;
               }

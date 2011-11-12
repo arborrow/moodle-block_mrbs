@@ -1378,3 +1378,18 @@ function check_max_advance_days($day, $month, $year) {
 
     return true;
 }
+
+function allowed_to_book($user, $room) {
+    if (empty($room->booking_users)) {
+        return true;
+    }
+
+    $booking_users = explode(',', $room->booking_users);
+    foreach ($booking_users as $email) {
+        if ($user->email == $email) {
+            return true;
+        }
+    }
+
+    return false;
+}

@@ -59,7 +59,8 @@
         <FIELD NAME="room_name" TYPE="char" LENGTH="25" NOTNULL="true" SEQUENCE="false" PREVIOUS="area_id" NEXT="description"/>
         <FIELD NAME="description" TYPE="char" LENGTH="60" NOTNULL="false" SEQUENCE="false" PREVIOUS="room_name" NEXT="capacity"/>
         <FIELD NAME="capacity" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="description" NEXT="room_admin_email"/>
-        <FIELD NAME="room_admin_email" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="capacity"/>
+        <FIELD NAME="room_admin_email" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="capacity" NEXT="booking_users"/>
+        <FIELD NAME="booking_users" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" PREVIOUS="room_admin_email" COMMENT="A comma-separated list of the users who are allowed to book this room (empty=anyone can book)"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

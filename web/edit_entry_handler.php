@@ -112,6 +112,17 @@ if (!check_max_advance_days($day, $month, $year)) {
      exit;
 }
 
+$roomdetails = $DB->get_records_list('mrbs_room', 'id', $rooms);
+foreach ($roomdetails as $room) {
+    if (!allowed_to_book($USER, $room)) {
+        // TODO: Should admin users be allowed to override this?
+        print_header_mrbs($day, $month, $year, $area);
+        echo('<h1>'. get_string('invalid_booking','block_mrbs') . '<h1>');
+        echo get_string('notallowedbook','block_mrbs', $max_advance_days);
+        echo $OUTPUT->footer();
+    }
+}
+
 // Support locales where ',' is used as the decimal point
 $duration = preg_replace('/,/', '.', $duration);
 

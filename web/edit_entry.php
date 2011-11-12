@@ -434,6 +434,9 @@ $rooms = $DB->get_records('mrbs_room', array('area_id'=>$area_id), 'room_name');
 
 $i = 0;
 foreach ($rooms as $dbroom) {
+    if (!allowed_to_book($USER, $dbroom)) {
+        continue;
+    }
     $selected = "";
     if ($dbroom->id == $room_id) {
         $selected = "SELECTED";

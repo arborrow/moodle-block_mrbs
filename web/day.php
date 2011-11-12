@@ -238,6 +238,9 @@ if (!empty($area)) {
     // pull the data from the db and store it. Convienently we can print the room
     // headings and capacities at the same time
     $rooms = $DB->get_records('mrbs_room', array('area_id'=>$area), 'room_name');
+    foreach ($rooms as $room) {
+        $room->allowedtobook = allowed_to_book($USER, $room);
+    }
 
     // It might be that there are no rooms defined for this area.
     // If there are none then show an error and dont bother doing anything
@@ -367,7 +370,13 @@ if (!empty($area)) {
                     $minute  = date("i",$t);
 
                     if ( $pview != 1 ) {
-                        if ( !$advanceok ) {
+                        if (!$room->allowedtobook) {
+                            // Not allowed to book this room
+                            echo '<center>';
+                            $title = get_string('notallowedbook', 'block_mrbs');
+                            echo '<img src="'.$OUTPUT->pix_url('toofaradvance', 'block_mrbs').'" width="10" height="10" border="0" alt="'.$title.'" title="'.$title.'" />';
+                            echo '</center>';
+                        } else if (!$advanceok) {
                             // Too far in advance to edit
                             echo '<center>';
                             $title = get_string('toofaradvance', 'block_mrbs', $max_advance_days);

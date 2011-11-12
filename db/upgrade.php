@@ -71,5 +71,18 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
         upgrade_block_savepoint(true, 2011050600, 'mrbs');
     }
 
+    if ($oldversion < 2011111200) {
+        $table = new xmldb_table('mrbs_room');
+        $field = new xmldb_field('booking_users', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, 'room_admin_email');
+
+        // Conditionally launch add field booking_users
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // mrbs savepoint reached
+        upgrade_block_savepoint(true, 2011111200, 'mrbs');
+    }
+
     return true;
 }
