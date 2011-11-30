@@ -230,7 +230,7 @@ print_header_mrbs($day, $month, $year, $area);
 
 <?php
 echo 'var currentroom='. $room_id.';';
-if (has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM))){
+if (has_capability("block/mrbs:forcebook", get_context_instance(CONTEXT_SYSTEM))){
     echo 'var canforcebook=true;';
 } else {
     echo 'var canforcebook=false;';
