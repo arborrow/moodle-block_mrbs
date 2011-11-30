@@ -124,7 +124,7 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL, $user
           <TABLE WIDTH="100%" BORDER=0>
             <TR>
               <TD CLASS="banner" BGCOLOR="#C0E0FF">
-          <FONT SIZE=4><B><a href='$mrbs_company_url'>$mrbs_company</a></B><BR>
+          <FONT SIZE=4>
            <A HREF="$homeurl">$titlestr</A>
                 </FONT>
               </TD>
