@@ -143,6 +143,9 @@ $twentyfourhour_format = $cfg_mrbs->timeformat;
 # Maximum repeating entrys (max needed +1):
 $max_rep_entrys = $cfg_mrbs->max_rep_entrys + 1;
 
+# Max advance days for booking
+$max_advance_days = isset($cfg_mrbs->max_advance_days) ? $cfg_mrbs->max_advance_days : -1;
+
 # Default report span in days:
 $default_report_days = $cfg_mrbs->default_report_days;
 

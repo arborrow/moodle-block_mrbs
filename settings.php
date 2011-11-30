@@ -100,6 +100,9 @@ $settings->settings->timeformat->plugin='block/mrbs';
 $settings->add(new admin_setting_configtext('max_rep_entrys', get_string('config_max_rep_entrys', 'block_mrbs'), get_string('config_max_rep_entrys2', 'block_mrbs'), 365, PARAM_INT));
 $settings->settings->max_rep_entrys->plugin='block/mrbs';
 
+$settings->add(new admin_setting_configtext('max_advance_days', get_string('config_max_advance_days', 'block_mrbs'), get_string('config_max_advance_days2', 'block_mrbs'), -1, PARAM_INT));
+$settings->settings->max_advance_days->plugin='block/mrbs';
+
 $settings->add(new admin_setting_configtext('default_report_days', get_string('config_default_report_days', 'block_mrbs'), get_string('config_default_report_days2', 'block_mrbs'), 60, PARAM_INT));
 $settings->settings->default_report_days->plugin='block/mrbs';
 

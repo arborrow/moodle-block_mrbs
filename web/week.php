@@ -212,6 +212,9 @@ if ( $pview != 1 ) {
       ".get_string('weekafter','block_mrbs')."&gt;&gt;</a></td></tr></table>";
 }
 
+$roomdata = $DB->get_record('mrbs_room', array('id'=>$room));
+$allowedtobook = allowed_to_book($USER, $roomdata);
+
 //Get all appointments for this week in the room that we care about
 // This data will be retrieved day-by-day
 for ($j = 0; $j<=($num_of_days-1) ; $j++) {
@@ -413,26 +416,40 @@ for ($t = $starttime; $t <= $endtime; $t += $resolution) {
             $minute  = date("i",$t);
 
             if ( $pview != 1 ) {
-                if ($javascript_cursor) {
-                    echo "<SCRIPT language=\"JavaScript\">\n<!--\n";
-                    echo "BeginActiveCell();\n";
-                    echo "// -->\n</SCRIPT>";
-                }
-                echo "<center>";
-                $editentry = new moodle_url('/blocks/mrbs/web/edit_entry.php',
-                                            array('room'=>$room, 'area'=>$area, 'year'=>$wyear,
-                                                  'month'=>$wmonth, 'day'=>$wday));
-                if( $enable_periods ) {
-                    echo '<a href="'.($editentry->out(true, array('period'=>$time_t_stripped))).'">';
+                if (!$allowedtobook) {
+                    // User not allowed to book this room
+                    echo '<center>';
+                    $title = get_string('notallowedbook', 'block_mrbs', $max_advance_days);
+                    echo '<img src="'.$OUTPUT->pix_url('toofaradvance', 'block_mrbs').'" width="10" height="10" border="0" alt="'.$title.'" title="'.$title.'" />';
+                    echo '</center>';
+                } else if ( !check_max_advance_days($wday, $wmonth, $wyear) ) {
+                    // Too far in advance to edit
+                    echo '<center>';
+                    $title = get_string('toofaradvance', 'block_mrbs', $max_advance_days);
+                    echo '<img src="'.$OUTPUT->pix_url('toofaradvance', 'block_mrbs').'" width="10" height="10" border="0" alt="'.$title.'" title="'.$title.'" />';
+                    echo '</center>';
                 } else {
-                    echo '<a href="'.($editentry->out(true, array('hour'=>$hour, 'minute'=>$minute))).'">';
-                }
-                echo '<img src="'.$OUTPUT->pix_url('new', 'block_mrbs').'" width="10" height="10" border="0"></a>';
-                echo "</center>";
-                if ($javascript_cursor) {
-                    echo "<SCRIPT language=\"JavaScript\">\n<!--\n";
-                    echo "EndActiveCell();\n";
-                    echo "// -->\n</SCRIPT>";
+                    if ($javascript_cursor) {
+                        echo "<SCRIPT language=\"JavaScript\">\n<!--\n";
+                        echo "BeginActiveCell();\n";
+                        echo "// -->\n</SCRIPT>";
+                    }
+                    echo "<center>";
+                    $editentry = new moodle_url('/blocks/mrbs/web/edit_entry.php',
+                                                array('room'=>$room, 'area'=>$area, 'year'=>$wyear,
+                                                      'month'=>$wmonth, 'day'=>$wday));
+                    if( $enable_periods ) {
+                        echo '<a href="'.($editentry->out(true, array('period'=>$time_t_stripped))).'">';
+                    } else {
+                        echo '<a href="'.($editentry->out(true, array('hour'=>$hour, 'minute'=>$minute))).'">';
+                    }
+                    echo '<img src="'.$OUTPUT->pix_url('new', 'block_mrbs').'" width="10" height="10" border="0"></a>';
+                    echo "</center>";
+                    if ($javascript_cursor) {
+                        echo "<SCRIPT language=\"JavaScript\">\n<!--\n";
+                        echo "EndActiveCell();\n";
+                        echo "// -->\n</SCRIPT>";
+                    }
                 }
             } else {
                 echo '&nbsp;';

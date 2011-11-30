@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of the MRBS block for Moodle
 //
 // Moodle is free software: you can redistribute it and/or modify

@@ -27,8 +27,12 @@ $year = optional_param('year', 0, PARAM_INT);
 $period = optional_param('period', 0, PARAM_INT);
 $duration = optional_param('duration', 0, PARAM_INT);
 $dur_units = optional_param('dur_units', 0, PARAM_TEXT);
-$area = optional_param('area', get_default_area(),  PARAM_INT);
+$area = optional_param('area', 0,  PARAM_INT);
 $currentroom = optional_param('currentroom', 0,  PARAM_INT);
+
+if (!$area) {
+    $area = get_default_area();
+}
 
         global $tbl_room;
         global $tbl_entry;
@@ -117,7 +121,7 @@ $currentroom = optional_param('currentroom', 0,  PARAM_INT);
     }
 
 
-$sql = 'SELECT r.id, r.room_name, r.description, r.capacity, a.area_name, r.area_id ';
+$sql = 'SELECT r.id, r.room_name, r.description, r.capacity, a.area_name, r.area_id, r.booking_users ';
 $sql .= 'FROM {mrbs_room} r JOIN {mrbs_area} a on r.area_id=a.id WHERE ';
 
 $params = array();
@@ -155,7 +159,9 @@ $rooms = $DB->get_records_sql($sql, $params);
 if(!empty($rooms)) {
     $list='';
     foreach ($rooms as $room){
-        $list.= $room->id.','.$room->room_name.' ('.$room->description.' Capacity:'.$room->capacity.')'."\n";
+        if (allowed_to_book($USER, $room)) {
+            $list.= $room->id.','.$room->room_name.' ('.$room->description.' Capacity:'.$room->capacity.')'."\n";
+        }
     }
     echo $list;
 }

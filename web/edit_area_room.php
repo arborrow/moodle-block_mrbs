@@ -35,6 +35,7 @@ $room_name = optional_param('room_name', '', PARAM_TEXT);
 $description = optional_param('description', '', PARAM_TEXT);
 $capacity = optional_param('capacity', 0, PARAM_INT);
 $room_admin_email = optional_param('room_admin_email', '', PARAM_TEXT);
+$booking_users = optional_param('booking_users', '', PARAM_TEXT);
 $change_room = optional_param('change_room', false, PARAM_TEXT);
 
 // Editing area
@@ -91,19 +92,30 @@ echo $OUTPUT->heading(get_string('editroomarea','block_mrbs'), 2);
 echo '<table>';
 
 if($room>0) {
-    $emails = explode(',', $room_admin_email);
-    $valid_email = TRUE;
-    foreach ($emails as $email)
-    {
-        // if no email address is entered, this is OK, even if isValidInetAddress
-        // does not return TRUE
-        if (!get_user_by_email($email) && ('' != $room_admin_email)) {
-            $valid_email = FALSE;
-            echo $OUTPUT->box(get_string('no_user_with_email','block_mrbs',$email));
+    $valid_email = true;
+    if (!empty($room_admin_email)) {
+        $emails = explode(',', $room_admin_email);
+        foreach ($emails as $email) {
+            // if no email address is entered, this is OK, even if isValidInetAddress
+            // does not return TRUE
+            if (!get_user_by_email(trim($email))) {
+                $valid_email = false;
+                echo $OUTPUT->box(get_string('no_user_with_email','block_mrbs',$email));
+            }
+        }
+    }
+    $valid_email2 = true;
+    if (!empty($booking_users)) {
+        $booking_emails = explode(',', $booking_users);
+        foreach ($booking_emails as $email) {
+            if (!get_user_by_email(trim($email))) {
+                $valid_email2 = false;
+                echo $OUTPUT->box(get_string('no_user_with_email', 'block_mrbs', $email));
+            }
         }
     }
 
-	if ( $change_room && $valid_email )
+	if ( $change_room && $valid_email && $valid_email2 )
 	{
         $updroom = new stdClass;
         $updroom->id = $room;
@@ -111,6 +123,7 @@ if($room>0) {
         $updroom->description = $description;
         $updroom->capacity = $capacity;
         $updroom->room_admin_email = $room_admin_email;
+        $updroom->booking_users = $booking_users;
 
         $DB->update_record('mrbs_room', $updroom);
 	}
@@ -126,6 +139,10 @@ if($room>0) {
     echo '<TR><TD>'.get_string('capacity','block_mrbs').':   </TD><TD><input type="text" name="capacity" value="'.$dbroom->capacity.'"></TD></TR>';
     echo '<TR><TD>'.get_string('room_admin_email','block_mrbs').': </TD><TD><input type="text" name="room_admin_email" MAXLENGTH=75 value="'.s($dbroom->room_admin_email).'"></TD>';
     if (!$valid_email) {
+        echo ("<TD>&nbsp;</TD><TD><STRONG>" . get_string('emailmustbereal') . "<STRONG></TD>");
+    }
+echo '<TR><TD>'.get_string('booking_users', 'block_mrbs').': '.$OUTPUT->help_icon('booking_users', 'block_mrbs').'</TD><TD><textarea name="booking_users" cols="25" rows="3">'.s($dbroom->booking_users).'</textarea></TD>';
+    if (!$valid_email2) {
         echo ("<TD>&nbsp;</TD><TD><STRONG>" . get_string('emailmustbereal') . "<STRONG></TD>");
     }
     echo '</TR></TABLE>';
