@@ -31,6 +31,27 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 $script_start_time=time();
 
 $cfg_mrbs = get_config('block/mrbs'); //get Moodle config settings for the MRBS block
+if (!isset($cfg_mrbs->periods) or empty($cfg_mrbs->periods)) {
+    $cfg_mrbs->periods = array();
+    $cfg_mrbs->periods[] = "Period&nbsp;1";
+    $cfg_mrbs->periods[] = "Period&nbsp;2";
+    $cfg_mrbs->periods[] = "Period&nbsp;3";
+    $cfg_mrbs->periods[] = "Period&nbsp;4";
+    $cfg_mrbs->periods[] = "Period&nbsp;5";
+    $cfg_mrbs->periods[] = "Period&nbsp;6";
+    $cfg_mrbs->periods[] = "Period&nbsp;7";
+    $cfg_mrbs->periods[] = "Period&nbsp;8";
+    $cfg_mrbs->periods[] = "Period&nbsp;9";
+    $cfg_mrbs->periods[] = "Period&nbsp;10";
+    $cfg_mrbs->periods[] = "Period&nbsp;11";
+    $cfg_mrbs->periods[] = "Period&nbsp;12";
+} else {
+    $pds = explode("\n", $cfg_mrbs->periods);
+    foreach ($pds as $pd) {
+        $pd = trim($pd);
+        $cfg_mrbs->periods[] = $pd;
+    }
+}
 $output='';
 if (file_exists($cfg_mrbs->cronfile)) {
     if ($mrbs_sessions = fopen($cfg_mrbs->cronfile,'r')) {
@@ -210,9 +231,8 @@ function time_to_datetime($date,$time) {
 function to_hr_time($time) {
     $cfg_mrbs = get_config('block/mrbs');
     if ($cfg_mrbs->enable_periods) {
-        $periods=explode("\n",$cfg_mrbs->periods);
         $period=intval(date('i',$time));
-        return trim($periods[$period]);
+        return $cfg_mrbs->periods[$period];
     } else {
         return date('G:i',$time);
     }
