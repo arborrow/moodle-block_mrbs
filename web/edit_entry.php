@@ -591,7 +591,7 @@ if ( ( ( $id==0 ) ) Xor ( isset( $rep_type ) && ( $rep_type != 0 ) && ( "series"
  </TD></TR>
 </TABLE>
 
-<INPUT TYPE=HIDDEN NAME="returl"    VALUE="<?php echo $HTTP_REFERER?>">
+<!--<INPUT TYPE=HIDDEN NAME="returl"    VALUE="<?php echo $HTTP_REFERER?>">-->
 <!--INPUT TYPE=HIDDEN NAME="room_id"   VALUE="<?php echo $room_id?>"-->
 <INPUT TYPE=HIDDEN NAME="create_by" VALUE="<?php echo $create_by?>">
 <INPUT TYPE=HIDDEN NAME="rep_id"    VALUE="<?php echo $rep_id?>">

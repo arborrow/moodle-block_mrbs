@@ -324,9 +324,16 @@ if(empty($err))
     foreach ( $rooms as $room_id ) {
         if($edit_type == "series")
         {
-            $new_id = mrbsCreateRepeatingEntrys($starttime, $endtime,   $rep_type, $rep_enddate, $rep_opt,
+            $rep_details = mrbsCreateRepeatingEntrys($starttime, $endtime,   $rep_type, $rep_enddate, $rep_opt,
                                       $room_id,   $create_by, $name,     $type,        $description,
                                       isset($rep_num_weeks) ? $rep_num_weeks : 0);
+            $new_id = $rep_details->id;
+
+            $enddate = null;
+            if ($rep_details->created && $rep_details->created < $rep_details->requested) {
+                $forcemoveoutput .= get_string('notallcreated', 'block_mrbs', $rep_details);
+                $enddate = $rep_details->lasttime;
+            }
 
             //Add to moodle logs
             add_to_log(SITEID, 'mrbs', 'add booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);
@@ -355,7 +362,7 @@ if(empty($err))
                     {
                         $mail_previous = getPreviousEntryData($id, 1);
                     }
-                    $result = notifyAdminOnBooking(($id==0), $new_id);
+                    $result = notifyAdminOnBooking(($id==0), $new_id, $enddate);
                 }
             }
             // Delete the original entry

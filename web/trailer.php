@@ -53,7 +53,11 @@ for($i = -6; $i <= 7; $i++)
 echo "<BR><B>".get_string('viewweek','block_mrbs').":</B>\n";
 
 if (!empty($room)) {
-    $params['room'] = $room;
+    if (is_object($room)) {
+        $params['room'] = $room->id;
+    } else {
+        $params['room'] = $room;
+    }
 }
 
 $ctime = mktime(0, 0, 0, $month, $day, $year);

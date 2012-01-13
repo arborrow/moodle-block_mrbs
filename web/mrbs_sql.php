@@ -62,23 +62,22 @@ function mrbsCheckFree($room_id, $starttime, $endtime, $ignore, $repignore)
 
 	// Build a string listing all the conflicts:
 	$err = "";
-	for ($i = 0; ($row = sql_row($res, $i)); $i++)
-	{
-		$starts = getdate($entry->start);
-		$param_ym = array('area'=>$area, 'year'=>$starts[year], 'month'=>$starts[mon]);
-		$param_ymd = array_merge($param_ym, array('day'=>$starts[mday]));
+	foreach ($entries as $entry) {
+		$starts = getdate($entry->start_time);
+		$param_ym = array('area'=>$area, 'year'=>$starts['year'], 'month'=>$starts['mon']);
+		$param_ymd = array_merge($param_ym, array('day'=>$starts['mday']));
 
 		if( $enable_periods ) {
         	$p_num =$starts['minutes'];
-        	$startstr = userdate($entry->start, '%A %d %B %Y, ') . $periods[$p_num];
+        	$startstr = userdate($entry->start_time, '%A %d %B %Y, ') . $periods[$p_num];
         }
 		else
-        	$startstr = userdate($entry->start, '%A %d %B %Y %H:%M:%S');
+        	$startstr = userdate($entry->start_time, '%A %d %B %Y %H:%M:%S');
 
         $viewurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('id'=>$entry->id));
         $dayurl = new moodle_url('/blocks/mrbs/web/day.php', $param_ymd);
         $weekurl = new moodle_url('/blocks/mrbs/web/week.php', array_merge($param_ymd, array('room'=>$room_id)));
-        $monthurl = new moodle_url('/blocks/mrbs/web/month.php', array_merget($param_ym, array('room'=>$room_id)));
+        $monthurl = new moodle_url('/blocks/mrbs/web/month.php', array_merge($param_ym, array('room'=>$room_id)));
 
         $err .= "<LI><A HREF=\"".$viewurl."\">$entry->name</A>"
 		. " ( " . $startstr . ") "
@@ -151,6 +150,7 @@ function mrbsDelEntry($user, $id, $series, $all)
  * $name        - Name
  * $type        - Type (Internal/External)
  * $description - Description
+ * $oldid       - Id of the entry to update (0 for create new)
  *
  * Returns:
  *   0        - An error occured while inserting the entry
@@ -414,19 +414,28 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
 {
 	global $max_rep_entrys;
 
+    $ret = new stdClass;
+    $ret->id = 0;
+    $ret->requested = 0;
+    $ret->created = 0;
+    $ret->lasttime = null;
 	$reps = mrbsGetRepeatEntryList($starttime, $rep_enddate, $rep_type, $rep_opt, $max_rep_entrys, $rep_num_weeks);
-	if(count($reps) > $max_rep_entrys)
-		return 0;
+    $ret->requested = count($reps);
+	if($ret->requested > $max_rep_entrys)
+		return $ret;
 
 	if(empty($reps))
 	{
-		$ent = mrbsCreateSingleEntry($starttime, $endtime, 0, 0, $room_id, $owner, $name, $type, $description);
-		return $ent;
+		$ret->id = mrbsCreateSingleEntry($starttime, $endtime, 0, 0, $room_id, $owner, $name, $type, $description);
+        $ret->requested = 1;
+        $ret->created = 1;
+        $ret->lasttime = $starttime;
+		return $ret;
 	}
 
-	$ent = mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt, $room_id, $owner, $name, $type, $description, $rep_num_weeks);
+	$ret->id = mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt, $room_id, $owner, $name, $type, $description, $rep_num_weeks);
 
-	if($ent)
+	if($ret->id)
 	{
 
 		for($i = 0; $i < count($reps); $i++)
@@ -436,11 +445,18 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
 			$diff = $endtime - $starttime;
 			$diff += cross_dst($reps[$i], $reps[$i] + $diff);
 
-			mrbsCreateSingleEntry($reps[$i], $reps[$i] + $diff, 1, $ent,
+            if (!check_max_advance_days_timestamp($reps[$i])) {
+                break; // Repeat entry is too far into the future
+            }
+
+			mrbsCreateSingleEntry($reps[$i], $reps[$i] + $diff, 1, $ret->id,
 				 $room_id, $owner, $name, $type, $description);
+            $ret->lasttime = $reps[$i];
+
+            $ret->created++;
 		}
 	}
-	return $ent;
+	return $ret;
 }
 
 /* mrbsGetEntryInfo()
