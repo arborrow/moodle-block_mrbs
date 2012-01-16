@@ -15,6 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 $plugin->version = 2012011300;
+$plugin->requires = 2010112400; // Moodle 2.0+
 $plugin->cron = 300;
-$plugin->maturity = 100;
-$plugin->release = '2.x (Build: 2011112)';
+$plugin->component = 'block_mrbs';
+$plugin->maturity = MATURITY_STABLE;
+$plugin->release = '2.x (Build: 2012011300)';
+
