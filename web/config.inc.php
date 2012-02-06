@@ -196,7 +196,7 @@ $auth["type"] = "moodle";
 if ($CFG->sessioncookiepath=='/') { //if one is not set in Moodle then use default
     $cookie_path_override = ''; //is this even needed with the moodle auth type?
 } else { //if one is set in Moodle then use that path for MRBS block cookies
-    $cookie_path_override = $CFG->$sessioncookiepath;
+    $cookie_path_override = $CFG->sessioncookiepath;
 }
 
 
