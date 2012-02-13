@@ -51,7 +51,7 @@ function mrbsCheckFree($room_id, $starttime, $endtime, $ignore, $repignore)
         $params[] = $repignore;
     }
 
-    $entries = $DB->get_records_select('mrbs_entry', $sql, $params, 'start_time');
+    $entries = $DB->get_records_select('block_mrbs_entry', $sql, $params, 'start_time');
 
 	if (empty($entries))
 	{
@@ -106,7 +106,7 @@ function mrbsDelEntry($user, $id, $series, $all)
 {
 	global $DB;
 
-	$repeat_id = $DB->get_field('mrbs_entry', 'repeat_id', array('id'=>$id));
+	$repeat_id = $DB->get_field('block_mrbs_entry', 'repeat_id', array('id'=>$id));
 	if ($repeat_id < 0)
 		return 0;
 
@@ -117,7 +117,7 @@ function mrbsDelEntry($user, $id, $series, $all)
     }
 
 	$removed = 0;
-    $entries = $DB->get_records('mrbs_entry', $params);
+    $entries = $DB->get_records('block_mrbs_entry', $params);
     foreach ($entries as $entry) {
 		if(!getWritable($entry->create_by, $user))
 			continue;
@@ -125,13 +125,13 @@ function mrbsDelEntry($user, $id, $series, $all)
 		if($series && $entry->entry_type == 2 && !$all)
 			continue;
 
-        $DB->delete_records('mrbs_entry', array('id'=>$entry->id));
+        $DB->delete_records('block_mrbs_entry', array('id'=>$entry->id));
 
         $removed++;
 	}
 
-	if ($repeat_id > 0 && $DB->count_records('mrbs_entry', array('repeat_id'=>$repeat_id)) == 0) {
-        $DB->delete_records('mrbs_repeat', array('id'=>$repeat_id));
+	if ($repeat_id > 0 && $DB->count_records('block_mrbs_entry', array('repeat_id'=>$repeat_id)) == 0) {
+        $DB->delete_records('block_mrbs_repeat', array('id'=>$repeat_id));
     }
 
 	return $removed > 0;
@@ -179,10 +179,10 @@ function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $r
 	if( $endtime > $starttime ) {
         if ($oldid) {
             $add->id = $oldid;
-            $DB->update_record('mrbs_entry', $add);
+            $DB->update_record('block_mrbs_entry', $add);
             return $oldid;
         } else {
-            return $DB->insert_record('mrbs_entry', $add);
+            return $DB->insert_record('block_mrbs_entry', $add);
         }
     }
 
@@ -239,7 +239,7 @@ function mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $r
         $add->rep_num_weeks = $rep_num_weeks;
     }
 
-	return $DB->insert_record('mrbs_repeat', $add);
+	return $DB->insert_record('block_mrbs_repeat', $add);
 }
 
 /** same_day_next_month()
@@ -472,12 +472,12 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
 function mrbsGetEntryInfo($id)
 {
     global $DB;
-    return $DB->get_record('mrbs_entry', array('id'=>$id));
+    return $DB->get_record('block_mrbs_entry', array('id'=>$id));
 }
 
 function mrbsGetRoomArea($id)
 {
     global $DB;
 
-    return $DB->get_field('mrbs_room', 'area_id', array('id'=>$id));
+    return $DB->get_field('block_mrbs_room', 'area_id', array('id'=>$id));
 }

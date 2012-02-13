@@ -53,7 +53,7 @@ print_header_mrbs($day, $month, $year, isset($area) ? $area : "");
 // If area is set but area name is not known, get the name.
 if ($area) {
     if (empty($area_name)) {
-        $dbarea = $DB->get_record('mrbs_area', array('id'=>$area), 'area_name', MUST_EXIST);
+        $dbarea = $DB->get_record('block_mrbs_area', array('id'=>$area), 'area_name', MUST_EXIST);
         $area_name = $dbarea->area_name;
     } else {
         $area_name = $area_name;
@@ -70,7 +70,7 @@ if (isset($area_name)) {
 echo '</b></center></th></tr><tr><td class="border">';
 
 // This cell has the areas
-$areas = $DB->get_records('mrbs_area', null, 'area_name');
+$areas = $DB->get_records('block_mrbs_area', null, 'area_name');
 
 if (empty($areas)) {
     echo get_string('noareas','block_mrbs');
@@ -89,7 +89,7 @@ echo '</td><td class="border">';
 
 // This one has the rooms
 if ($area) {
-    $rooms = $DB->get_records('mrbs_room', array('area_id'=>$area), 'room_name');
+    $rooms = $DB->get_records('block_mrbs_room', array('area_id'=>$area), 'room_name');
     if (empty($rooms)) {
         //    $res = sql_query("select id, room_name, description, capacity from $tbl_room where area_id=$area order by room_name");
         echo get_string('norooms','block_mrbs');

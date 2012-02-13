@@ -84,5 +84,23 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
         upgrade_block_savepoint(true, 2011111200, 'mrbs');
     }
 
+    // Rename the tables to match the naming scheme required by Moodle.org
+    if ($oldversion < 2012021300) {
+        $table = new xmldb_table('mrbs_area');
+        $dbman->rename_table($table, 'block_mrbs_area');
+
+        $table = new xmldb_table('mrbs_entry');
+        $dbman->rename_table($table, 'block_mrbs_entry');
+
+        $table = new xmldb_table('mrbs_repeat');
+        $dbman->rename_table($table, 'block_mrbs_repeat');
+
+        $table = new xmldb_table('mrbs_room');
+        $dbman->rename_table($table, 'block_mrbs_room');
+
+        // mrbs savepoint reached
+        upgrade_block_savepoint(true, 2012021300, 'mrbs');
+    }
+
     return true;
 }

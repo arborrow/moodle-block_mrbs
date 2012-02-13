@@ -95,7 +95,7 @@ if ( $pview != 1 ) {
        echo make_area_select_html(new moodle_url('/blocks/mrbs/web/day.php'), $area, $year, $month, $day); // from functions.php
    } else {
 	// show the standard html list
-       $areas = $DB->get_records('mrbs_area', null, 'area_name');
+       $areas = $DB->get_records('block_mrbs_area', null, 'area_name');
        foreach ($areas as $dbarea) {
            echo '<a href="'.($baseurl->out(true, array('area'=>$dbarea->id))).'">';
            if ($dbarea->id == $area) {
@@ -166,7 +166,7 @@ if ($area <= 0) {
 if (!empty($area)) {
     $sql = "SELECT e.id AS eid, r.id AS rid, e.start_time, e.end_time, e.name, e.type,
             e.description
-            FROM {mrbs_entry} e, {mrbs_room} r
+            FROM {block_mrbs_entry} e, {block_mrbs_room} r
             WHERE e.room_id = r.id
             AND r.area_id = ?
             AND e.start_time <= ? AND e.end_time > ?";
@@ -237,7 +237,7 @@ if (!empty($area)) {
     // We need to know what all the rooms area called, so we can show them all
     // pull the data from the db and store it. Convienently we can print the room
     // headings and capacities at the same time
-    $rooms = $DB->get_records('mrbs_room', array('area_id'=>$area), 'room_name');
+    $rooms = $DB->get_records('block_mrbs_room', array('area_id'=>$area), 'room_name');
     foreach ($rooms as $room) {
         $room->allowedtobook = allowed_to_book($USER, $room);
     }

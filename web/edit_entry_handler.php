@@ -112,7 +112,7 @@ if (!check_max_advance_days($day, $month, $year)) {
      exit;
 }
 
-$roomdetails = $DB->get_records_list('mrbs_room', 'id', $rooms);
+$roomdetails = $DB->get_records_list('block_mrbs_room', 'id', $rooms);
 foreach ($roomdetails as $room) {
     if (!allowed_to_book($USER, $room)) {
         // TODO: Should admin users be allowed to override this?
@@ -233,7 +233,7 @@ $repeat_id = 0;
 if ($id>0)
 {
     $ignore_id = $id;
-    $repeat_id = $DB->get_field('mrbs_entry', 'repeat_id', array('id'=>$id));
+    $repeat_id = $DB->get_field('block_mrbs_entry', 'repeat_id', array('id'=>$id));
     if ($repeat_id < 0)
         $repeat_id = 0;
 }
@@ -287,8 +287,8 @@ foreach ( $rooms as $room_id ) {
                 entry.create_by,
                 room.room_name,
                 entry.start_time,
-              FROM {mrbs_entry} as entry
-                join {mrbs_room} as room on entry.room_id = room.id
+              FROM {block_mrbs_entry} as entry
+                join {block_mrbs_room} as room on entry.room_id = room.id
              WHERE room.id = ?
              AND ((entry.start_time >= ? AND entry.end_time < ?)
              OR (entry.start_time < ? AND entry.end_time> ?)
@@ -350,7 +350,7 @@ if(empty($err))
                     if (MAIL_DETAILS)
                     {
                         $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
-                        $sql .= "FROM {mrbs_room} r, {mrbs_area} a ";
+                        $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a ";
                         $sql .= "WHERE r.id=? AND r.area_id = a.id";
                         $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
                         $room_name = $dbroom->room_name;
@@ -397,7 +397,7 @@ if(empty($err))
                     if (MAIL_DETAILS)
                     {
                         $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
-                        $sql .= "FROM {mrbs_room} r, {mrbs_area} a ";
+                        $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a ";
                         $sql .= "WHERE r.id=? AND r.area_id = a.id";
                         $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
                         $room_name = $dbroom->room_name;

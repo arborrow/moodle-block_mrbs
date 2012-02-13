@@ -94,7 +94,7 @@ $params = array($search_str, $search_str, $search_str, $now);
 // number of matches.  This is passed along to subsequent
 // searches so that we don't have to run it for each page.
 if(!$total) {
-	$total = $DB->count_records_select('mrbs_entry', $sql_pred, $params);
+	$total = $DB->count_records_select('block_mrbs_entry', $sql_pred, $params);
     $thisurl->param('total', $total);
 }
 
@@ -115,7 +115,7 @@ $sql_pred = str_replace(array('create_by',   'name',   'description'),
 
 // Now we set up the "real" query using LIMIT to just get the stuff we want.
 $sql = "SELECT e.id, e.create_by, e.name, e.description, e.start_time, r.area_id, r.room_name
-        FROM {mrbs_entry} e, {mrbs_room} r
+        FROM {block_mrbs_entry} e, {block_mrbs_room} r
         WHERE $sql_pred
         AND e.room_id = r.id
         ORDER BY e.start_time asc ";

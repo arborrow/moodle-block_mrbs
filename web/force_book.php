@@ -41,8 +41,8 @@ function mrbsForceMove($room_id, $starttime, $endtime,$name,$id=null){
         r.room_name,
         r.description,
         r.area_id
-              FROM {mrbs_entry} e
-              JOIN {mrbs_room} r
+              FROM {block_mrbs_entry} e
+              JOIN {block_mrbs_room} r
               ON e.room_id = r.id
              WHERE ((e.start_time >= ? AND e.end_time < ?)
              OR (e.start_time < ? AND e.end_time > ?)
@@ -88,12 +88,12 @@ function mrbsForceMove($room_id, $starttime, $endtime,$name,$id=null){
                                 a.area_name,
                                 CONCAT(IF(r.description = ?,1,0),
                                 IF(a.id= ?,1,0)) AS sort
-                             FROM {mrbs_room} r
-                             JOIN {mrbs_area} a
+                             FROM {block_mrbs_room} r
+                             JOIN {block_mrbs_area} a
                                 ON r.area_id = a.id
-                             JOIN {mrbs_entry} e
+                             JOIN {block_mrbs_entry} e
                                 ON r.id= e.room_id
-                             WHERE ( SELECT COUNT(*) FROM {mrbs_entry} e2
+                             WHERE ( SELECT COUNT(*) FROM {block_mrbs_entry} e2
                                  WHERE ((e2.start_time >= ? AND e2.end_time < ?)
                                  OR (e2.start_time < ? AND e2.end_time > ?)
                                  OR (e2.start_time < ? AND e2.end_time >= ?))
@@ -142,7 +142,7 @@ function mrbsForceMove($room_id, $starttime, $endtime,$name,$id=null){
         }else{
             $booking->type=$oldbooking->type;
         }
-        if($findroomresult and $DB->update_record('mrbs_entry',$booking) and $oldbookingowner=$DB->get_record('user',array('username'=>$oldbooking->create_by))){
+        if($findroomresult and $DB->update_record('block_mrbs_entry',$booking) and $oldbookingowner=$DB->get_record('user',array('username'=>$oldbooking->create_by))){
             $message=get_string('bookingmovedmessage','block_mrbs',$langvars);
             $output.= '<br>'.get_string('bookingmovedshort','block_mrbs',$langvars);
             email_to_user($oldbookingowner,$USER,$subject,$message);

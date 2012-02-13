@@ -74,10 +74,10 @@ if($type == "room")
 	if($confirm)
 	{
         // Delete bookings
-        $DB->delete_records('mrbs_entry', array('room_id'=>$room));
+        $DB->delete_records('block_mrbs_entry', array('room_id'=>$room));
 
         // Delete the room
-        $DB->delete_records('mrbs_room', array('id'=>$room));
+        $DB->delete_records('block_mrbs_room', array('id'=>$room));
 
 		// Go back to the admin page
 	    redirect($adminurl);
@@ -89,7 +89,7 @@ if($type == "room")
 		// We tell them how bad what theyre about to do is
 		// Find out how many appointments would be deleted
 
-        $bookings = $DB->get_records('mrbs_entry', array('room_id'=>$room));
+        $bookings = $DB->get_records('block_mrbs_entry', array('room_id'=>$room));
         if (!empty($bookings)) {
 			echo get_string('deletefollowing','block_mrbs') . ":<ul>";
 
@@ -114,10 +114,10 @@ if($type == "room")
 if($type == "area") {
 	// We are only going to let them delete an area if there are
 	// no rooms. its easier
-    $n = $DB->count_records('mrbs_room', array('area_id'=>$area));
+    $n = $DB->count_records('block_mrbs_room', array('area_id'=>$area));
 	if ($n == 0) {
 		// OK, nothing there, lets blast it away
-        $DB->delete_records('mrbs_area', array('id'=>$area));
+        $DB->delete_records('block_mrbs_area', array('id'=>$area));
 
 		// Redirect back to the admin page
         redirect($adminurl);

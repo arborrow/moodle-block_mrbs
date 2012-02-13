@@ -57,7 +57,7 @@ if (file_exists($cfg_mrbs->cronfile)) {
     if ($mrbs_sessions = fopen($cfg_mrbs->cronfile,'r')) {
         $output.= get_string('startedimport','block_mrbs')."\n";
         $now = time();
-        $DB->set_field_select('mrbs_entry', 'type', 'M', 'type=\'K\' and start_time > ?', array($now)); // Change old imported (type K) records to temporary type M
+        $DB->set_field_select('block_mrbs_entry', 'type', 'M', 'type=\'K\' and start_time > ?', array($now)); // Change old imported (type K) records to temporary type M
         while ($array = fgetcsv($mrbs_sessions)) { //import timetable into mrbs
             $csvrow=new object;
             $csvrow->start_time=clean_param($array[0],PARAM_TEXT);
@@ -88,11 +88,11 @@ if (file_exists($cfg_mrbs->cronfile)) {
                         $entry->name=$csvrow->name;
                         $entry->type='K';
                         $entry->description=$csvrow->description;
-                        $newentryid=$DB->insert_record('mrbs_entry',$entry);
+                        $newentryid=$DB->insert_record('block_mrbs_entry',$entry);
 
                         //If there is another non-imported booking there, send emails. It is assumed that simultanious imported classes are intentional
                         $sql = "SELECT *
-                                FROM {mrbs_entry} AS e
+                                FROM {block_mrbs_entry} AS e
                                 WHERE
                                     ((e.start_time < ? AND e.end_time > ?)
                                   OR (e.start_time < ? AND e.end_time > ?)
@@ -141,8 +141,8 @@ if (file_exists($cfg_mrbs->cronfile)) {
         }
 
         // any remaining type M records are no longer in the import file, so delete
-//        delete_records_select('mrbs_entry', 'type=\'M\'');
-        $DB->delete_records_select('mrbs_entry', 'type=\'M\'');
+//        delete_records_select('block_mrbs_entry', 'type=\'M\'');
+        $DB->delete_records_select('block_mrbs_entry', 'type=\'M\'');
 
         //move the processed file to prevent wasted time re-processing TODO: option for how long to keep these- I've found them useful for debugging but obviously can't keep them for ever
         $date=date('Ymd');
@@ -166,7 +166,7 @@ if (file_exists($cfg_mrbs->cronfile)) {
 //looks up the room id from the name
 function room_id_lookup($name) {
     global $DB;
-    if (!$room=$DB->get_record('mrbs_room',array('room_name'=>$name))) {
+    if (!$room=$DB->get_record('block_mrbs_room',array('room_name'=>$name))) {
         $error = "ERROR: failed to return id from database (room $name probably doesn't exist)";
         $output.= $error . "\n";
         return 'error';
@@ -187,13 +187,13 @@ function room_id_lookup($name) {
   */
 function is_timetabled($name,$time) {
     global $DB;
-    if ($DB->get_record('mrbs_entry', array('name'=>$name, 'start_time'=>$time, 'type'=>'L'))) {
+    if ($DB->get_record('block_mrbs_entry', array('name'=>$name, 'start_time'=>$time, 'type'=>'L'))) {
         return true;
-    } else if ($record = $DB->get_record('mrbs_entry', array('name'=>$name, 'start_time'=>$time, 'type'=>'M'))) {
+    } else if ($record = $DB->get_record('block_mrbs_entry', array('name'=>$name, 'start_time'=>$time, 'type'=>'M'))) {
         $upd = new stdClass;
         $upd->id = $record->id;
         $upd->type = 'K';
-        if ($DB->update_record('mrbs_entry', $upd)) {
+        if ($DB->update_record('block_mrbs_entry', $upd)) {
             return true;
         } else {
            return false;

@@ -78,7 +78,7 @@ if (($change_done))
 {
 	if (!empty($room)) // Get the area the room is in
 	{
-        $area = $DB->get_field('mrbs_room', 'area_id', array('id'=>$room));
+        $area = $DB->get_field('block_mrbs_room', 'area_id', array('id'=>$room));
 	}
     $adminurl = new moodle_url('/blocks/mrbs/web/admin.php', array('day'=>$day, 'month'=>$month, 'year'=>$year, 'area'=>$area));
     redirect($adminurl);
@@ -125,10 +125,10 @@ if($room>0) {
         $updroom->room_admin_email = $room_admin_email;
         $updroom->booking_users = $booking_users;
 
-        $DB->update_record('mrbs_room', $updroom);
+        $DB->update_record('block_mrbs_room', $updroom);
 	}
 
-    $dbroom = $DB->get_record('mrbs_room', array('id'=>$room), '*', MUST_EXIST);
+    $dbroom = $DB->get_record('block_mrbs_room', array('id'=>$room), '*', MUST_EXIST);
     echo '<h3 ALIGN=CENTER>'.get_string('editroom','block_mrbs').'</h3>';
     echo '<form action="'.$thisurl->out_omit_querystring().'" method="post">';
     echo '<input type="hidden" name="room" value="'.$dbroom->id.'">';
@@ -172,10 +172,10 @@ if ($area)
         $updarea->id = $area;
         $updarea->area_name = $area_name;
         $updarea->area_admin_email = $area_admin_email;
-        $DB->update_record('mrbs_area', $updarea);
+        $DB->update_record('block_mrbs_area', $updarea);
 	}
 
-    $dbarea = $DB->get_record('mrbs_area', array('id'=>$area), '*', MUST_EXIST);
+    $dbarea = $DB->get_record('block_mrbs_area', array('id'=>$area), '*', MUST_EXIST);
 
     echo '<h3 ALIGN=CENTER>'.get_string('editarea','block_mrbs').'</h3>';
     echo '<form action="'.$thisurl->out_omit_querystring().'" method="post">';

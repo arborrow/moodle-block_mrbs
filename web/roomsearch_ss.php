@@ -123,7 +123,7 @@ $computer = optional_param('computer', false,  PARAM_BOOL);
     }
 
 $sql = "SELECT r.id, r.room_name, r.description, r.capacity, a.area_name, r.area_id";
-$sql .= " FROM {mrbs_room} r JOIN {mrbs_area} a on r.area_id=a.id WHERE ( SELECT COUNT(*) FROM {mrbs_entry} e ";
+$sql .= " FROM {block_mrbs_room} r JOIN {block_mrbs_area} a on r.area_id=a.id WHERE ( SELECT COUNT(*) FROM {block_mrbs_entry} e ";
 
 //old booking fully inside new booking
 $sql .= "WHERE ((e.start_time>= ? AND e.end_time< ? ) ";

@@ -164,8 +164,8 @@ if ( $pview != 1 ) {
 for ($j = 0; $j<=($num_of_days-1) ; $j++) {
 
     $sql = "SELECT DISTINCT e.start_time, e.end_time, e.type, concat(e.name,' Rm:',r.room_name) name, e.id, e.description
-            FROM {mrbs_entry} e
-                join {mrbs_room} r on e.room_id=r.id
+            FROM {block_mrbs_entry} e
+                join {block_mrbs_room} r on e.room_id=r.id
                 left join {course} c on e.name=c.shortname
                 left join {context} cx on cx.contextlevel=50 and cx.instanceid=c.id
                 left join {role_assignments} ra on ra.contextid=cx.id and ra.roleid=5

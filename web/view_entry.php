@@ -29,7 +29,7 @@ $series = optional_param('series', 0, PARAM_INT);
 $pview = optional_param('pview', 0, PARAM_INT);
 
 //if the booking belongs to the user looking at it, they probably want to edit it
-if($record=$DB->get_record('mrbs_entry',array('id'=>$id))) {
+if($record=$DB->get_record('block_mrbs_entry',array('id'=>$id))) {
     if(strtolower($record->create_by)==strtolower($USER->username)) {
         redirect(new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id)));
     }
@@ -82,7 +82,7 @@ if ($series) {
 	        re.rep_num_weeks,
 	        u.id as userid,
            	concat(u.firstname,' ',u.lastname) as fullname
-			FROM  {mrbs_repeat} re left join {user} u on u.username = re.create_by, {mrbs_room} r, {mrbs_area} a
+			FROM  {block_mrbs_repeat} re left join {user} u on u.username = re.create_by, {block_mrbs_room} r, {block_mrbs_area} a
 			WHERE re.room_id = r.id
 			AND r.area_id = a.id
 			AND re.id= ?";
@@ -101,7 +101,7 @@ if ($series) {
 	        e.repeat_id,
 	        u.id as userid,
            	concat(u.firstname,' ',u.lastname) as fullname
-			FROM  {mrbs_entry} e left join {user} u on u.username = e.create_by, {mrbs_room} r, {mrbs_area} a
+			FROM  {block_mrbs_entry} e left join {user} u on u.username = e.create_by, {block_mrbs_room} r, {block_mrbs_area} a
 			WHERE e.room_id = r.id
 			AND r.area_id = a.id
 			AND e.id= ?";
@@ -150,7 +150,7 @@ if ($series == 1) {
 	// edit_entry.php
 	// So I will look for the first entry in the series where the entry is
 	// as per the original series settings
-    $entry = $DB->get_records('mrbs_entry', array('repeat_id'=>$id, 'entry_type'=>1), 'start_time', 'id', 0, 1);
+    $entry = $DB->get_records('block_mrbs_entry', array('repeat_id'=>$id, 'entry_type'=>1), 'start_time', 'id', 0, 1);
     if (empty($entry)) {
 		// if all entries in series have been modified then
 		// as a fallback position just select the first entry
@@ -158,14 +158,14 @@ if ($series == 1) {
 		// hopefully this code will never be reached as
 		// this page will display the start time of the series
 		// but edit_entry.php will display the start time of the entry
-        $entry = $DB->get_records('mrbs_entry', array('repeat_id'=>$id), 'start_time', 'id', 0, 1);
+        $entry = $DB->get_records('block_mrbs_entry', array('repeat_id'=>$id), 'start_time', 'id', 0, 1);
 	}
     $entry = reset($entry); // Get the first (and only) record
     $id = $entry->id;
 } else {
 	$repeat_id = $booking->repeat_id;
 	if ($repeat_id != 0) {
-        $repeat = $DB->get_record('mrbs_repeat', array('id'=>$repeat_id));
+        $repeat = $DB->get_record('block_mrbs_repeat', array('id'=>$repeat_id));
         if ($repeat) {
 			$rep_type     = $repeat->rep_type;
 			$rep_end_date = userdate($repeat->end_date, '%A %d %B %Y');

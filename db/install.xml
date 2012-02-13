@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/mrbs/db" VERSION="20080730" COMMENT="XMLDB file for Moodle blocks/mrbs"
+<XMLDB PATH="blocks/mrbs/db" VERSION="20120213" COMMENT="XMLDB file for Moodle blocks/mrbs"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="mrbs_area" COMMENT="mrbs_area table retrofitted from MySQL" NEXT="mrbs_entry">
+    <TABLE NAME="block_mrbs_area" COMMENT="mrbs_area table retrofitted from MySQL" NEXT="block_mrbs_entry">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="area_name"/>
         <FIELD NAME="area_name" TYPE="char" LENGTH="30" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="area_admin_email"/>
@@ -14,7 +14,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="mrbs_entry" COMMENT="mrbs_entry table retrofitted from MySQL" PREVIOUS="mrbs_area" NEXT="mrbs_repeat">
+    <TABLE NAME="block_mrbs_entry" COMMENT="mrbs_entry table retrofitted from MySQL" PREVIOUS="block_mrbs_area" NEXT="block_mrbs_repeat">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="start_time"/>
         <FIELD NAME="start_time" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="end_time"/>
@@ -32,7 +32,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="mrbs_repeat" COMMENT="mrbs_repeat table retrofitted from MySQL" PREVIOUS="mrbs_entry" NEXT="mrbs_room">
+    <TABLE NAME="block_mrbs_repeat" COMMENT="mrbs_repeat table retrofitted from MySQL" PREVIOUS="block_mrbs_entry" NEXT="block_mrbs_room">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="start_time"/>
         <FIELD NAME="start_time" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="end_time"/>
@@ -52,7 +52,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="mrbs_room" COMMENT="mrbs_room table retrofitted from MySQL" PREVIOUS="mrbs_repeat">
+    <TABLE NAME="block_mrbs_room" COMMENT="mrbs_room table retrofitted from MySQL" PREVIOUS="block_mrbs_repeat">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="area_id"/>
         <FIELD NAME="area_id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="room_name"/>
@@ -60,7 +60,7 @@
         <FIELD NAME="description" TYPE="char" LENGTH="60" NOTNULL="false" SEQUENCE="false" PREVIOUS="room_name" NEXT="capacity"/>
         <FIELD NAME="capacity" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="description" NEXT="room_admin_email"/>
         <FIELD NAME="room_admin_email" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="capacity" NEXT="booking_users"/>
-        <FIELD NAME="booking_users" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" PREVIOUS="room_admin_email" COMMENT="A comma-separated list of the users who are allowed to book this room (empty=anyone can book)"/>
+        <FIELD NAME="booking_users" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="A comma-separated list of the users who are allowed to book this room (empty=anyone can book)" PREVIOUS="room_admin_email"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

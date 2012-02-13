@@ -55,7 +55,7 @@ if (!confirm_sesskey()) {
 if ($type == "area") {
     $newarea = new stdClass;
     $newarea->area_name = $name;
-    $area = $DB->insert_record('mrbs_area', $newarea);
+    $area = $DB->insert_record('block_mrbs_area', $newarea);
 }
 
 if ($type == "room") {
@@ -64,7 +64,7 @@ if ($type == "room") {
     $newroom->description = $description;
     $newroom->capacity = $capacity;
     $newroom->area_id = $area;
-    $DB->insert_record('mrbs_room', $newroom);
+    $DB->insert_record('block_mrbs_room', $newroom);
 }
 
 redirect(new moodle_url('/blocks/mrbs/web/admin.php', array('area'=>$area)));

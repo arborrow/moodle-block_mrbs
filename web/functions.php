@@ -341,7 +341,7 @@ function get_default_area()
 	global $DB;
 
     // Get first area in database
-    $area = $DB->get_records('mrbs_area', null, 'area_name', 'id', 0, 1);
+    $area = $DB->get_records('block_mrbs_area', null, 'area_name', 'id', 0, 1);
     if (empty($area)) {
         return 0;
     }
@@ -358,7 +358,7 @@ function get_default_room($area)
     global $DB;
 
     // Get first room in database
-    $room = $DB->get_records('mrbs_room', array('area_id'=>$area), 'room_name', 'id', 0, 1);
+    $room = $DB->get_records('block_mrbs_room', array('area_id'=>$area), 'room_name', 'id', 0, 1);
     if (empty($room)) {
         return 0;
     }
@@ -495,7 +495,7 @@ function make_area_select_html( $link, $current, $year, $month, $day )
 <form name=\"areaChangeForm\" method=get action=\"$link\">
   <select name=\"area\" onChange=\"document.areaChangeForm.submit()\">";
 
-    $areas = $DB->get_records('mrbs_area', null, 'area_name');
+    $areas = $DB->get_records('block_mrbs_area', null, 'area_name');
     foreach ($areas as $area) {
 		$selected = ($area->id == $current) ? "selected" : "";
 		$out_html .= "
@@ -521,7 +521,7 @@ function make_room_select_html( $link, $area, $current, $year, $month, $day )
 <form name=\"roomChangeForm\" method=get action=\"$link\">
   <select name=\"room\" onChange=\"document.roomChangeForm.submit()\">";
 
-    $rooms = $DB->get_records('mrbs_room', array('area_id'=>$area), 'room_name');
+    $rooms = $DB->get_records('block_mrbs_room', array('area_id'=>$area), 'room_name');
     foreach ($rooms as $room) {
 		$selected = ($room->id == $current) ? "selected" : "";
 		$out_html .= "
@@ -686,11 +686,11 @@ function notifyAdminOnBooking($new_entry , $new_id, $modified_enddate = null) {
         // Look for list of area admins emails addresses
         if ($new_entry) {
             $sql = "SELECT DISTINCT a.area_admin_email ";
-            $sql .= "FROM {mrbs_room} r, {mrbs_area} a, {mrbs_entry} e ";
+            $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a, {block_mrbs_entry} e ";
             // If this is a repeating entry...
             if ($id_table == 'rep') {
                 // ...use the repeat table
-                $sql .= ", {mrbs_repeat} rep ";
+                $sql .= ", {block_mrbs_repeat} rep ";
             }
             $sql .= "WHERE ${id_table}.id=? AND r.id=${id_table}.room_id AND a.id=r.area_id";
             $emails = $DB->get_records_sql($sql, array($new_id));
@@ -714,11 +714,11 @@ function notifyAdminOnBooking($new_entry , $new_id, $modified_enddate = null) {
         if ($new_entry)
         {
             $sql = "SELECT DISTINCT r.room_admin_email ";
-            $sql .= "FROM {mrbs_room} r, {mrbs_entry} e ";
+            $sql .= "FROM {block_mrbs_room} r, {block_mrbs_entry} e ";
             // If this is a repeating entry...
             if ($id_table == 'rep') {
                 // ...use the repeat table
-                $sql .= ", {mrbs_repeat} rep ";
+                $sql .= ", {block_mrbs_repeat} rep ";
             }
             $sql .= "WHERE ${id_table}.id= ? AND r.id=${id_table}.room_id";
             $emails = $DB->get_records_sql($sql, array($new_id));
@@ -1139,8 +1139,8 @@ function getPreviousEntryData($id, $series)
             re.end_date AS tbl_r_end_date";
     }
     $sql .= "
-    FROM {mrbs_entry} e, {mrbs_room} r, {mrbs_area} a ";
-    (1 == $series) ? $sql .= ', ' . '{mrbs_repeat} re ' : '';
+    FROM {block_mrbs_entry} e, {block_mrbs_room} r, {block_mrbs_area} a ";
+    (1 == $series) ? $sql .= ', ' . '{block_mrbs_repeat} re ' : '';
     $sql .= "
     WHERE e.room_id = r.id
     AND r.area_id = a.id

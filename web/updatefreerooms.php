@@ -122,12 +122,12 @@ if (!$area) {
 
 
 $sql = 'SELECT r.id, r.room_name, r.description, r.capacity, a.area_name, r.area_id, r.booking_users ';
-$sql .= 'FROM {mrbs_room} r JOIN {mrbs_area} a on r.area_id=a.id WHERE ';
+$sql .= 'FROM {block_mrbs_room} r JOIN {block_mrbs_area} a on r.area_id=a.id WHERE ';
 
 $params = array();
 
 if(!empty($day)){
-    $sql.= "(( SELECT COUNT(*) FROM {mrbs_entry} e ";
+    $sql.= "(( SELECT COUNT(*) FROM {block_mrbs_entry} e ";
 
     //old booking fully inside new booking
     $sql .= "WHERE ((e.start_time>=:starttime1 AND e.end_time<:endtime1) ";

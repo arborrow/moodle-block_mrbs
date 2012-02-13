@@ -531,7 +531,7 @@ if ($submitform) {
 
 	$sql = "SELECT e.id, e.start_time, e.end_time, e.name, e.description, "
 		. "e.type, e.create_by, e.timestamp, a.area_name, r.room_name"
-		. " FROM {mrbs_entry} e, {mrbs_area} a, {mrbs_room} r"
+		. " FROM {block_mrbs_entry} e, {block_mrbs_area} a, {block_mrbs_room} r"
 		. " WHERE e.room_id = r.id AND r.area_id = a.id"
 		. " AND e.start_time < ? AND e.end_time > ?";
     $params = array($report_end, $report_start);
