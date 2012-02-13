@@ -221,6 +221,12 @@ if(!getWritable($create_by, getUserName())) {
 	exit;
 }
 
+if ($CFG->version < 2011120100) {
+    $context = get_context_instance(CONTEXT_SYSTEM);
+} else {
+    $context = context_system::instance();
+}
+
 $PAGE->requires->js('/blocks/mrbs/web/updatefreerooms.js', true);
 
 print_header_mrbs($day, $month, $year, $area);
@@ -230,7 +236,7 @@ print_header_mrbs($day, $month, $year, $area);
 
 <?php
 echo 'var currentroom='. $room_id.';';
-if (has_capability("block/mrbs:forcebook", get_context_instance(CONTEXT_SYSTEM))){
+if (has_capability("block/mrbs:forcebook", $context)){
     echo 'var canforcebook=true;';
 } else {
     echo 'var canforcebook=false;';
@@ -468,7 +474,7 @@ if(($type == 'K') or ($type == 'L')){
 }
 ?></SELECT></TD></TR>
 <tr><td>
-<?php if(has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM))){
+<?php if(has_capability("block/mrbs:forcebook", $context)){
     echo'<label for="mrbsforcebook"><b>Forceably book (automatically move other bookings):</b></label></td><td><input id="mrbsforcebook" type="checkbox" name="forcebook" value="TRUE"';
     if ($force) echo ' checked="CHECKED"';
     echo' onClick="document.getElementById(\'nooccupied\').checked=!this.checked; updateFreeRooms();">';

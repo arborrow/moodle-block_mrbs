@@ -246,6 +246,12 @@ if ($id>0)
 else
     $ignore_id = 0;
 
+if ($CFG->version < 2011120100) {
+    $context = get_context_instance(CONTEXT_SYSTEM);
+} else {
+    $context = context_system::instance();
+}
+
 // Acquire mutex to lock out others trying to book the same slot(s).
 //if (!sql_mutex_lock("$tbl_entry"))
 //fatal_error(1, get_string('failed_to_acquire','block_mrbs'));
@@ -256,39 +262,32 @@ $err = "";
 $errtype = 0;
 $forcemoveoutput='';
 foreach ( $rooms as $room_id ) {
-  if ($rep_type != 0 && !empty($reps))
-  {
-    if(count($reps) < $max_rep_entrys)
-    {
-
-        for($i = 0; $i < count($reps); $i++)
-        {
-	    // calculate diff each time and correct where events
-	    // cross DST
-            $diff = $endtime - $starttime;
-            $diff += cross_dst($reps[$i], $reps[$i] + $diff);
-            $tmp = mrbsCheckFree($room_id, $reps[$i], $reps[$i] + $diff, $ignore_id, $repeat_id);
-            if(!empty($tmp)) {
-                $err = $err . $tmp;
-                $errtype = MRBS_ERR_DOUBLEBOOK;
+    if ($rep_type != 0 && !empty($reps)) {
+        if(count($reps) < $max_rep_entrys) {
+            for($i = 0; $i < count($reps); $i++) {
+                // calculate diff each time and correct where events
+                // cross DST
+                $diff = $endtime - $starttime;
+                $diff += cross_dst($reps[$i], $reps[$i] + $diff);
+                $tmp = mrbsCheckFree($room_id, $reps[$i], $reps[$i] + $diff, $ignore_id, $repeat_id);
+                if(!empty($tmp)) {
+                    $err = $err . $tmp;
+                    $errtype = MRBS_ERR_DOUBLEBOOK;
+                }
             }
+        } else {
+            $err .= get_string('too_may_entrys','block_mrbs') . "<P>";
+            $errtype = MRBS_ERR_TOOMANY;
+            $hide_title  = 1;
         }
-    }
-    else
-    {
-        $err        .= get_string('too_may_entrys','block_mrbs') . "<P>";
-        $errtype = MRBS_ERR_TOOMANY;
-        $hide_title  = 1;
-    }
-  }
-  else
-     if(has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM)) and $forcebook){
-         require_once "force_book.php";
-         $forcemoveoutput.=mrbsForceMove($room_id,$starttime,$endtime,$name,$id);
-         //do this so that it thinks no clashes were found
-         $tmp='';
-    } else if($doublebook and has_capability('block/mrbs:doublebook', get_context_instance(CONTEXT_SYSTEM))) {
-        $sql = 'SELECT entry.id AS entryid,
+    } else {
+        if(has_capability("block/mrbs:forcebook", $context) and $forcebook) {
+            require_once "force_book.php";
+            $forcemoveoutput.=mrbsForceMove($room_id,$starttime,$endtime,$name,$id);
+            //do this so that it thinks no clashes were found
+            $tmp='';
+        } else if($doublebook and has_capability('block/mrbs:doublebook', $context)) {
+            $sql = 'SELECT entry.id AS entryid,
                 entry.name as entryname,
                 entry.create_by,
                 room.room_name,
@@ -300,7 +299,7 @@ foreach ( $rooms as $room_id ) {
              OR (entry.start_time < ? AND entry.end_time> ?)
              OR (entry.start_time < ? AND entry.end_time>= ?))';
 
-        $clashingbookings = $DB->get_records_sql($sql, array($room_id, $starttime, $endtime, $starttime, $starttime, $endtime, $endtime));
+            $clashingbookings = $DB->get_records_sql($sql, array($room_id, $starttime, $endtime, $starttime, $starttime, $endtime, $endtime));
             foreach($clashingbookings as $clashingbooking) {
                 $oldbookinguser = $DB->get_record('user', array('username'=> $clashingbooking->create_by));
                 $langvars->user = $USER->firstname.' '.$USER->lastname;
@@ -316,20 +315,20 @@ foreach ( $rooms as $room_id ) {
                     email_to_user($DB->get_record('user', array('email'=> $mrbs_admin_email)), $USER, get_string('doublebookefailsubject', 'block_mrbs'), get_string('doublebookefailbody', 'block_mrbs', $oldbookinguser->username).get_string('doublebookebody', 'block_mrbs', $langvars));
                 }
             }
-
         }
+    }
 
-  //    }else{
-//        // If the user hasn't confirmed they want to double book, check the room is free.
-//    $err .= mrbsCheckFree($room_id, $starttime, $endtime-1, $ignore_id, 0);
-//    }
+    //    }else{
+    //        // If the user hasn't confirmed they want to double book, check the room is free.
+    //    $err .= mrbsCheckFree($room_id, $starttime, $endtime-1, $ignore_id, 0);
+    //    }
 } // end foreach rooms
 
 if(empty($err))
-{
-    foreach ( $rooms as $room_id ) {
-        if($edit_type == "series")
-        {
+    {
+        foreach ( $rooms as $room_id ) {
+            if($edit_type == "series")
+                {
             $rep_details = mrbsCreateRepeatingEntrys($starttime, $endtime,   $rep_type, $rep_enddate, $rep_opt,
                                       $room_id,   $create_by, $name,     $type,        $description,
                                       isset($rep_num_weeks) ? $rep_num_weeks : 0);
@@ -445,7 +444,7 @@ if(strlen($err))
     }
 
     echo $err;
-    if(has_capability('block/mrbs:doublebook', get_context_instance(CONTEXT_SYSTEM)) && $errtype == MRBS_ERR_DOUBLEBOOK) {
+    if (has_capability('block/mrbs:doublebook', $context) && $errtype == MRBS_ERR_DOUBLEBOOK) {
         $thisurl = new moodle_url('/blocks/mrbs/web/edit_entry_handler.php');
         echo '<form method="post" action="'.$thisurl.'">';
         echo '<input type="hidden" name="name" value="'.$name.'" />';

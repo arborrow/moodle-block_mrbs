@@ -21,7 +21,13 @@ $dayurl = new moodle_url('/blocks/mrbs/web/day.php');
 $PAGE->set_url($dayurl); // Hopefully will never be needed
 require_login();
 
-if (!has_capability('block/mrbs:editmrbs', get_context_instance(CONTEXT_SYSTEM)) && !has_capability('block/mrbs:administermrbs', get_context_instance(CONTEXT_SYSTEM))) {
+if ($CFG->version < 2011120100) {
+    $context = get_context_instance(CONTEXT_SYSTEM);
+} else {
+    $context = context_system::instance();
+}
+
+if (!has_capability('block/mrbs:editmrbs', $context) && !has_capability('block/mrbs:administermrbs', $context)) {
     redirect($dayurl);
 }
 

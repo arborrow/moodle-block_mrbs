@@ -33,6 +33,7 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL, $user
     global $mrbs_company, $mrbs_company_url, $search_str, $locale_warning, $pview;
     global $OUTPUT, $PAGE, $USER;
     global $javascript_cursor;
+    global $CFG;
 
     $cfg_mrbs = get_config('block/mrbs');
     $strmrbs = get_string('blockname','block_mrbs');
@@ -55,8 +56,14 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL, $user
             $search_str = "";
     }
 
+    if ($CFG->version < 2011120100) {
+        $context = get_context_instance(CONTEXT_SYSTEM);
+    } else {
+        $context = context_system::instance();
+    }
+
     /// Print the header
-    $PAGE->set_context(get_context_instance(CONTEXT_SYSTEM));
+    $PAGE->set_context($context);
     $PAGE->navbar->add($strmrbs);
     $PAGE->set_pagelayout('incourse');
     $PAGE->set_title($strmrbs);
@@ -151,7 +158,7 @@ HTML1END;
               </TD>
 HTML2END;
         if (!$userview) {
-            if (has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM))) {
+            if (has_capability("block/mrbs:forcebook", $context)) {
                 echo'<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
                   <a href="edit_entry.php?force=TRUE">Forcibly book a room</a>
               </TD>';

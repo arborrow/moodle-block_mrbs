@@ -40,10 +40,12 @@ class block_mrbs extends block_base {
 
         $cfg_mrbs = get_config('block/mrbs');
 
-        $context = get_context_instance(CONTEXT_SYSTEM);
-//        $context = get_context_instance(CONTEXT_BLOCK, $this->instance->id));
-//        Not sure which context to use... Should this be defined site level or course level?
-//        Defining as Site level
+        if ($CFG->version < 2011120100) {
+            $context = get_context_instance(CONTEXT_SYSTEM);
+        } else {
+            $context = context_system::instance();
+        }
+
         if (has_capability('block/mrbs:viewmrbs', $context) or has_capability('block/mrbs:editmrbs', $context) or has_capability('block/mrbs:administermrbs', $context)) {
             if (isset($CFG->block_mrbs_serverpath)) {
                 $serverpath = $CFG->block_mrbs_serverpath;
