@@ -39,14 +39,20 @@ $rep_end_month = optional_param('rep_end_month', 0, PARAM_INT);
 $rep_end_day = optional_param('rep_end_day', 0, PARAM_INT);
 $rep_end_year = optional_param('rep_end_year', 0, PARAM_INT);
 $rep_num_weeks = optional_param('rep_num_weeks', 0, PARAM_INT);
-$rep_day = optional_param('rep_day',NULL, PARAM_RAW);
 $rep_opt = optional_param('rep_opt','',PARAM_SEQUENCE);
 $rep_enddate = optional_param('rep_enddate',0,PARAM_INT);
 $forcebook = optional_param('forcebook',FALSE,PARAM_BOOL);
 $edit_type = optional_param('edit_type','',PARAM_TEXT);
 $type = optional_param('type', '', PARAM_TEXT);
 $all_day = optional_param('all_day', false, PARAM_BOOL);
-$rooms = optional_param('rooms', array(), PARAM_INT);
+// Deal with the 'array' params differently, depending on installed Moodle version
+if ($CFG->version < 2011120100) {
+    $rep_day = optional_param('rep_day', NULL, PARAM_RAW);
+    $rooms = optional_param('rooms', array(), PARAM_INT);
+} else {
+    $rep_day = optional_param_array('rep_day', NULL, PARAM_RAW);
+    $rooms = optional_param_array('rooms', array(), PARAM_INT);
+}
 $doublebook = optional_param('doublebook', 0, PARAM_INT);
 
 define('MRBS_ERR_DOUBLEBOOK', 1);
