@@ -42,6 +42,13 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL, $user
         redirect(new moodle_url('/admin/index.php'));
     }
 
+    if ($CFG->version < 2011120100) {
+        $context = get_context_instance(CONTEXT_SYSTEM);
+    } else {
+        $context = context_system::instance();
+    }
+    require_capability('block/mrbs:viewmrbs', $context);
+
     // If we dont know the right date then make it up
     if(!$day) {
         $day   = date("d");

@@ -2,13 +2,12 @@ This is the Moodle 2.0 version of this block, it will not work in Moodle 1.9 (or
 
 * MRBS Block - Bugs, Feature Requests, and Improvements *
 
-If you have any problems installing this block or suggestions for improvement please create an issue in the Moodle tracker (tracker.moodle.org) in the CONTRIB section for the Block: MRBS component located at: http://tracker.moodle.org/secure/IssueNavigator.jspa?reset=true&mode=hide&pid=10033&sorter/order=DESC&sorter/field=priority&resolution=-1&component=10216.
+If you have any problems installing this block or suggestions for improvement please create an issue in the Moodle tracker (tracker.moodle.org) in the CONTRIB section for the Block: MRBS component located at: http://tracker.moodle.org/browse/CONTRIB/component/10216
 
 * MRBS Block - Description *
 
 MRBS is useful for scheduling a variety of resources.
 More information about MRBS can be obtained at http://mrbs.sourceforge.net/.
-As distributed here it is setup for periods; however, this can easily be changed to times by modifying the config.inc.php file.
 
 * MRBS Block - Disclaimer *
 
@@ -18,6 +17,7 @@ Hence, use this block at your own risk.
 
 * Changes *
 
+2012-02-18 - Improved capability checks when viewing MRBS pages
 2012-02-13 - Renamed database tables to meet Moodle guidelines (to allow upload to Moodle.org); Moodle 2.2 compatibility fixes
 2012-01-16 - Can now limit how many days in advance bookings can be made; can specifiy a list of users who can book a particular room
 2011-07-02 - Moodle 2.x version released
@@ -57,7 +57,7 @@ In April 2011, Davo Smith ( http://www.davodev.co.uk ), commissioned by Synergy 
 3) Copy all the downloaded files directly into this 'mrbs' folder
 (You should end up with [moodleroot]/blocks/mrbs/block_mrbs.php; [moodleroot]/blocks/mrbs/db/install.xml; [moodleroot]/blocks/mrbs/web/add.php; etc)
 
-4) Log in as 'administrator' and click on the 'Notifications' link (Moodle 1.9) or the 'Home' link (Moodle 2.0)
+4) Log in as 'administrator' and click on the 'Notifications' link (Moodle 1.9) or the 'Home' link (Moodle 2.x)
 
 5) Privileges to use the scheduler are currently based on custom defined capabilities (MRBS_Administrator, MRBS_Scheduler, and MRBS_Viewer).
 Details about making use of these capabilities is found at: http://docs.moodle.org/en/MRBS_block#Installation
@@ -69,7 +69,7 @@ Modules and Plugin entry is at: http://moodle.org/mod/data/view.php?d=13&rid=734
 Documentation for the MRBS Block is available at: http://docs.moodle.org/en/MRBS_block
 The tracker component is at: http://tracker.moodle.org/secure/IssueNavigator.jspa?reset=true&mode=hide&pid=10033&sorter/order=DESC&sorter/field=priority&resolution=-1&component=10216
 Moodle 1.9 code is at: http://cvs.moodle.org/contrib/plugins/blocks/mrbs/
-Moodle 2.0 code is at: http://github.com/davosmith/moodle-mrbs/
+Moodle 2.x code is at: https://github.com/arborrow/moodle-block_mrbs
 
 * MRBS Block - Suggestions *
 
