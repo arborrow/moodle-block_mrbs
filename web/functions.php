@@ -34,6 +34,9 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL) //if 
                  '', '', true, '', user_login_string($site));
 
 
+    $context = get_context_instance(CONTEXT_SYSTEM);
+    require_capability('block/mrbs:viewmrbs', $context); // Only users with view permission can get this far
+
 	# If we dont know the right date then make it up
 	if(!$day)
 		$day   = date("d");
