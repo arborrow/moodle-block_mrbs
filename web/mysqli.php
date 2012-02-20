@@ -1,7 +1,7 @@
 <?php
-// $Id: mysqli.php,v 1.5.2.2 2009/03/30 00:15:47 arborrow Exp $
+// $Id: mysqli.php,v 1.5 2008/08/02 14:03:51 arborrow Exp $
 
-// mysql.php - Simple PHP database support for MySQL.
+// mysqli.php - Simple PHP database support for MySQL, using mysqli extension.
 // Include this file after defining the following variables:
 //   $db_host = The hostname of the database server
 //   $db_login = The username to use when connecting to the database
@@ -10,12 +10,13 @@
 // Including this file connects you to the database, or exits on error.
 require_once("../../../config.php"); //for Moodle integration
 
+
 // Free a results handle. You need not call this if you call sql_row or
 // sql_row_keyed until the row returns 0, since sql_row frees the results
 // handle when you finish reading the rows.
 function sql_free ($r)
 {
-	mysql_free_result($r);
+  $r->close();
 }
 
 // Execute a non-SELECT SQL command (insert/update/delete).
@@ -23,8 +24,14 @@ function sql_free ($r)
 // Returns -1 on error; use sql_error to get the error message.
 function sql_command ($sql)
 {
-	if (mysql_query($sql)) return mysql_affected_rows();
-	return -1;
+  global $mysqli;
+  
+  $ret = -1;
+
+  if ($mysqli->query($sql)) {
+    $ret = $mysqli->affected_rows;
+  }
+  return $ret;
 }
 
 // Execute an SQL query which should return a single non-negative number value.
@@ -35,12 +42,16 @@ function sql_command ($sql)
 // a MIN or MAX aggregate function applied over no rows.
 function sql_query1 ($sql)
 {
-	$r = mysql_query($sql);
-	if (! $r) return -1;
-	if (mysql_num_rows($r) != 1 || mysql_num_fields($r) != 1
-		|| ($result = mysql_result($r, 0, 0)) == "") $result = -1;
-	mysql_free_result($r);
-	return $result;
+    global $mysqli;
+    
+    $r = $mysqli->query($sql);
+    if (! $r) return -1;
+    if (($r->num_rows != 1) || ($r->field_count != 1) ||
+        (($row = $r->fetch_row()) == NULL)) {
+        $result = -1;
+    }
+    $r->close();
+    return $row[0];
 }
 
 // Execute an SQL query. Returns a database-dependent result handle,
@@ -48,8 +59,10 @@ function sql_query1 ($sql)
 // Returns 0 on error; use sql_error to get the error message.
 function sql_query ($sql)
 {
-	$r = mysql_query($sql);
-	return $r;
+    global $mysqli;
+
+    $r = $mysqli->query($sql);
+    return $r;
 }
 
 // Return a row from a result. The first row is 0.
@@ -59,13 +72,12 @@ function sql_query ($sql)
 // Typical usage: $i = 0; while ((a = sql_row($r, $i++))) { ... }
 function sql_row ($r, $i)
 {
-	if ($i >= mysql_num_rows($r))
-	{
-		mysql_free_result($r);
-		return 0;
-	}
-	mysql_data_seek($r, $i);
-	return mysql_fetch_row($r);
+    if ($i >= $r->num_rows) {
+      $r->close();
+      return 0;
+    }
+    $r->data_seek($i);
+    return $r->fetch_row();
 }
 
 // Return a row from a result as an associative array keyed by field name.
@@ -76,32 +88,35 @@ function sql_row ($r, $i)
 // the query and returns 0.
 function sql_row_keyed ($r, $i)
 {
-	if ($i >= mysql_num_rows($r))
-	{
-		mysql_free_result($r);
-		return 0;
-	}
-	mysql_data_seek($r, $i);
-	return mysql_fetch_array($r);
+    if ($i >= $r->num_rows) {
+        $r->close();
+        return 0;
+    }
+    $r->data_seek($i);
+    return $r->fetch_array();
 }
 
 // Return the number of rows returned by a result handle from sql_query.
 function sql_count ($r)
 {
-	return mysql_num_rows($r);
+    return $r->num_rows;
 }
 
 // Return the value of an autoincrement field from the last insert.
 // Must be called right after an insert on that table!
 function sql_insert_id($table, $field)
 {
-	return mysql_insert_id();
+    global $mysqli;
+
+    return $mysqli->insert_id;
 }
 
 // Return the text of the last error message.
 function sql_error()
 {
-	return mysql_error();
+    global $mysqli;
+
+    return $mysqli->error;
 }
 
 // Begin a transaction, if the database supports it. This is used to
@@ -129,57 +144,57 @@ function sql_commit()
 // In MySQL, we avoid table locks, and use low-level locks instead.
 function sql_mutex_lock($name)
 {
-	global $sql_mutex_shutdown_registered, $sql_mutex_unlock_name;
-	if (!sql_query1("SELECT GET_LOCK('$name', 20)")) return 0;
-	$sql_mutex_unlock_name = $name;
-	if (empty($sql_mutex_shutdown_registered))
-	{
-		register_shutdown_function("sql_mutex_cleanup");
-		$sql_mutex_shutdown_registered = 1;
-	}
-	return 1;
+    global $sql_mutex_shutdown_registered, $sql_mutex_unlock_name;
+    if (!sql_query1("SELECT GET_LOCK('$name', 20)")) {
+        return 0;
+    }
+    $sql_mutex_unlock_name = $name;
+    if (empty($sql_mutex_shutdown_registered)) {
+        register_shutdown_function("sql_mutex_cleanup");
+        $sql_mutex_shutdown_registered = 1;
+    }
+    return 1;
 }
 
 // Release a mutual-exclusion lock on the named table. See sql_mutex_unlock.
 function sql_mutex_unlock($name)
 {
-	global $sql_mutex_unlock_name;
-	sql_query1("SELECT RELEASE_LOCK('$name')");
-	$sql_mutex_unlock_name = "";
+    global $sql_mutex_unlock_name;
+    sql_query1("SELECT RELEASE_LOCK('$name')");
+    $sql_mutex_unlock_name = "";
 }
 
 // Shutdown function to clean up a forgotten lock. For internal use only.
 function sql_mutex_cleanup()
 {
-	global $sql_mutex_shutdown_registered, $sql_mutex_unlock_name;
-	if (!empty($sql_mutex_unlock_name))
-	{
-		sql_mutex_unlock($sql_mutex_unlock_name);
-		$sql_mutex_unlock_name = "";
-	}
+    global $sql_mutex_shutdown_registered, $sql_mutex_unlock_name;
+    if (!empty($sql_mutex_unlock_name)) {
+        sql_mutex_unlock($sql_mutex_unlock_name);
+        $sql_mutex_unlock_name = "";
+    }
 }
 
 
 // Return a string identifying the database version:
 function sql_version()
 {
-	$r = sql_query("select version()");
-	$v = sql_row($r, 0);
-	sql_free($r);
-	return "MySQL $v[0]";
+    $r = sql_query("select version()");
+    $v = sql_row($r, 0);
+    sql_free($r);
+    return "MySQL $v[0]";
 }
 
 
 // Generate non-standard SQL for LIMIT clauses:
 function sql_syntax_limit($count, $offset)
 {
-	return " LIMIT $offset,$count ";
+    return " LIMIT $offset,$count ";
 }
 
 // Generate non-standard SQL to output a TIMESTAMP as a Unix-time:
 function sql_syntax_timestamp_to_unix($fieldname)
 {
-	return " UNIX_TIMESTAMP($fieldname) ";
+    return " UNIX_TIMESTAMP($fieldname) ";
 }
 
 // Generate non-standard SQL to match a string anywhere in a field's value
@@ -188,29 +203,31 @@ function sql_syntax_timestamp_to_unix($fieldname)
 // requires quoting of % and _ in addition to the usual.
 function sql_syntax_caseless_contains($fieldname, $s)
 {
-	$s = str_replace("\\", "\\\\", $s);
-	$s = str_replace("%", "\\%", $s);
-	$s = str_replace("_", "\\_", $s);
-	$s = str_replace("'", "''", $s);
-	return " $fieldname LIKE '%$s%' ";
+    $s = str_replace("\\", "\\\\", $s);
+    $s = str_replace("%", "\\%", $s);
+    $s = str_replace("_", "\\_", $s);
+    $s = str_replace("'", "''", $s);
+    return " $fieldname LIKE '%$s%' ";
 }
 
 // Returns the name of a field.
 function sql_field_name($result, $index)
 {
-	return mysql_field_name($result, $index);
+    $finfo = $result->fetch_field_direct($index);
+    return $finfo->name;
 }
 
 // Returns the type of a field. (one of "int", "real", "string", "blob", etc...)
 function sql_field_type($result, $index)
 {
-	return mysql_field_type($result, $index);
+    $finfo = $result->fetch_field_direct($index);
+    return $finfo->type;
 }
 
 // Returns the number of fields in a result.
 function sql_num_fields($result)
 {
-	return mysql_num_fields($result);
+    return $result->field_count;
 }
 
 
@@ -220,15 +237,13 @@ function sql_num_fields($result)
 // header. There is no way I can see around this; if track_errors isn't on
 // there seems to be no way to supress the automatic error message output and
 // still be able to access the error text.
-if (empty($db_nopersist))
-	$db_c = mysql_pconnect($db_host, $db_login, $db_password);
-else
-	$db_c = mysql_connect($db_host, $db_login, $db_password);
 
-if (!$db_c || !mysql_select_db ($db_database))
-{
-	echo "\n<p>\n" . get_vocab("failed_connect_db") . "\n";
-	exit;
+$mysqli = new mysqli($db_host, $db_login, $db_password, $db_database);
+
+/* check connection */
+if (mysqli_connect_errno()) {
+    echo "\n<p>\n" . get_string('failed_connect_db','block_mrbs') . " : " . mysqli_connect_error();
+    exit;
 }
 
 ?>

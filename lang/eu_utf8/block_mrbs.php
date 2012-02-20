@@ -1,6 +1,6 @@
 <?php // -*-mode: PHP; coding:utf-8;-*-
 
-// $Id: block_mrbs.php,v 1.1.2.2 2009/02/26 07:21:45 arborrow Exp $
+// $Id: block_mrbs.php,v 1.1 2009/02/26 07:20:14 arborrow Exp $
 
 // This file contains PHP code that specifies language specific strings
 // The default strings come from lang.en, and anything in a locale

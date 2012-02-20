@@ -1,4 +1,4 @@
-<?php // $Id: block_mrbs.php,v 1.1.2.6 2009/11/07 14:52:27 arborrow Exp $
+<?php // $Id: block_mrbs.php,v 1.11 2009/11/07 14:50:34 arborrow Exp $
 // Bearbeitung 20081008 Hilgenstock/Misch  
 // Bearbeitung 20081202 Ralf Krause 
 // Bearbeitung 20091107 Jens-Peter Misch

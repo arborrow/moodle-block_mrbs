@@ -1,21 +1,30 @@
 <?php
-# $Id: del.php,v 1.1 2007/04/05 22:25:26 arborrow Exp $
+# $Id: del.php,v 1.6 2008/08/22 18:43:14 arborrow Exp $
 require_once("../../../config.php"); //for Moodle integration
 require_once "grab_globals.inc.php";
 include "config.inc.php";
 include "functions.php";
 include "$dbsys.php";
 include "mrbs_auth.php";
+require_login();
+$day = optional_param('day', 0, PARAM_INT);
+$month = optional_param('month', 0, PARAM_INT);
+$year = optional_param('year', 0, PARAM_INT); 
+$area = optional_param('area', get_default_area(),  PARAM_INT);
+$room = optional_param('room', 0,  PARAM_INT);
+$type = optional_param('type', '', PARAM_ALPHA);
+$confirm = optional_param('confirm', 0, PARAM_BOOL);
 
 #If we dont know the right date then make it up
-if(!isset($day) or !isset($month) or !isset($year))
+if(($day==0) or ($month==0) or ($year==0))
 {
 	$day   = date("d");
 	$month = date("m");
 	$year  = date("Y");
 }
-if (empty($area))
-	$area = get_default_area();
+
+// if (empty($area)) // - handling with optional_param -ab.
+//	$area = get_default_area();
 
 if(!getAuthorised(2))
 {
@@ -55,7 +64,7 @@ if($type == "room")
 		if (! $res) echo sql_error();
 		elseif (sql_count($res) > 0)
 		{
-			echo get_vocab("deletefollowing") . ":<ul>";
+			echo get_string('deletefollowing','block_mrbs') . ":<ul>";
 			
 			for ($i = 0; ($row = sql_row($res, $i)); $i++)
 			{
@@ -68,8 +77,8 @@ if($type == "room")
 		}
 		
 		echo "<center>";
-		echo "<H1>" .  get_vocab("sure") . "</h1>";
-		echo "<H1><a href=\"del.php?type=room&room=$room&confirm=Y\">" . get_vocab("YES") . "!</a> &nbsp;&nbsp;&nbsp; <a href=admin.php>" . get_vocab("NO") . "!</a></h1>";
+		echo "<H1>" .  get_string('sure','block_mrbs') . "</h1>";
+		echo "<H1><a href=\"del.php?type=room&room=$room&confirm=Y\">" . get_string('yes') . "!</a> &nbsp;&nbsp;&nbsp; <a href=admin.php>" . get_string('no') . "!</a></h1>";
 		echo "</center>";
 		include "trailer.php";
 	}
@@ -93,8 +102,9 @@ if($type == "area")
 		# There are rooms left in the area
 		print_header_mrbs($day, $month, $year, $area);
 		
-		echo get_vocab("delarea");
-		echo "<a href=admin.php>" . get_vocab("backadmin") . "</a>";
+		echo get_string('delarea','block_mrbs');
+		echo "<a href=admin.php>" . get_string('backadmin','block_mrbs') . "</a>";
 		include "trailer.php";
 	}
 }
+?>

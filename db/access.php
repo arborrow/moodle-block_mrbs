@@ -65,6 +65,36 @@ $block_mrbs_capabilities = array(
         'legacy' => array(
             'admin' => CAP_ALLOW
         )
+    ),
+
+    'block/mrbs:viewalltt' => array(
+
+        'captype' => 'view',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'legacy' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+            'admin' => CAP_ALLOW
+        )
+    ),
+
+    'block/mrbs:forcebook' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'legacy' => array(
+            'admin' => CAP_ALLOW
+        )
+    ),
+
+    'block/mrbs:doublebook' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'legacy' => array(
+            'admin' => CAP_ALLOW
+        )
     )
 
 );

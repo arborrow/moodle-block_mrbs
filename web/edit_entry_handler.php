@@ -1,5 +1,5 @@
 <?php
-// $Id: edit_entry_handler.php,v 1.1 2007/04/05 22:25:30 arborrow Exp $
+// $Id: edit_entry_handler.php,v 1.15 2009/06/19 10:32:36 mike1989 Exp $
 require_once("../../../config.php"); //for Moodle integration
 require_once "grab_globals.inc.php";
 include "config.inc.php";
@@ -7,17 +7,39 @@ include "functions.php";
 include "$dbsys.php";
 include "mrbs_auth.php";
 include "mrbs_sql.php";
+require_login();
+$day = optional_param('day', 0, PARAM_INT);
+$month = optional_param('month', 0, PARAM_INT);
+$year = optional_param('year', 0, PARAM_INT); 
+$area = optional_param('area', get_default_area(),  PARAM_INT);
+$create_by = optional_param('create_by', '', PARAM_TEXT);
+$id = optional_param('id', 0, PARAM_INT);
+$rep_type = optional_param('rep_type', 0, PARAM_INT);
+$rep_end_month = optional_param('rep_end_month', 0, PARAM_INT);
+$rep_end_day = optional_param('rep_end_day', 0, PARAM_INT);
+$rep_end_year = optional_param('rep_end_year', 0, PARAM_INT);
+$rep_num_weeks = optional_param('rep_num_weeks', 0, PARAM_INT);
+$rep_day = optional_param('rep_day',NULL, PARAM_RAW);
+$rep_opt = optional_param('rep_opt','',PARAM_SEQUENCE);
+$rep_enddate = optional_param('rep_enddate',0,PARAM_INT);
+$forcebook = optional_param('forcebook',FALSE,PARAM_BOOL);
+
+# $all_day
+# echo $rep_type;
+
+// $rooms - followup and see how this is passed -ab.
+// $edit_type  - followup and see how this is passed -ab.
 
 #If we dont know the right date then make it up 
-if(!isset($day) or !isset($month) or !isset($year))
+if(($day==0) or ($month==0) or ($year==0))
 {
     $day   = date("d");
     $month = date("m");
     $year  = date("Y");
 }
 
-if(empty($area))
-    $area = get_default_area();
+// if(empty($area)) // handled with optional_param above -ab.
+//     $area = get_default_area();
 
 if(!getAuthorised(1))
 {
@@ -30,6 +52,21 @@ if(!getWritable($create_by, getUserName()))
     showAccessDenied($day, $month, $year, $area);
     exit;
 }
+
+if ($name == '')
+{
+     print_header_mrbs($day, $month, $year, $area);
+     ?>
+       <H1><?php echo get_string('invalid_booking','block_mrbs'); ?></H1>
+       <?php echo get_string('must_set_description','block_mrbs'); ?>
+   </BODY>
+</HTML>
+<?php
+     exit;
+}       
+
+# Support locales where ',' is used as the decimal point
+$duration = preg_replace('/,/', '.', $duration);
 
 if( $enable_periods ) {
 	$resolution = 60;
@@ -111,13 +148,12 @@ else
     $endtime += cross_dst( $starttime, $endtime );
 }
 
-if(isset($rep_type) && isset($rep_end_month) && isset($rep_end_day) && isset($rep_end_year))
-{
+if(isset($rep_type) && isset($rep_end_month) && isset($rep_end_day) && isset($rep_end_year)) {
     // Get the repeat entry settings
     $rep_enddate = mktime($hour, $minute, 0, $rep_end_month, $rep_end_day, $rep_end_year);
-}
-else
-    $rep_type = 0;
+    } else {
+        $rep_type = 0; 
+    }
 
 if(!isset($rep_day))
     $rep_day = array();
@@ -135,7 +171,7 @@ if ($rep_type != 0)
 
 # When checking for overlaps, for Edit (not New), ignore this entry and series:
 $repeat_id = 0;
-if (isset($id))
+if ($id>0)
 {
     $ignore_id = $id;
     $repeat_id = sql_query1("SELECT repeat_id FROM $tbl_entry WHERE id=$id");
@@ -147,11 +183,12 @@ else
 
 # Acquire mutex to lock out others trying to book the same slot(s).
 if (!sql_mutex_lock("$tbl_entry"))
-    fatal_error(1, get_vocab("failed_to_acquire"));
+    fatal_error(1, get_string('failed_to_acquire','block_mrbs'));
     
 # Check for any schedule conflicts in each room we're going to try and
 # book in
 $err = "";
+$forcemoveoutput='';
 foreach ( $rooms as $room_id ) {
   if ($rep_type != 0 && !empty($reps))
   {
@@ -164,22 +201,58 @@ foreach ( $rooms as $room_id ) {
 	    # cross DST
             $diff = $endtime - $starttime;
             $diff += cross_dst($reps[$i], $reps[$i] + $diff);
-	    
 	    $tmp = mrbsCheckFree($room_id, $reps[$i], $reps[$i] + $diff, $ignore_id, $repeat_id);
-
             if(!empty($tmp))
                 $err = $err . $tmp;
         }
     }
     else
     {
-        $err        .= get_vocab("too_may_entrys") . "<P>";
+        $err        .= get_string('too_may_entrys','block_mrbs') . "<P>";
         $hide_title  = 1;
     }
   }
   else
-    $err .= mrbsCheckFree($room_id, $starttime, $endtime-1, $ignore_id, 0);
+     if(has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM)) and $forcebook){
+         require_once "force_book.php";
+         $forcemoveoutput.=mrbsForceMove($room_id,$starttime,$endtime,$name,$id);
+         //do this so that it thinks no clashes were found
+         $tmp='';
+    } else if($doublebook and has_capability('block/mrbs:doublebook', get_context_instance(CONTEXT_SYSTEM))) {
+        $sql = 'SELECT entry.id AS entryid,
+                entry.name as entryname,
+                entry.create_by,
+                room.room_name,
+                entry.start_time,
+              FROM '.$CFG->prefix.'mrbs_entry as entry
+                join '.$CFG->prefix.'mrbs_room as room on entry.room_id = room.id
+             WHERE room.id = '.$room_id.'
+             AND ((entry.start_time>='.$starttime.' AND entry.end_time<'.$endtime.')
+             OR (entry.start_time<'.$starttime.' AND entry.end_time>'.$starttime.')
+             OR (entry.start_time<'.$endtime.' AND entry.end_time>='.$endtime.'))';
+        if($clashingbookings = get_records_sql($sql)) {
+            foreach($clashingbookings as $clashingbooking) {
+                $oldbookinguser = get_record('user', 'username', $clashingbooking->create_by);
+                $langvars->user = $USER->firstname.' '.$USER->lastname;
+                $langvars->room = $clashingbooking->room_name;
+                $langvars->time = to_hr_time($clashingbooking->start_time);
+                $langvars->date = userdate($clashingbooking->start_time, '%A %d/%m/%Y');
+                $langvars->oldbooking = $clashingbooking->entryname;
+                $langvars->newbooking = $name;
+                $langvars->admin = $mrbs_admin.' ('.$mrbs_admin_email.')';
 
+                // Send emails to user with existing booking
+                if(!email_to_user($oldbookinguser, $USER, get_string('doublebookesubject', 'block_mrbs'), get_string('doublebookebody', 'block_mrbs', $langvars))) {
+                    email_to_user(get_record('user', 'email', $mrbs_admin_email), $USER, get_string('doublebookefailsubject', 'block_mrbs'), get_string('doublebookefailbody', 'block_mrbs', $oldbookinguser->username).get_string('doublebookebody', 'block_mrbs', $langvars));
+                }
+            }
+
+        }
+
+    }else{
+        // If the user hasn't confirmed they want to double book, check the room is free.
+    $err .= mrbsCheckFree($room_id, $starttime, $endtime-1, $ignore_id, 0);
+    }
 } # end foreach rooms
 
 if(empty($err))
@@ -190,15 +263,15 @@ if(empty($err))
             $new_id = mrbsCreateRepeatingEntrys($starttime, $endtime,   $rep_type, $rep_enddate, $rep_opt,
                                       $room_id,   $create_by, $name,     $type,        $description,
                                       isset($rep_num_weeks) ? $rep_num_weeks : 0);
+                               
+            //Add to moodle logs
+            add_to_log(SITEID, 'mrbs', 'add booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);
             // Send a mail to the Administrator
-            if (MAIL_ADMIN_ON_BOOKINGS or MAIL_AREA_ADMIN_ON_BOOKINGS or
-                MAIL_ROOM_ADMIN_ON_BOOKINGS or MAIL_BOOKER)
-            {
-                include_once "functions_mail.php";
+            if (MAIL_ADMIN_ON_BOOKINGS or MAIL_AREA_ADMIN_ON_BOOKINGS or MAIL_ROOM_ADMIN_ON_BOOKINGS or MAIL_BOOKER) {
                 // Send a mail only if this a new entry, or if this is an
                 // edited entry but we have to send mail on every change,
                 // and if mrbsCreateRepeatingEntrys is successful
-                if ( ( (isset($id) && MAIL_ADMIN_ALL) or !isset($id) ) && (0 != $new_id) )
+                if ( ( (($id>0) && MAIL_ADMIN_ALL) or ($id==0) ) && (0 != $new_id) )
                 {
                     // Get room name and area name. Would be better to avoid
                     // a database access just for that. Ran only if we need
@@ -215,11 +288,11 @@ if(empty($err))
                     }
                     // If this is a modified entry then call
                     // getPreviousEntryData to prepare entry comparison.
-                    if ( isset($id) )
+                    if ( $id>0 )
                     {
                         $mail_previous = getPreviousEntryData($id, 1);
                     }
-                    $result = notifyAdminOnBooking(!isset($id), $new_id);
+                    $result = notifyAdminOnBooking(($id==0), $new_id);
                 }
             }
         }
@@ -234,15 +307,14 @@ if(empty($err))
             # Create the entry:
             $new_id = mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $room_id,
                                      $create_by, $name, $type, $description);
+            //Add to moodle logs
+            add_to_log(SITEID, 'mrbs', 'edit booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);
             // Send a mail to the Administrator
-            if (MAIL_ADMIN_ON_BOOKINGS or MAIL_AREA_ADMIN_ON_BOOKINGS or
-                MAIL_ROOM_ADMIN_ON_BOOKINGS or MAIL_BOOKER)
-            {
-                include_once "functions_mail.php";
+            if (MAIL_ADMIN_ON_BOOKINGS or MAIL_AREA_ADMIN_ON_BOOKINGS or MAIL_ROOM_ADMIN_ON_BOOKINGS or MAIL_BOOKER) {
                 // Send a mail only if this a new entry, or if this is an
                 // edited entry but we have to send mail on every change,
                 // and if mrbsCreateRepeatingEntrys is successful
-                if ( ( (isset($id) && MAIL_ADMIN_ALL) or !isset($id) ) && (0 != $new_id) )
+                if ( ( (($id>0) && MAIL_ADMIN_ALL) or ($id==0) ) && (0 != $new_id) )
                 {
                     // Get room name and are name. Would be better to avoid
                     // a database access just for that. Ran only if we need
@@ -259,18 +331,18 @@ if(empty($err))
                     }
                     // If this is a modified entry then call
                     // getPreviousEntryData to prepare entry comparison.
-                   if ( isset($id) )
+                   if ( $id>0 )
                     {
                         $mail_previous = getPreviousEntryData($id, 0);
                     }
-                    $result = notifyAdminOnBooking(!isset($id), $new_id);
+                    $result = notifyAdminOnBooking(($id==0), $new_id);
                 }
             }
         }
     } # end foreach $rooms
 
     # Delete the original entry
-    if(isset($id))
+    if($id>0)
         mrbsDelEntry(getUserName(), $id, ($edit_type == "series"), 1);
 
     sql_mutex_unlock("$tbl_entry");
@@ -278,7 +350,7 @@ if(empty($err))
     $area = mrbsGetRoomArea($room_id);
     
     # Now its all done go back to the day view
-    Header("Location: day.php?year=$year&month=$month&day=$day&area=$area");
+    redirect($CFG->wwwroot.'/blocks/mrbs/web/day.php?year='.$year.'&month='.$month.'&day='.$day.'&area='.$area,$forcemoveoutput,20);
     exit;
 }
 
@@ -289,19 +361,54 @@ if(strlen($err))
 {
     print_header_mrbs($day, $month, $year, $area);
     
-    echo "<H2>" . get_vocab("sched_conflict") . "</H2>";
+    echo "<H2>" . get_string('sched_conflict','block_mrbs') . "</H2>";
     if(!isset($hide_title))
     {
-        echo get_vocab("conflict");
+        echo get_string('conflict','block_mrbs');
         echo "<UL>";
     }
     
     echo $err;
+    if(has_capability('block/mrbs:doublebook', get_context_instance(CONTEXT_SYSTEM))) {
+        echo '<form method="post" action="'.$CFG->wwwroot.'/blocks/mrbs/web/edit_entry_handler.php">';
+        echo '<input type="hidden" name="name" value="'.$name.'" />';
+        echo '<input type="hidden" name="description" value="'.$description.'" />';
+        echo '<input type="hidden" name="day" value="'.$day.'" />';
+        echo '<input type="hidden" name="month" value="'.$month.'" />';
+        echo '<input type="hidden" name="year" value="'.$year.'" />';
+        echo '<input type="hidden" name="area" value="'.$area.'" />';
+        echo '<input type="hidden" name="create_by" value="'.$create_by.'" />';
+        echo '<input type="hidden" name="id" value="'.$id.'" />';
+        echo '<input type="hidden" name="rep_type" value="'.$rep_type.'" />';
+        echo '<input type="hidden" name="rep_end_month" value="'.$rep_end_month.'" />';
+        echo '<input type="hidden" name="rep_end_day" value="'.$rep_end_day.'" />';
+        echo '<input type="hidden" name="rep_end_year" value="'.$rep_end_year.'" />';
+        echo '<input type="hidden" name="rep_num_weeks" value="'.$rep_num_weeks.'" />';
+        echo '<input type="hidden" name="rep_day" value="'.$rep_day.'" />';
+        echo '<input type="hidden" name="rep_opt" value="'.$rep_opt.'" />';
+        echo '<input type="hidden" name="rep_enddate" value="'.$rep_enddate.'" />';
+        echo '<input type="hidden" name="premises" value="'.$premises.'" />';
+        echo '<input type="hidden" name="itav" value="'.$itav.'" />';
+        echo '<input type="hidden" name="hour" value="'.$hour.'" />';
+        echo '<input type="hidden" name="minute" value="'.$minute.'" />';
+        echo '<input type="hidden" name="period" value="'.$period.'" />';
+        echo '<input type="hidden" name="duration" value="'.$duration.'" />';
+        echo '<input type="hidden" name="dur_units" value="'.$dur_units.'" />';
+        echo '<input type="hidden" name="type" value="'.$type.'" />';
+        foreach ($rooms as $room) {
+            echo '<input type="hidden" name="rooms[]" value="'.$room.'" />';
+        }
+        echo '<input type="hidden" name="doublebook" value="1" />';
+        echo '<input type="submit" name="submit" value="'.get_string('idontcare', 'block_mrbs').'" />';
+        echo '</form>';
+    }
+
     
     if(!isset($hide_title))
         echo "</UL>";
 }
 
-echo "<a href=\"$returl\">".get_vocab("returncal")."</a><p>";
+echo "<a href=\"$returl\">".get_string('returncal','block_mrbs')."</a><p>";
 
-include "trailer.php"; ?>
+include "trailer.php"; 
+?>

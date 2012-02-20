@@ -1,8 +1,7 @@
 <?php
-// $Id: mincals.php,v 1.1 2007/04/05 22:25:32 arborrow Exp $
+// $Id: mincals.php,v 1.5 2009/06/02 14:09:25 mike1989 Exp $
 require_once("../../../config.php"); //for Moodle integration
-function minicals($year, $month, $day, $area, $room, $dmy) {
-
+function minicals($year, $month, $day, $area, $room, $dmy,$usertt=false) {
 // PHP Calendar Class
 //  
 // Copyright David Wilkinson 2000. All Rights reserved.
@@ -27,8 +26,9 @@ class Calendar
     var $area;
     var $room;
     var $dmy;
+    var $usertt;
     
-    function Calendar($day, $month, $year, $h, $area, $room, $dmy)
+    function Calendar($day, $month, $year, $h, $area, $room, $dmy,$usertt)
     {
         $this->day   = $day;
         $this->month = $month;
@@ -37,6 +37,8 @@ class Calendar
         $this->area  = $area;
         $this->room  = $room;
         $this->dmy   = $dmy;
+        $this->usertt= $usertt;
+        
     }
    
     
@@ -45,12 +47,14 @@ class Calendar
         return "";
     }
     
-   function getDateLink($day, $month, $year)
-   {
+   function getDateLink($day, $month, $year,$usertt='')
+   {global $usertt;
+    if(!empty($this->usertt)){$isuser='user';$userpar='&user='.$this->usertt;}
       if( empty($this->room) )
-         return $this->dmy.".php?year=$year&month=$month&day=$day&area=".$this->area;
+         return $isuser.$this->dmy.".php?year=$year&month=$month&day=$day&area=".$this->area.$userpar;
       else
-         return $this->dmy.".php?year=$year&month=$month&day=$day&area=".$this->area."&room=".$this->room;
+         return $isuser.$this->dmy.".php?year=$year&month=$month&day=$day&area=".$this->area."&room=".$this->room.$userpar;
+         
    }
     
 
@@ -97,7 +101,7 @@ class Calendar
       for ($i = 0, $s = ""; $i < 7; $i++)
       {
          $show = $basetime + ($i * 24 * 60 * 60);
-         $fl = utf8_strftime('%a',$show);
+         $fl = strftime('%a', $show);
          $s .= "<td align=center valign=top class=\"calendarHeader\">$fl</td>\n";
       }
       return $s;
@@ -129,8 +133,8 @@ class Calendar
         $daysInPrevMonth = $this->getDaysInMonth($prevMonth, $prevYear);
         $date = mktime(12, 0, 0, $this->month, 1, $this->year);
         
-        $first = (strftime("%w",$date) + 7 - $weekstarts) % 7;
-        $monthName = utf8_strftime("%B",$date);
+        $first = (strftime('%w', $date) + 7 - $weekstarts) % 7;
+        $monthName = userdate($date, "%B");
         
         //$prevMonth = $this->getCalendarLink($this->month - 1 >   0 ? $this->month - 1 : 12, $this->month - 1 >   0 ? $this->year : $this->year - 1);
         //$nextMonth = $this->getCalendarLink($this->month + 1 <= 12 ? $this->month + 1 :  1, $this->month + 1 <= 12 ? $this->year : $this->year + 1);
@@ -211,17 +215,17 @@ $thismonth = mktime(12, 0, 0, $month,   $day, $year);
 $nextmonth = mktime(12, 0, 0, $month+1, 1, $year);
 
 echo "<td>";
-$cal = new Calendar(date("d",$lastmonth), date("m",$lastmonth), date("Y",$lastmonth), 0, $area, $room, $dmy);
+$cal = new Calendar(date("d",$lastmonth), date("m",$lastmonth), date("Y",$lastmonth), 0, $area, $room, $dmy,$usertt);
 echo $cal->getHTML();
 echo "</td>";
 
 echo "<td>";
-$cal = new Calendar(date("d",$thismonth), date("m",$thismonth), date("Y",$thismonth), 1, $area, $room, $dmy);
+$cal = new Calendar(date("d",$thismonth), date("m",$thismonth), date("Y",$thismonth), 1, $area, $room, $dmy,$usertt);
 echo $cal->getHTML();
 echo "</td>";
 
 echo "<td>";
-$cal = new Calendar(date("d",$nextmonth), date("m",$nextmonth), date("Y",$nextmonth), 0, $area, $room, $dmy);
+$cal = new Calendar(date("d",$nextmonth), date("m",$nextmonth), date("Y",$nextmonth), 0, $area, $room, $dmy,$usertt);
 echo $cal->getHTML();
 echo "</td>";
 }

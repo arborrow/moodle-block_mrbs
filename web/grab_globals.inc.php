@@ -15,10 +15,10 @@
 // +---------------------------------------------------------------------------+
 // | @author    Original Authors : PhpMyAdmin project.
 // | @author    thierry_bo.
-// | @version   $Revision: 1.1 $.
+// | @version   $Revision: 1.2 $.
 // +---------------------------------------------------------------------------+
 //
-// $Id: grab_globals.inc.php,v 1.1 2007/04/05 22:25:30 arborrow Exp $
+// $Id: grab_globals.inc.php,v 1.2 2007/12/28 05:53:05 arborrow Exp $
 require_once("../../../config.php"); //for Moodle integration
 // -- GET --
 if (!empty($_GET))
@@ -133,6 +133,9 @@ else if (!empty($HTTP_SERVER_VARS) && isset($HTTP_SERVER_VARS['HTTP_HOST']))
 // +---------------------------------------------------------------------------+
 /* Changes to this file :
  * $Log: grab_globals.inc.php,v $
+ * Revision 1.2  2007/12/28 05:53:05  arborrow
+ * CONTRIB-237 - continued param checks and removing blank lines at end of files
+ *
  * Revision 1.1  2007/04/05 22:25:30  arborrow
  * adding mrbs block to Moodle \contrib\plugins\blocks
  *

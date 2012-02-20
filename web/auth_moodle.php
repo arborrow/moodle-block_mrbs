@@ -1,6 +1,6 @@
 <?php
 
-/* $Id: auth_moodle.php,v 1.1 2007/04/05 22:25:25 arborrow Exp $
+/* $Id: auth_moodle.php,v 1.2 2010/01/16 15:15:57 arborrow Exp $
  *
  * Assigns MRBS access levels based on the user status
  * within your Moodle installation. 
@@ -27,59 +27,29 @@
 
 require_once("../../../config.php");
 
-function authValidateUser($user, $pass)
-{
+function authValidateUser($user, $pass) {
     return 1;
 }
 
-function authGetUserLevel($user, $lev1_admin)
-{
-	global $USER;
-	// OLD MOODLE 1.6.X CODE 
-/* 
-	// Set access level for site admins
-	if (isadmin()) {
-	    return 2;
-    }
-	
-	// Set access level for course creators
-	if (iscreator()) {
-	    return 2;
-    }
-	
-	// Set access level for teachers, if at course level
-	if (isteacher()) {
-	    return 1;
-    }
-	
-	// Set access level for students - not implemented
-	if (! isstudent($course->id)) {
-		return 1;
-    	}
-	// Set access level for guest user
-    if (isguest()) {
-	return 0;
-	}
-*/
+function authGetUserLevel($user, $lev1_admin) {
+    global $USER;
 
-// HACK For Moodle 1.7 With Roles Block...	
-    
+    // HACK For Moodle 1.7 With Roles Block...
     $context = get_context_instance(CONTEXT_SYSTEM, SITEID);  
-   // Set Access leve for users via MRBS block and Moodle 1.7 roles
+
+    // Set Access leve for users via MRBS block and Moodle 1.7 roles
     if (has_capability('block/mrbs:administermrbs', $context)) {
-    	    return 2;
+        return 2;
     }
-	// has_capability('block/mrbs:editmrbs', $context)
+    // has_capability('block/mrbs:editmrbs', $context)
     if (has_capability('block/mrbs:editmrbs', $context)) {
-    	    return 1;
+        return 1;
     }
-	if (has_capability('block/mrbs:viewmrbs', $context)) {
-    	    return 0;
+    if (has_capability('block/mrbs:viewmrbs', $context)) {
+        return 0;
+    } else { // Set access level for other users (e.g. people who access url directly)
+        return 0;
     }
-	// Set access level for other users (e.g. people who access url directly)
-	else {
-    return 0;
-	}
 }
 
 ?>

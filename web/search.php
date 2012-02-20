@@ -1,21 +1,31 @@
 <?php
-# $Id: search.php,v 1.1 2007/04/05 22:25:33 arborrow Exp $
+# $Id: search.php,v 1.6 2009/06/03 08:55:49 mike1989 Exp $
 require_once("../../../config.php"); //for Moodle integration
 require_once "grab_globals.inc.php";
 include "config.inc.php";
 include "functions.php";
 include "$dbsys.php";
 
+if ($CFG->forcelogin) {
+        require_login();
+    }
+$day = optional_param('day', 0, PARAM_INT);
+$month = optional_param('month', 0, PARAM_INT);
+$year = optional_param('year', 0, PARAM_INT); 
+$area = optional_param('area', get_default_area(),  PARAM_INT);
+$advanced = optional_param('advanced', 0, PARAM_BOOL);
+$search_str = optional_param('search_str', 0, PARAM_TEXT); //may break some searches due to over-checking -ab.
+
 #If we dont know the right date then make it up 
-if(!isset($day) or !isset($month) or !isset($year))
+if(($day==0) or ($month==0) or ($year==0))
 {
 	$day   = date("d");
 	$month = date("m");
 	$year  = date("Y");
 }
 
-if(empty($area))
-	$area = get_default_area();
+// if(empty($area)) //handled by optional_param above -ab.
+// 	$area = get_default_area();
 
 # Need all these different versions with different escaping.
 # search_str must be left as the html-escaped version because this is
@@ -29,14 +39,14 @@ if (!empty($search_str))
 
 print_header_mrbs($day, $month, $year, $area);
 
-if (!empty($advanced))
+if ($advanced)
 {
-	echo "<H3>" . get_vocab("advanced_search") . "</H3>";
+	echo "<H3>" . get_string('advanced_search','block_mrbs') . "</H3>";
 	echo "<FORM METHOD=GET ACTION=\"search.php\">";
-	echo get_vocab("search_for") . " <INPUT TYPE=TEXT SIZE=25 NAME=\"search_str\"><br>";
-	echo get_vocab("from"). " ";
+	echo get_string('search_for','block_mrbs') . " <INPUT TYPE=TEXT SIZE=25 NAME=\"search_str\"><br>";
+	echo get_string('from'). " ";
 	genDateSelector ("", $day, $month, $year);
-	echo "<br><INPUT TYPE=SUBMIT VALUE=\"" . get_vocab("search_button") ."\">";
+	echo "<br><INPUT TYPE=SUBMIT VALUE=\"" . get_string('search') ."\">";
 	include "trailer.php";
 	echo "</BODY>";
 	echo "</HTML>";
@@ -45,13 +55,13 @@ if (!empty($advanced))
 
 if (!$search_str)
 {
-	echo "<H3>" . get_vocab("invalid_search") . "</H3>";
+	echo "<H3>" . get_string('invalid_search','block_mrbs') . "</H3>";
 	include "trailer.php";
 	exit;
 }
 
 # now is used so that we only display entries newer than the current time
-echo "<H3>" . get_vocab("search_results") . " \"<font color=\"blue\">$search_str</font>\"</H3>\n";
+echo "<H3>" . get_string('search_results','block_mrbs') . " \"<font color=\"blue\">$search_str</font>\"</H3>\n";
 
 $now = mktime(0, 0, 0, $month, $day, $year);
 
@@ -69,7 +79,7 @@ if(!isset($total))
 
 if($total <= 0)
 {
-	echo "<B>" . get_vocab("nothing_found") . "</B>\n";
+	echo "<B>" . get_string('nothingtodisplay') . "</B>\n";
 	include "trailer.php";
 	exit;
 }
@@ -80,7 +90,7 @@ elseif($search_pos >= $total)
 	$search_pos = $total - ($total % $search["count"]);
 
 # Now we set up the "real" query using LIMIT to just get the stuff we want.
-$sql = "SELECT E.id, E.create_by, E.name, E.description, E.start_time, R.area_id
+$sql = "SELECT E.id, E.create_by, E.name, E.description, E.start_time, R.area_id, R.room_name
         FROM $tbl_entry E, $tbl_room R
         WHERE $sql_pred
         AND E.room_id = R.id
@@ -97,7 +107,7 @@ $has_next = $search_pos < ($total-$search["count"]);
 
 if($has_prev || $has_next)
 {
-	echo "<B>" . get_vocab("records") . ($search_pos+1) . get_vocab("through") . ($search_pos+$num_records) . get_vocab("of") . $total . "</B><BR>";
+	echo "<B>" . get_string('records','block_mrbs') . ($search_pos+1) . get_string('through','block_mrbs') . ($search_pos+$num_records) . get_string('of','block_mrbs') . $total . "</B><BR>";
 
 	# display a "Previous" button if necessary
 	if($has_prev)
@@ -107,7 +117,7 @@ if($has_prev || $has_next)
 		echo "&total=$total&year=$year&month=$month&day=$day\">";
 	}
 
-	echo "<B>" . get_vocab("previous") . "</B>";
+	echo "<B>" . get_string('previous') . "</B>";
 
 	if($has_prev)
 		echo "</A>";
@@ -123,7 +133,7 @@ if($has_prev || $has_next)
 		echo "&total=$total&year=$year&month=$month&day=$day\">";
 	}
 
-	echo "<B>". get_vocab("next") ."</B>";
+	echo "<B>". get_string('next') ."</B>";
 
 	if($has_next)
 		echo "</A>";
@@ -132,19 +142,21 @@ if($has_prev || $has_next)
   <P>
   <TABLE BORDER=2 CELLSPACING=0 CELLPADDING=3>
    <TR>
-    <TH><?php echo get_vocab("entry") ?></TH>
-    <TH><?php echo get_vocab("createdby") ?></TH>
-    <TH><?php echo get_vocab("namebooker") ?></TH>
-    <TH><?php echo get_vocab("description") ?></TH>
-    <TH><?php echo get_vocab("start_date") ?></TH>
+    <TH><?php echo get_string('entry','block_mrbs') ?></TH>
+    <TH><?php echo get_string('createdby','block_mrbs') ?></TH>
+    <TH><?php echo get_string('namebooker','block_mrbs') ?></TH>
+    <TH><?php echo get_string('room','block_mrbs') ?></TH>
+    <TH><?php echo get_string('description') ?></TH>
+    <TH><?php echo get_string('start_date','block_mrbs') ?></TH>
    </TR>
 <?php
 for ($i = 0; ($row = sql_row($result, $i)); $i++)
 {
 	echo "<TR>";
-	echo "<TD><A HREF=\"view_entry.php?id=$row[0]\">".get_vocab("view")."</A></TD>\n";
+	echo "<TD><A HREF=\"view_entry.php?id=$row[0]\">".get_string('view')."</A></TD>\n";
 	echo "<TD>" . htmlspecialchars($row[1]) . "</TD>\n";
 	echo "<TD>" . htmlspecialchars($row[2]) . "</TD>\n";
+    echo "<TD>" . htmlspecialchars($row[6]) . "</TD>\n";
 	echo "<TD>" . htmlspecialchars($row[3]) . "</TD>\n";
 	// generate a link to the day.php
 	$link = getdate($row[4]);
