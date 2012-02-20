@@ -47,6 +47,7 @@ if (!isset($cfg_mrbs->periods) or empty($cfg_mrbs->periods)) {
     $cfg_mrbs->periods[] = "Period&nbsp;12";
 } else {
     $pds = explode("\n", $cfg_mrbs->periods);
+    $cfg_mrbs->periods = array();
     foreach ($pds as $pd) {
         $pd = trim($pd);
         $cfg_mrbs->periods[] = $pd;
