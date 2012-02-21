@@ -62,6 +62,7 @@ In April 2011, Davo Smith ( http://www.davodev.co.uk ), commissioned by Synergy 
 
 5) Privileges to use the scheduler are currently based on custom defined capabilities (MRBS_Administrator, MRBS_Scheduler, and MRBS_Viewer).
 Details about making use of these capabilities is found at: http://docs.moodle.org/en/MRBS_block#Installation
+Three roles are automatically created during installation - 'mrbsviewer', 'mrbseditor' and 'mrbsadmin'. Assigning users these roles at the system level will allow them the appropriate level of access to the MRBS system.
 
 6) The MRBS block is primarily intended for use on the Moodle front page (it works on other pages, but note that each instance of the block links to the same set of bookings - it is not possible to create independent sets of bookings by adding the block to multiple pages)
 
