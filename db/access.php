@@ -97,6 +97,15 @@ $capabilities = array(
         'archetypes' => array(
             'manager' => CAP_ALLOW
         )
+    ),
+
+    // Limits users to only creating 'unconfirmed' bookings
+    // (unless they are the room administrator)
+    'block/mrbs:editmrbsunconfirmed' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array()
     )
 
 );

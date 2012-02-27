@@ -28,10 +28,26 @@ $room = optional_param('room', 0, PARAM_INT);
 $series = optional_param('series', 0, PARAM_INT);
 $pview = optional_param('pview', 0, PARAM_INT);
 
+if ($CFG->version < 2011120100) {
+    $context = get_context_instance(CONTEXT_SYSTEM);
+} else {
+    $context = context_system::instance();
+}
+
 //if the booking belongs to the user looking at it, they probably want to edit it
 if($record=$DB->get_record('block_mrbs_entry',array('id'=>$id))) {
     if(strtolower($record->create_by)==strtolower($USER->username)) {
-        redirect(new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id)));
+        $redirect = true;
+        if (has_capability('block/mrbs:editmrbsunconfirmed', $context)) {
+            if ($USER->email != $DB->get_field('mrbs_room', 'room_admin_email', array('id'=>$record->room_id))) {
+                if ($record->type != 'U') {
+                    $redirect = false;  // Do not redirect to edit screen if the booking is confirmed
+                }
+            }
+        }
+        if ($redirect) {
+            redirect(new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id)));
+        }
     }
 }
 
@@ -61,8 +77,6 @@ if ($pview) {
 
 $PAGE->set_url($thisurl);
 require_login();
-
-print_header_mrbs($day, $month, $year, $area);
 
 if ($series) {
     $sql = "SELECT re.name,
@@ -179,8 +193,19 @@ $enable_periods ? toPeriodString($start_period, $duration, $dur_units) : toTimeS
 
 $repeat_key = "rep_type_" . $rep_type;
 
-// Now that we know all the data we start drawing it
+$roomadmin = false;
+if (has_capability('block/mrbs:editmrbsunconfirmed', $context)) {
+    $adminemail = $DB->get_field('mrbs_room', 'room_admin_email', array('id'=>$booking->room_id));
+    if ($adminemail == $USER->email) {
+        $roomadmin = true;
+    }
+}
 
+if ($roomadmin && $type == 'U') {
+    redirect(new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id)));
+}
+// Now that we know all the data we start drawing it
+print_header_mrbs($day, $month, $year, $area);
 ?>
 
 <H3>
@@ -271,7 +296,8 @@ if ($rep_type != 0) {
 
 <?php
 
-if (getWritable($booking->create_by, getUserName())) {
+$canedit = getWritable($booking->create_by, getUserName());
+if ($canedit || $roomadmin) {
     if (!$series) {
         $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id'=>$id));
         echo '<a href="'.$editurl.'">'. get_string('editentry','block_mrbs') ."</a>";

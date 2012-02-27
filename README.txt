@@ -17,6 +17,7 @@ Hence, use this block at your own risk.
 
 * Changes *
 
+2012-02-27 - New capability 'block/mrbs:editunconfirmed' (see below for details)
 2012-02-27 - Can now track 'changed' bookings (but does not currently use the data internally)
 2012-02-20 - Fixed cron error when using customised period names
 2012-02-18 - Improved capability checks when viewing MRBS pages
@@ -66,6 +67,11 @@ Details about making use of these capabilities is found at: http://docs.moodle.o
 Three roles are automatically created during installation - 'mrbsviewer', 'mrbseditor' and 'mrbsadmin'. Assigning users these roles at the system level will allow them the appropriate level of access to the MRBS system.
 
 6) The MRBS block is primarily intended for use on the Moodle front page (it works on other pages, but note that each instance of the block links to the same set of bookings - it is not possible to create independent sets of bookings by adding the block to multiple pages)
+
+* MRBS Block - unconfirmed capability *
+
+If a user has the capability 'block/mrbs:editunconfirmed' and they are not in the list of 'room admins' for that particular room, then they will only be able to make bookings of the type 'unconfirmed'.
+Any user who has the capability 'block/mrbs:editunconfirmed' AND is in the list of 'room admins' for that room will be able to edit any booking for that room (including bookings made by other users) and will be able to set the type to any available type.
 
 * MRBS Block - Links *
 Modules and Plugin entry is at: http://moodle.org/mod/data/view.php?d=13&rid=734

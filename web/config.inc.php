@@ -400,6 +400,7 @@ if (!empty($cfg_mrbs->cronfile)) {
     $typel["K"] = get_string('importedbooking','block_mrbs');
     $typel["L"] = get_string('importedbookingmoved','block_mrbs');
 }
+$typel["U"] = get_string('unconfirmedbooking', 'block_mrbs');
 //WARNING: DO NOT USE TYPE M, type M is used by import script and will delete other type M bookings
 //TODO: Evaluate use of error_reporting to respect Moodle debugging settings
 //Moodle should handle the error reporting level itself - do not need to set it here

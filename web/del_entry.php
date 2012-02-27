@@ -41,8 +41,21 @@ if(getAuthorised(1) && ($info = mrbsGetEntryInfo($id)))
     if (MAIL_ADMIN_ON_DELETE) { // Gather all fields values for use in emails.
         $mail_previous = getPreviousEntryData($id, $series);
     }
-	$result = mrbsDelEntry(getUserName(), $id, $series, 1);
-	if ($result)
+    $roomadmin = false;
+    if ($CFG->version < 2011120100) {
+        $context = get_context_instance(CONTEXT_SYSTEM);
+    } else {
+        $context = context_system::instance();
+    }
+    if (has_capability('block/mrbs:editmrbsunconfirmed', $context)) {
+        $adminemail = $DB->get_field('mrbs_room', 'room_admin_email', array('id' => $info->room_id));
+        if ($adminemail == $USER->email) {
+            $roomadmin = true;
+        }
+    }
+	$result = mrbsDelEntry(getUserName(), $id, $series, 1, $roomadmin);
+
+    if ($result)
 	{
         // Send a mail to the Administrator
         (MAIL_ADMIN_ON_DELETE) ? $result = notifyAdminOnDelete($mail_previous) : '';

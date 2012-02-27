@@ -81,10 +81,41 @@ if(!getAuthorised(1))
     exit;
 }
 
-if(!getWritable($create_by, getUserName()))
-{
-    showAccessDenied($day, $month, $year, $area);
-    exit;
+if ($CFG->version < 2011120100) {
+    $context = get_context_instance(CONTEXT_SYSTEM);
+} else {
+    $context = context_system::instance();
+}
+
+$roomadmin = false;
+$editunconfirmed = has_capability('block/mrbs:editmrbsunconfirmed', $context);
+if(!getWritable($create_by, getUserName())) {
+    if ($editunconfirmed) {
+        foreach ($rooms as $key=>$room) {
+            $adminemail = $DB->get_field('mrbs_room', 'room_admin_email', array('id' => $room));
+            if ($adminemail == $USER->email) {
+                $roomadmin = true;
+            } else {
+                unset($rooms[$key]);
+            }
+        }
+    }
+
+    if (!$roomadmin) {
+        showAccessDenied($day, $month, $year, $area);
+        exit;
+    }
+}
+
+// Make sure that confirmed bookings can't be made by non-room admins
+if (authGetUserLevel(getUserName()) < 2 && $editunconfirmed) {
+    foreach ($rooms as $room) {
+        $adminemail = $DB->get_field('mrbs_room', 'room_admin_email', array('id' => $room));
+        if ($adminemail != $USER->email) {
+            $type = 'U';
+            break;
+        }
+    }
 }
 
 if (!confirm_sesskey()) {
@@ -246,12 +277,6 @@ if ($id>0)
 }
 else
     $ignore_id = 0;
-
-if ($CFG->version < 2011120100) {
-    $context = get_context_instance(CONTEXT_SYSTEM);
-} else {
-    $context = context_system::instance();
-}
 
 // Acquire mutex to lock out others trying to book the same slot(s).
 //if (!sql_mutex_lock("$tbl_entry"))

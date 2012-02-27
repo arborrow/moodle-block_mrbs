@@ -97,13 +97,13 @@ function mrbsCheckFree($room_id, $starttime, $endtime, $ignore, $repignore)
  * $id     - The entry to delete
  * $series - If set, delete the series, except user modified entrys
  * $all    - If set, include user modified entrys in the series delete
+ * $roomadminoverride - If set, then the user can delete the entry, even if they are not the original booker
  *
  * Returns:
  *   0        - An error occured
  *   non-zero - The entry was deleted
  */
-function mrbsDelEntry($user, $id, $series, $all)
-{
+function mrbsDelEntry($user, $id, $series, $all, $roomadminoverride = false) {
 	global $DB;
 
 	$repeat_id = $DB->get_field('block_mrbs_entry', 'repeat_id', array('id'=>$id));
@@ -119,7 +119,7 @@ function mrbsDelEntry($user, $id, $series, $all)
 	$removed = 0;
     $entries = $DB->get_records('block_mrbs_entry', $params);
     foreach ($entries as $entry) {
-		if(!getWritable($entry->create_by, $user))
+		if(!$roomadminoverride && !getWritable($entry->create_by, $user))
 			continue;
 
 		if($series && $entry->entry_type == 2 && !$all)

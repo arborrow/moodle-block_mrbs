@@ -216,15 +216,27 @@ $enable_periods ? toPeriodString($start_min, $duration, $dur_units) : toTimeStri
 
 //now that we know all the data to fill the form with we start drawing it
 
-if(!getWritable($create_by, getUserName())) {
-	showAccessDenied($day, $month, $year, $area);
-	exit;
-}
-
 if ($CFG->version < 2011120100) {
     $context = get_context_instance(CONTEXT_SYSTEM);
 } else {
     $context = context_system::instance();
+}
+
+$roomadmin = false;
+if(!getWritable($create_by, getUserName())) {
+    if (has_capability('block/mrbs:editmrbsunconfirmed', $context)) {
+        if ($room_id) {
+            $dbroom = $DB->get_record('mrbs_room', array('id' => $room_id));
+            if ($dbroom->room_admin_email == $USER->email) {
+                $roomadmin = true;
+            }
+        }
+    }
+
+    if (!$roomadmin) {
+        showAccessDenied($day, $month, $year, $area);
+        exit;
+    }
 }
 
 $PAGE->requires->js('/blocks/mrbs/web/updatefreerooms.js', true);
@@ -466,10 +478,26 @@ foreach ($rooms as $dbroom) {
 if(($type == 'K') or ($type == 'L')){
     echo '<OPTION VALUE=L SELECTED >'.$typel['L'].'</option>\n';
 }else{
-    for ($c = "A"; $c <= "J"; $c++){
-        if (!empty($typel[$c])){
-		    echo "<OPTION VALUE=$c" . ($type == $c ? " SELECTED" : "") . ">$typel[$c]\n";
+    $unconfirmed = false;
+    $unconfirmedonly = false;
+    if (has_capability('block/mrbs:editmrbsunconfirmed', $context)) {
+        $unconfirmed = true;
+    }
+    if (authGetUserLevel(getUserName()) < 2 && $unconfirmed) {
+        if ($USER->email != $rooms[$room_id]->room_admin_email) {
+            $type = 'U';
+            $unconfirmedonly = true;
         }
+    }
+    if (!$unconfirmedonly) {
+        for ($c = "A"; $c <= "J"; $c++){
+            if (!empty($typel[$c])){
+                echo "<OPTION VALUE=$c" . ($type == $c ? " SELECTED" : "") . ">$typel[$c]\n";
+            }
+         }
+     }
+    if ($unconfirmed) {
+        echo '<OPTION VALUE="U" '.($type == 'U' ? 'SELECTED="SELECTED"' : '').' >'.$typel['U'].'</OPTION>\n';
     }
 }
 ?></SELECT></TD></TR>

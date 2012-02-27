@@ -63,6 +63,9 @@ function authGetUserLevel($user) {
     if (has_capability('block/mrbs:editmrbs', $context)) {
         return 1;
     }
+    if (has_capability('block/mrbs:editmrbsunconfirmed', $context)) {
+        return 1; // Can book rooms, but only as 'unconfirmed' (unless they are the room admin)
+    }
     if (has_capability('block/mrbs:viewmrbs', $context)) {
         return 0;
     } else { // Set access level for other users (e.g. people who access url directly)
