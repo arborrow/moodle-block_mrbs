@@ -105,7 +105,7 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
     if ($oldversion < 2012022700) {
 
         // Define field roomchange to be added to mrbs_entry
-        $table = new xmldb_table('mrbs_entry');
+        $table = new xmldb_table('block_mrbs_entry');
         $field = new xmldb_field('roomchange', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'description');
 
         // Conditionally launch add field roomchange
