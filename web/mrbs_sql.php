@@ -157,7 +157,7 @@ function mrbsDelEntry($user, $id, $series, $all)
  *   non-zero - The entry's ID
  */
 function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $room_id,
-                               $owner, $name, $type, $description, $oldid=0)
+                               $owner, $name, $type, $description, $oldid=0, $roomchange=false)
 {
     global $DB;
 
@@ -172,6 +172,7 @@ function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $r
     $add->type = $type;
     $add->description = $description;
     $add->timestamp = time();
+    $add->roomchange = $roomchange;
 
 	// make sure that any entry is of a positive duration
 	// this is to trap potential negative duration created when DST comes
@@ -410,7 +411,7 @@ function mrbsGetRepeatEntryList($time, $enddate, $rep_type, $rep_opt, $max_ittr,
  *   non-zero - The entry's ID
  */
 function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt,
-                                   $room_id, $owner, $name, $type, $description, $rep_num_weeks)
+                                   $room_id, $owner, $name, $type, $description, $rep_num_weeks, $roomchange=false)
 {
 	global $max_rep_entrys;
 
@@ -450,7 +451,7 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
             }
 
 			mrbsCreateSingleEntry($reps[$i], $reps[$i] + $diff, 1, $ret->id,
-				 $room_id, $owner, $name, $type, $description);
+				 $room_id, $owner, $name, $type, $description, 0, $roomchange);
             $ret->lasttime = $reps[$i];
 
             $ret->created++;

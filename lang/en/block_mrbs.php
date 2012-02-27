@@ -277,6 +277,7 @@ $string['returnprev']         = 'Return to previous page';
 $string['rights']             = 'Rights';
 $string['room_admin_email']   = 'Room admin email';
 $string['room']               = 'Room';
+$string['roomchange']         = 'Mark as room change';
 $string['rooms']              = 'Rooms';
 $string['roomsearch']              = 'Room Search';
 $string['roomsfree']              = 'Rooms free...';

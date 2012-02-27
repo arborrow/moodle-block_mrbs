@@ -54,6 +54,7 @@ if ($CFG->version < 2011120100) {
     $rooms = optional_param_array('rooms', array(), PARAM_INT);
 }
 $doublebook = optional_param('doublebook', 0, PARAM_INT);
+$roomchange = optional_param('roomchange', false, PARAM_BOOL);
 
 define('MRBS_ERR_DOUBLEBOOK', 1);
 define('MRBS_ERR_TOOMANY', 2);
@@ -385,7 +386,7 @@ if(empty($err))
 
             // Create / update the entry:
             $new_id = mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $room_id,
-                                            $create_by, $name, $type, $description, $id);
+                                            $create_by, $name, $type, $description, $id, $roomchange);
 
             //Add to moodle logs
             add_to_log(SITEID, 'mrbs', 'edit booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);

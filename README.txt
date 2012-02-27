@@ -17,6 +17,7 @@ Hence, use this block at your own risk.
 
 * Changes *
 
+2012-02-27 - Can now track 'changed' bookings (but does not currently use the data internally)
 2012-02-20 - Fixed cron error when using customised period names
 2012-02-18 - Improved capability checks when viewing MRBS pages
 2012-02-13 - Renamed database tables to meet Moodle guidelines (to allow upload to Moodle.org); Moodle 2.2 compatibility fixes

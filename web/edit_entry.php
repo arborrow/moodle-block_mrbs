@@ -566,6 +566,14 @@ if ( ( ( $id==0 ) ) Xor ( isset( $rep_type ) && ( $rep_type != 0 ) && ( "series"
 </TR>
 <?php } ?>
 
+<?php if ($id != 0) { ?>
+<tr><td>&nbsp;</td></tr>
+<tr>
+<td class="CR"><label for="mrbsroomchange"><b><?php print_string('roomchange', 'block_mrbs');?></b></td>
+<td><input type="checkbox" checked="checked" name="roomchange" id="mrbsroomchange" /></td>
+</tr>
+<?php } ?>
+
 <TR>
  <TD colspan=2 align=center>
   <SCRIPT LANGUAGE="JavaScript">

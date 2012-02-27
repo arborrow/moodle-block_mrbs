@@ -102,5 +102,20 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
         upgrade_block_savepoint(true, 2012021300, 'mrbs');
     }
 
+    if ($oldversion < 2012022700) {
+
+        // Define field roomchange to be added to mrbs_entry
+        $table = new xmldb_table('mrbs_entry');
+        $field = new xmldb_field('roomchange', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'description');
+
+        // Conditionally launch add field roomchange
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // mrbs savepoint reached
+        upgrade_block_savepoint(true, 2012022700, 'mrbs');
+    }
+
     return true;
 }
