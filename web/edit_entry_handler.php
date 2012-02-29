@@ -88,11 +88,11 @@ if ($CFG->version < 2011120100) {
 }
 
 $roomadmin = false;
-$editunconfirmed = has_capability('block/mrbs:editmrbsunconfirmed', $context);
+$editunconfirmed = has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false);
 if(!getWritable($create_by, getUserName())) {
     if ($editunconfirmed) {
         foreach ($rooms as $key=>$room) {
-            $adminemail = $DB->get_field('mrbs_room', 'room_admin_email', array('id' => $room));
+            $adminemail = $DB->get_field('block_mrbs_room', 'room_admin_email', array('id' => $room));
             if ($adminemail == $USER->email) {
                 $roomadmin = true;
             } else {
@@ -110,7 +110,7 @@ if(!getWritable($create_by, getUserName())) {
 // Make sure that confirmed bookings can't be made by non-room admins
 if (authGetUserLevel(getUserName()) < 2 && $editunconfirmed) {
     foreach ($rooms as $room) {
-        $adminemail = $DB->get_field('mrbs_room', 'room_admin_email', array('id' => $room));
+        $adminemail = $DB->get_field('block_mrbs_room', 'room_admin_email', array('id' => $room));
         if ($adminemail != $USER->email) {
             $type = 'U';
             break;

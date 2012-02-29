@@ -224,9 +224,9 @@ if ($CFG->version < 2011120100) {
 
 $roomadmin = false;
 if(!getWritable($create_by, getUserName())) {
-    if (has_capability('block/mrbs:editmrbsunconfirmed', $context)) {
+    if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
         if ($room_id) {
-            $dbroom = $DB->get_record('mrbs_room', array('id' => $room_id));
+            $dbroom = $DB->get_record('block_mrbs_room', array('id' => $room_id));
             if ($dbroom->room_admin_email == $USER->email) {
                 $roomadmin = true;
             }
@@ -480,7 +480,7 @@ if(($type == 'K') or ($type == 'L')){
 }else{
     $unconfirmed = false;
     $unconfirmedonly = false;
-    if (has_capability('block/mrbs:editmrbsunconfirmed', $context)) {
+    if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
         $unconfirmed = true;
     }
     if (authGetUserLevel(getUserName()) < 2 && $unconfirmed) {

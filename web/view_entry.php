@@ -38,8 +38,8 @@ if ($CFG->version < 2011120100) {
 if($record=$DB->get_record('block_mrbs_entry',array('id'=>$id))) {
     if(strtolower($record->create_by)==strtolower($USER->username)) {
         $redirect = true;
-        if (has_capability('block/mrbs:editmrbsunconfirmed', $context)) {
-            if ($USER->email != $DB->get_field('mrbs_room', 'room_admin_email', array('id'=>$record->room_id))) {
+        if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
+            if ($USER->email != $DB->get_field('block_mrbs_room', 'room_admin_email', array('id'=>$record->room_id))) {
                 if ($record->type != 'U') {
                     $redirect = false;  // Do not redirect to edit screen if the booking is confirmed
                 }
@@ -194,8 +194,8 @@ $enable_periods ? toPeriodString($start_period, $duration, $dur_units) : toTimeS
 $repeat_key = "rep_type_" . $rep_type;
 
 $roomadmin = false;
-if (has_capability('block/mrbs:editmrbsunconfirmed', $context)) {
-    $adminemail = $DB->get_field('mrbs_room', 'room_admin_email', array('id'=>$booking->room_id));
+if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
+    $adminemail = $DB->get_field('block_mrbs_room', 'room_admin_email', array('id'=>$booking->room_id));
     if ($adminemail == $USER->email) {
         $roomadmin = true;
     }
