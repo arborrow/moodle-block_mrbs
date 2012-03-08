@@ -355,9 +355,9 @@ if(empty($err))
         foreach ( $rooms as $room_id ) {
             if($edit_type == "series")
                 {
-            $rep_details = mrbsCreateRepeatingEntrys($starttime, $endtime,   $rep_type, $rep_enddate, $rep_opt,
-                                      $room_id,   $create_by, $name,     $type,        $description,
-                                      isset($rep_num_weeks) ? $rep_num_weeks : 0);
+            $rep_details = mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt,
+                                                     $room_id, $create_by, $name, $type, $description,
+                                                     isset($rep_num_weeks) ? $rep_num_weeks : 0, $roomchange, $id);
             $new_id = $rep_details->id;
 
             $enddate = null;
@@ -391,14 +391,10 @@ if(empty($err))
                     // getPreviousEntryData to prepare entry comparison.
                     if ( $id>0 )
                     {
-                        $mail_previous = getPreviousEntryData($id, 1);
+                        $mail_previous = getPreviousEntryData($id, $rep_details->repeating);
                     }
                     $result = notifyAdminOnBooking(($id==0), $new_id, $enddate);
                 }
-            }
-            // Delete the original entry
-            if($id>0) {
-                mrbsDelEntry(getUserName(), $id, ($edit_type == "series"), 1, $roomadmin);
             }
         }
         else

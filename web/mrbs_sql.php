@@ -210,7 +210,7 @@ function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $r
  *   non-zero - The entry's ID
  */
 function mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt,
-                               $room_id, $owner, $name, $type, $description, $rep_num_weeks)
+                               $room_id, $owner, $name, $type, $description, $rep_num_weeks, $oldrepeatid = 0)
 {
     global $DB;
 
@@ -240,7 +240,14 @@ function mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $r
         $add->rep_num_weeks = $rep_num_weeks;
     }
 
-	return $DB->insert_record('block_mrbs_repeat', $add);
+    if ($oldrepeatid) {
+        $add->id = $oldrepeatid;
+        $DB->update_record('block_mrbs_repeat', $add);
+    } else {
+        $add->id = $DB->insert_record('block_mrbs_repeat', $add);
+    }
+
+    return $add->id;
 }
 
 /** same_day_next_month()
@@ -411,12 +418,13 @@ function mrbsGetRepeatEntryList($time, $enddate, $rep_type, $rep_opt, $max_ittr,
  *   non-zero - The entry's ID
  */
 function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt,
-                                   $room_id, $owner, $name, $type, $description, $rep_num_weeks, $roomchange=false)
+                                   $room_id, $owner, $name, $type, $description, $rep_num_weeks, $roomchange=false, $oldid = 0)
 {
-	global $max_rep_entrys;
+	global $max_rep_entrys, $DB;
 
     $ret = new stdClass;
     $ret->id = 0;
+    $ret->repeating = 1;
     $ret->requested = 0;
     $ret->created = 0;
     $ret->lasttime = null;
@@ -425,19 +433,37 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
 	if($ret->requested > $max_rep_entrys)
 		return $ret;
 
+    $repeatid = 0;
+    if ($oldid) {
+        $repeatid = $DB->get_field('block_mrbs_entry', 'repeat_id', array('id' => $oldid));
+    }
+
 	if(empty($reps))
 	{
-		$ret->id = mrbsCreateSingleEntry($starttime, $endtime, 0, 0, $room_id, $owner, $name, $type, $description);
+        if ($repeatid) {
+            // This was a repeat entry, but the entry no longer has any repeats, so delete the repeats (but not this entry)
+            $DB->delete_records_select('block_mrbs_entry', 'repeat_id = :repeatid AND id <> :oldid', compact('repeatid', 'oldid'));
+            $DB->delete_records('block_mrbs_repeat', array('id' => $repeatid));
+        }
+
+		$ret->id = mrbsCreateSingleEntry($starttime, $endtime, 0, 0, $room_id, $owner, $name, $type, $description, $oldid, $roomchange);
+        $ret->repeating = 0;
         $ret->requested = 1;
         $ret->created = 1;
         $ret->lasttime = $starttime;
 		return $ret;
 	}
 
-	$ret->id = mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt, $room_id, $owner, $name, $type, $description, $rep_num_weeks);
+	$ret->id = mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt, $room_id, $owner, $name, $type, $description, $rep_num_weeks, $repeatid);
 
 	if($ret->id)
 	{
+        $oldids = array();
+        if ($repeatid) {
+            // If there are old entries, we will update each of them in turn, as we go through the repeats
+            // if we run out, we will create extra; any leftovers will be deleted
+            $oldids = $DB->get_fieldset_sql('SELECT id FROM {block_mrbs_entry} WHERE repeat_id = ? ORDER BY start_time', array($repeatid));
+        }
 
 		for($i = 0; $i < count($reps); $i++)
 		{
@@ -450,12 +476,23 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
                 break; // Repeat entry is too far into the future
             }
 
+            if ($i < count($oldids)) {
+                $updateid = $oldids[$i];
+            } else {
+                $updateid = 0;
+            }
+
 			mrbsCreateSingleEntry($reps[$i], $reps[$i] + $diff, 1, $ret->id,
-				 $room_id, $owner, $name, $type, $description, 0, $roomchange);
+				 $room_id, $owner, $name, $type, $description, $updateid, $roomchange);
             $ret->lasttime = $reps[$i];
 
             $ret->created++;
 		}
+
+        // Delete any repeats that are no longer needed
+        for ($i=count($reps); $i < count($oldids); $i++) {
+            $DB->delete_records('block_mrbs_entry', array('id' => $oldids[$i]));
+        }
 	}
 	return $ret;
 }

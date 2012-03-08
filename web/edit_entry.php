@@ -337,6 +337,13 @@ function OnAllDayClick() { // Executed when the user clicks on the all_day check
 
 <TABLE BORDER=0>
 
+    <?php if ($edit_type != 'series' && $rep_id) { ?>
+<tr><td colspan="2"><b><?php $editseriesurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id' => $id, 'edit_type' => 'series'));
+         echo get_string('editingserieswarning', 'block_mrbs');
+echo html_writer::link($editseriesurl, get_string('editseries', 'block_mrbs')); ?>
+</b></td></tr>
+     <?php } ?>
+
 <TR><TD CLASS=CR><B><?php echo get_string('namebooker','block_mrbs')?></B></TD>
   <TD CLASS=CL><INPUT NAME="name" SIZE=40 VALUE="<?php echo htmlspecialchars($name,ENT_NOQUOTES) ?>"></TD></TR>
 

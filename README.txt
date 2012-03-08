@@ -17,6 +17,7 @@ Hence, use this block at your own risk.
 
 * Changes *
 
+2012-03-08 - Now able to edit a series of bookings (and series bookings retain their original ID)
 2012-02-27 - New capability 'block/mrbs:editunconfirmed' (see below for details)
 2012-02-27 - Can now track 'changed' bookings (but does not currently use the data internally)
 2012-02-20 - Fixed cron error when using customised period names

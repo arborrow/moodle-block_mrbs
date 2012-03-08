@@ -148,6 +148,7 @@ $string['editentry']          = 'Edit Entry';
 $string['editroom']           = 'Edit Room';
 $string['editroomarea']       = 'Edit Area or Room Description';
 $string['editseries']         = 'Edit Series';
+$string['editingserieswarning']  = 'You are currently editing a single entry in a series, click here to edit the series instead: ';
 $string['email_failed']       = 'Email send failed';
 $string['end_date']           = 'End Time';
 $string['entries_found']      = 'entries found';

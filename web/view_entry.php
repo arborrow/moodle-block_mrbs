@@ -158,7 +158,8 @@ if ($series == 1) {
 	$rep_type     = $booking->rep_type;
 	$rep_end_date = userdate($booking->end_date, '%A %d %B %Y');
 	$rep_opt      = $booking->rep_opt;
-	$rep_num_weeks = $booking->num_weeks;
+	$rep_num_weeks = $booking->rep_num_weeks;
+    $repeat_id = false;
 	// I also need to set $id to the value of a single entry as it is a
 	// single entry from a series that is used by del_entry.php and
 	// edit_entry.php
