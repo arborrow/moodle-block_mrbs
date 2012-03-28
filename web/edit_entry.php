@@ -230,7 +230,7 @@ print_header_mrbs($day, $month, $year, $area);
 
 <?php
 echo 'var currentroom='. $room_id.';';
-if (has_capability("block/mrbs:forcebook",get_context_instance(CONTEXT_SYSTEM))){
+if (has_capability("block/mrbs:forcebook", get_context_instance(CONTEXT_SYSTEM))){
     echo 'var canforcebook=true;';
 } else {
     echo 'var canforcebook=false;';
@@ -591,7 +591,7 @@ if ( ( ( $id==0 ) ) Xor ( isset( $rep_type ) && ( $rep_type != 0 ) && ( "series"
  </TD></TR>
 </TABLE>
 
-<INPUT TYPE=HIDDEN NAME="returl"    VALUE="<?php echo $HTTP_REFERER?>">
+<!--<INPUT TYPE=HIDDEN NAME="returl"    VALUE="<?php echo $HTTP_REFERER?>">-->
 <!--INPUT TYPE=HIDDEN NAME="room_id"   VALUE="<?php echo $room_id?>"-->
 <INPUT TYPE=HIDDEN NAME="create_by" VALUE="<?php echo $create_by?>">
 <INPUT TYPE=HIDDEN NAME="rep_id"    VALUE="<?php echo $rep_id?>">

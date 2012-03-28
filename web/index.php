@@ -41,8 +41,8 @@ switch ($default_view)
 }
 
 if (!empty($default_room)) {
-	$sql = "select area_id from $tbl_room where id=$default_room";
-	$res = $DB->get_record('mrbs_room', 'area_id', array('id'=>$default_room));
+//	$sql = "select area_id from $tbl_room where id=$default_room";
+	$res = $DB->get_record('mrbs_room', array('id'=>$default_room));
 	if (!empty($res)) {
         $redirect->params(array('area'=>$res->area_id, 'room'=>$default_room));
 	}

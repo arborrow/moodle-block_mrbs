@@ -124,7 +124,7 @@ function print_header_mrbs($day=NULL, $month=NULL, $year=NULL, $area=NULL, $user
           <TABLE WIDTH="100%" BORDER=0>
             <TR>
               <TD CLASS="banner" BGCOLOR="#C0E0FF">
-          <FONT SIZE=4><B><a href='$mrbs_company_url'>$mrbs_company</a></B><BR>
+          <FONT SIZE=4>
            <A HREF="$homeurl">$titlestr</A>
                 </FONT>
               </TD>
@@ -667,15 +667,16 @@ function getMailTimeDateString($t, $inc_time=TRUE)
  *
  * @param bool    $new_entry    to know if this is a new entry or not
  * @param int     $new_id       used for create a link to the new entry
+ * @param int     $modified_enddate   if set, represents the actual end date of the repeat booking (after restrictions)
  * @return bool                 TRUE or PEAR error object if fails
  */
-function notifyAdminOnBooking($new_entry , $new_id) {
+function notifyAdminOnBooking($new_entry , $new_id, $modified_enddate = null) {
     global $DB;
     global $url_base, $returl, $name, $description, $area_name;
     global $room_name, $starttime, $duration, $dur_units, $end_date, $endtime;
     global $rep_enddate, $typel, $type, $create_by, $rep_type, $enable_periods;
     global $rep_opt, $rep_num_weeks;
-    global $mail_previous, $auth;
+    global $mail_previous, $auth, $weekstarts;
 
     //
     // $recipients = '';
@@ -684,7 +685,7 @@ function notifyAdminOnBooking($new_entry , $new_id) {
     if (MAIL_AREA_ADMIN_ON_BOOKINGS) {
         // Look for list of area admins emails addresses
         if ($new_entry) {
-            $sql = "SELECT a.area_admin_email ";
+            $sql = "SELECT DISTINCT a.area_admin_email ";
             $sql .= "FROM {mrbs_room} r, {mrbs_area} a, {mrbs_entry} e ";
             // If this is a repeating entry...
             if ($id_table == 'rep') {
@@ -712,7 +713,7 @@ function notifyAdminOnBooking($new_entry , $new_id) {
         // Look for list of room admins emails addresses
         if ($new_entry)
         {
-            $sql = "SELECT r.room_admin_email ";
+            $sql = "SELECT DISTINCT r.room_admin_email ";
             $sql .= "FROM {mrbs_room} r, {mrbs_entry} e ";
             // If this is a repeating entry...
             if ($id_table == 'rep') {
@@ -913,11 +914,19 @@ function notifyAdminOnBooking($new_entry , $new_id) {
             $body .= "\n" . get_string('rep_end_date','block_mrbs');
             if ($new_entry)
             {
+                if ($modified_enddate != null) {
+                    $body .= ": " . userdate($modified_enddate, '%A %d %B %Y');
+                } else {
                 $body .= ": " . userdate($rep_enddate, '%A %d %B %Y');
+            }
             }
             else
             {
+                if ($modified_enddate != null) {
+                    $temp = userdate($modified_enddate, '%A %d %B %Y');
+                } else {
                 $temp = userdate($rep_enddate, '%A %d %B %Y');
+                }
                 $body .=  ": " .
                     compareEntries($temp, $mail_previous['rep_end_date'], $new_entry) . "\n";
             }
@@ -925,7 +934,7 @@ function notifyAdminOnBooking($new_entry , $new_id) {
     $body .= "\n";
     }
 
-    array_unique($recipientlist);
+    $recipientlist = array_unique($recipientlist);
 
     $result=1;
     if (!$fromuser=get_user_by_email(MAIL_FROM)) {
@@ -989,7 +998,7 @@ function notifyAdminOnDelete($mail_previous)
            mails to admins when this user previously booked entries will
            be changed, as no user name will match the booker name */
 
-        $uname = ($new_entry) ? $create_by : $mail_previous['createdby'];
+        $uname = $mail_previous['createdby'];
         $email = $DB->get_field('user', 'email', array('username'=>$uname));
         if ($email) {
             $recipientlist[] = $email;
@@ -1001,7 +1010,7 @@ function notifyAdminOnDelete($mail_previous)
     }
     //
     $subjdetails = new stdClass;
-    $subjdetails->date = userdate($starttime, get_string('strftimedateshort'));
+    $subjdetails->date = unHtmlEntities($mail_previous['start_date']);
     $subjdetails->user = $mail_previous['createdby'];
     $subject = get_string('mail_subject_delete','block_mrbs', $subjdetails);
     $body = get_string('mail_body_del_entry','block_mrbs') . ": \n\n";
@@ -1063,7 +1072,7 @@ function notifyAdminOnDelete($mail_previous)
     $body .= "\n";
     // End of mail details
 
-    array_unique($recipientlist);
+    $recipientlist = array_unique($recipientlist);
 
     $result=1;
     if (!$fromuser=get_user_by_email(MAIL_FROM)) {
@@ -1101,7 +1110,7 @@ function notifyAdminOnDelete($mail_previous)
  */
 function getPreviousEntryData($id, $series)
 {
-    global $DB, $enable_periods;
+    global $DB, $enable_periods, $weekstarts;
     //
     $sql = "
     SELECT  e.name,
@@ -1358,15 +1367,13 @@ function to_hr_time($time){
     }
 }
 
-function check_max_advance_days($day, $month, $year) {
+function check_max_advance_days_internal($checkdate) {
     global $max_advance_days;
 
     if ($max_advance_days < 0) {
         return true;
     }
 
-    $checkdate = new DateTime();
-    $checkdate->setDate($year, $month, $day);
     $now = new DateTime();
     if ($checkdate < $now) {
         return true;
@@ -1379,6 +1386,19 @@ function check_max_advance_days($day, $month, $year) {
     return true;
 }
 
+function check_max_advance_days_timestamp($ts) {
+    $tsdate = new DateTime();
+    $tsdate->setTimestamp($ts);
+    $checkdate = new DateTime();
+    $checkdate->setDate($tsdate->format('Y'), $tsdate->format('m'), $tsdate->format('d'));
+    return check_max_advance_days_internal($checkdate);
+}
+
+function check_max_advance_days($day, $month, $year) {
+    $checkdate = new DateTime();
+    $checkdate->setDate($year, $month, $day);
+    return check_max_advance_days_internal($checkdate);
+}
 function allowed_to_book($user, $room) {
     if (empty($room->booking_users)) {
         return true;

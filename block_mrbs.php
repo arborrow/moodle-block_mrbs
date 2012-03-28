@@ -40,7 +40,7 @@ class block_mrbs extends block_base {
 
         $cfg_mrbs = get_config('block/mrbs');
 
-        $context = get_context_instance(CONTEXT_SYSTEM, SITEID);
+        $context = get_context_instance(CONTEXT_SYSTEM);
 //        $context = get_context_instance(CONTEXT_BLOCK, $this->instance->id));
 //        Not sure which context to use... Should this be defined site level or course level?
 //        Defining as Site level

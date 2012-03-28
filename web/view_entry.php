@@ -79,7 +79,7 @@ if ($series) {
 	        re.rep_type,
 	        re.end_date,
 	        re.rep_opt,
-	        re.rep_num_weeks
+	        re.rep_num_weeks,
 	        u.id as userid,
            	concat(u.firstname,' ',u.lastname) as fullname
 			FROM  {mrbs_repeat} re left join {user} u on u.username = re.create_by, {mrbs_room} r, {mrbs_area} a

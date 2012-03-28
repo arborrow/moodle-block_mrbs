@@ -16,6 +16,13 @@ As with any customization, it is recommended that you have a good backup of your
 While those contributing code make every effort to provide the best code that they can, using contributed code nevertheless entails a certain degree of risk as contributed code is not as carefully reviewed and/or tested as the Moodle core code.
 Hence, use this block at your own risk.
 
+* New features *
+
+2012-01-16 - Can now limit how many days in advance bookings can be made; can specifiy a list of users who can book a particular room
+2011-07-02 - Moodle 2.x version released
+
+For a full list of changes, please see https://github.com/arborrow/moodle-block_mrbs
+
 * MRBS Block - History *
 
 Key configuration settings for the MRBS block are located in a file called config.inc.php which has been modified to use connection data from the Moodle config.php file.
