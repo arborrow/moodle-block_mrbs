@@ -6,8 +6,7 @@
         Purpose of the stylesheet follows.
 */
 
-#mrbscontainer {color:black; font-size: 10pt; font-family:arial,sans-serif;
-background-color:#ffffed; overflow: auto; padding: 1px;}
+#mrbscontainer {color:black; font-size: 10pt; font-family:arial,sans-serif; overflow: auto; padding: 1px;}
 
 #mrbscontainer A:link {color:#5B69A6; font-weight: bold; text-decoration: none}
 #mrbscontainer A:visited {color:#5B69A6; font-weight: bold; text-decoration: none}
