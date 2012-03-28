@@ -510,7 +510,7 @@ if(($type == 'K') or ($type == 'L')){
 ?></SELECT></TD></TR>
 <tr><td>
 <?php if(has_capability("block/mrbs:forcebook", $context)){
-    echo'<label for="mrbsforcebook"><b>Forceably book (automatically move other bookings):</b></label></td><td><input id="mrbsforcebook" type="checkbox" name="forcebook" value="TRUE"';
+echo'<label for="mrbsforcebook"><b>'.get_string('forciblybook2', 'block_mrbs').':</b></label></td><td><input id="mrbsforcebook" type="checkbox" name="forcebook" value="TRUE"';
     if ($force) echo ' checked="CHECKED"';
     echo' onClick="document.getElementById(\'nooccupied\').checked=!this.checked; updateFreeRooms();">';
 }?>

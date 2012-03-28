@@ -117,7 +117,7 @@ if ( $pview != 1 ) {
        $gotoval = $roomnotfound;
        $gotomsg = ' '.get_string('noroomsfound', 'block_mrbs');
    }
-   echo "<td width=\"20%\"><h3>Find a room</h3>
+   echo "<td width=\"20%\"><h3>".get_string('findroom', 'block_mrbs')."</h3>
         <form action='$gotoroom' method='get'>
             $gotostr:<input type='text' name='room' value='$gotoval'>
             <input type='hidden' name='day' value='$day'>

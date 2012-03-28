@@ -167,7 +167,7 @@ HTML2END;
         if (!$userview) {
             if (has_capability("block/mrbs:forcebook", $context)) {
                 echo'<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-                  <a href="edit_entry.php?force=TRUE">Forcibly book a room</a>
+                  <a href="edit_entry.php?force=TRUE">'.get_string('forciblybook', 'block_mrbs').'</a>
               </TD>';
             }
 
