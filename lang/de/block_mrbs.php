@@ -331,4 +331,4 @@ $string['weeks'] = 'Wochen';
 $string['you_are'] = 'Sie sind';
 $string['you_have_not_entered'] = 'Sie haben folgendes Feld nicht ausgefüllt :';
 $string['you_have_not_selected'] = 'Sie haben keine Ressource ';
-?>
+
