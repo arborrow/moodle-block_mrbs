@@ -62,8 +62,9 @@ echo get_string('please_contact','block_mrbs') . '<a href="mailto:' . $mrbs_admi
 	. '">' . $mrbs_admin
 	. "</a> " . get_string('for_any_questions','block_mrbs') . "\n";
 
-if (file_exists($CFG->dirroot.'/blocks/mrbs/lang/'.$USER->lang.'/help/site_faq.html')) {
-    include $CFG->dirroot.'/blocks/mrbs/lang/'.$USER->lang.'/help/site_faq.html';
+$lang = current_language();
+if (file_exists($CFG->dirroot.'/blocks/mrbs/lang/'.$lang.'/help/site_faq.html')) {
+    include $CFG->dirroot.'/blocks/mrbs/lang/'.$lang.'/help/site_faq.html';
 } else {
     include $CFG->dirroot.'/blocks/mrbs/lang/en/help/site_faq.html';
 }
