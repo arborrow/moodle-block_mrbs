@@ -58,6 +58,7 @@ class block_mrbs extends block_base {
             if ($cfg_mrbs->newwindow) {
                 $target = ' target="_blank" ';
             }
+            $this->content = new stdClass();
             $this->content->text = '<a href="'.$serverpath.'/index.php" '.$target.'>'.$icon.' &nbsp;'.$go.'</a>';
             $this->content->footer = '';
             return $this->content;
