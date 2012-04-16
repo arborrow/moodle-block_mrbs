@@ -2,7 +2,7 @@
 // Bearbeitung 20081008 Hilgenstock/Misch
 // Bearbeitung 20081202 Ralf Krause
 // Bearbeitung 20091107 Jens-Peter Misch
-// Bearbeitung 20120325 Ralf Krause
+// Bearbeitung 20120328 Ralf Krause
 $string['about_mrbs'] = 'Über MRBS';
 $string['accessdenied'] = 'Zugang verweigert';
 $string['accessmrbs'] = 'Ressourcen verwalten';
@@ -61,7 +61,7 @@ $string['config_default_room2'] = 'Standardmäßig wird diese Ressource beim Auf
 $string['config_default_view'] = 'Standard Anzeige';
 $string['config_default_view2'] = 'Standardmäßig wird diese Anzeige (Monat, Woche oder Tag) beim Aufruf des Buchungssystems gezeigt.';
 $string['config_enable_periods'] = 'Eigene Zeittafel';
-$string['config_enable_periods2'] = 'Die Option \'Eigene Zeittafel\' ermöglicht die Angabe von eigenen Zeitblöcken für die Buchung. Wenn \'Nein\' gewählt ist, wird ein gleichmäßiges Zeitraster über den Tag erzeugt.';
+$string['config_enable_periods2'] = 'Die Option \'Eigene Zeittafel\' ermöglicht die Angabe von eigenen Zeitblöcken für die Buchung. Wenn \'Nein\' gewählt ist, wird ein gleichmäßiges Zeitraster über den Tag erzeugt, für das die Dauer der Zeitblöcke ausgewählt werden kann.';
 $string['config_entry_type'] = 'Kategorie {$a}';
 $string['config_entry_type2'] = 'Die Kategorie bezieht sich auf den Dialog \'Eintrag hinzufügen\'. Jede Kategorie wird unterschiedlich eingefärbt.';
 $string['config_eveningends_min'] = 'Ende Minute';
@@ -103,7 +103,7 @@ $string['config_morningstarts_min2']  = 'Startzeit (Minute) für gleichmäßiges
 $string['config_morningstarts'] = 'Start Stunde';
 $string['config_morningstarts2']  = 'Startzeit (Stunde) für gleichmäßiges Zeitraster. Die Option \'Eigene Zeittafel\' ist deaktiviert.';
 $string['config_new_window'] = 'Fenster';
-$string['config_new_window2'] = 'Wenn \'Neues Fenster\' ausgewählt ist, dann wird das MRBS in einem neuem Fenster geöffnet. Wenn \'Gleiches Fenster\' gewählt ist, dann wird das MRBS im gleichen Fenster geöffnet - innerhalb von Moodle mit Navigationsleiste!';
+$string['config_new_window2'] = 'Wenn \'Neues Fenster\' ausgewählt ist, dann wird das Buchungssystem MRBS in einem neuem Fenster geöffnet. Wenn \'Gleiches Fenster\' gewählt ist, dann wird das Buchungssystem MRBS im gleichen Fenster geöffnet - innerhalb von Moodle mit Navigationsleiste.';
 $string['config_periods'] = 'Einträge für Zeittafel';
 $string['config_periods2']  = 'Das Buchungssystem ist flexibel an jedes Stunden- und Pausenraster anpassbar. Verwenden Sie im Textbereich für jeden Zeitblock eine neue Zeile. Es sind beliebige Texteinträge erlaubt, z.B. \'1.Std\' oder \'07.30-09.00\'. Um Zeilenumbrüche in den Einträgen zu verhindern, können Sie Leerzeichen als \'&amp;nbsp;\' kodieren.';
 $string['config_refresh_rate'] = 'Seitenaktualisierung';
@@ -161,16 +161,19 @@ $string['entry'] = 'Eintrag';
 $string['entryid'] = 'Eintrags-ID ';
 $string['error_area'] = 'Fehler: Bereich ';
 $string['error_room'] = 'Fehler: Ressource ';
-$string['error_send_email'] = 'Fehler beim Versenden der E-Mail an: {$a}';
+$string['error_send_email'] = 'Fehler beim E-Mail-Versand an: {$a}';
 $string['external'] = 'Extern';
 $string['failed_connect_db'] = 'Schwerer Fehler: Kann nicht an Datenbank anbinden';
-$string['failed_to_acquire'] = 'Konnte nicht exclusiv auf die Datenbank zugreifen';
+$string['failed_to_acquire'] = 'Fehler: Das Buchungssystem konnte nicht exclusiv auf die Datenbank zugreifen';
+$string['findroom'] = 'Ressource suchen';
 $string['finishedimport']  = 'Prozess wurde nach {$a} Sekunden abgeschlossen';
 $string['for_any_questions'] = 'für Fragen, die hier nicht beantwortet sind.';
+$string['forciblybook'] = 'Buchung erzwingen';
+$string['forciblybook2'] = 'Buchung erzwingen (andere Buchungen verschieben)';
 $string['fulldescription'] = 'Beschreibung:';
-$string['goroom'] = 'Go';
+$string['goroom'] = 'Anzeigen';
 $string['goto'] = 'Start';
-$string['gotoroom'] = 'Go to';
+$string['gotoroom'] = '';
 $string['gotothismonth'] = 'aktueller Monat';
 $string['gotothisweek'] = 'aktuelle Woche';
 $string['gototoday'] = 'heute';
@@ -247,7 +250,7 @@ $string['password_twice'] = 'Falls Sie Ihr Passwort ändern möchten, geben Sie 
 $string['period'] = 'Block';
 $string['periods'] = 'Blöcke';
 $string['please_contact'] = 'Nehmen Sie bitte Kontakt auf mit ';
-$string['pluginname'] = 'MRBS';
+$string['pluginname'] = 'Buchungssystem';
 $string['postbrowserlang'] = '.';
 $string['ppreview'] = 'Druckansicht';
 $string['records'] = 'Ergebnisse ';
@@ -319,7 +322,7 @@ $string['unconfirmedbooking'] = 'Unbestätigt';
 $string['unknown'] = 'Unbekannt';
 $string['update_area_failed'] = 'Bereichsänderung fehlgeschlagen: ';
 $string['update_room_failed'] = 'Ressourceänderung fehlgeschlagen: ';
-$string['useful_n-weekly_value'] = 'useful n-weekly value';
+$string['useful_n-weekly_value'] = 'sinnvollen Wert für n-wöchentlich';
 $string['valid_room'] = 'Ressource.';
 $string['valid_time_of_day'] = 'Gültige Uhrzeit';
 $string['viewday'] = 'Zeige Tag';
@@ -328,7 +331,7 @@ $string['viewweek'] = 'Zeige Woche';
 $string['weekafter'] = 'nächste Woche ';
 $string['weekbefore'] = ' vorherige Woche';
 $string['weeks'] = 'Wochen';
-$string['you_are'] = 'Sie sind';
+$string['you_are'] = 'Sie sind ';
 $string['you_have_not_entered'] = 'Sie haben folgendes Feld nicht ausgefüllt :';
 $string['you_have_not_selected'] = 'Sie haben keine Ressource ';
 
