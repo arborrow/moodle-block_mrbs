@@ -109,7 +109,6 @@ if ( $pview != 1 ) {
 
    //insert the goto room form
    $gotoroom = new moodle_url('/blocks/mrbs/web/gotoroom.php');
-   $gotostr = get_string('gotoroom', 'block_mrbs');
    $gostr = get_string('goroom', 'block_mrbs');
    $gotoval = '';
    $gotomsg = '';
@@ -119,7 +118,7 @@ if ( $pview != 1 ) {
    }
    echo "<td width=\"20%\"><h3>".get_string('findroom', 'block_mrbs')."</h3>
         <form action='$gotoroom' method='get'>
-            $gotostr:<input type='text' name='room' value='$gotoval'>
+            <input type='text' name='room' value='$gotoval'>
             <input type='hidden' name='day' value='$day'>
             <input type='hidden' name='month' value='$month'>
             <input type='hidden' name='year' value='$year'>
