@@ -161,7 +161,7 @@ if ($id>0) {
 	$edit_type   = "series";
 	$name        = getUserName();
 	$create_by   = getUserName();
-	$description = "Class";
+	$description = '';
 	$start_day   = $day;
 	$start_month = $month;
 	$start_year  = $year;
@@ -349,8 +349,7 @@ echo html_writer::link($editseriesurl, get_string('editseries', 'block_mrbs')); 
 
 <TR><TD CLASS=TR><B><?php echo get_string('fulldescription','block_mrbs')?></B></TD>
   <!--  <TD CLASS=TL><TEXTAREA NAME="description" ROWS=8 COLS=40 WRAP="virtual"> //removing undefined wrap attribute-->
-  <TD CLASS=TL><TEXTAREA NAME="description" ROWS=8 COLS=40>
-  <?php echo
+  <TD CLASS=TL><TEXTAREA NAME="description" ROWS=8 COLS=40><?php echo
 htmlspecialchars ( $description ); ?></TEXTAREA></TD></TR>
 
 <TR><TD CLASS=CR><B><?php echo get_string('date')?></B></TD>
