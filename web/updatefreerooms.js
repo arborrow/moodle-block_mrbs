@@ -84,6 +84,9 @@ function updateFreeRooms(){
           if(xmlHttp.responseText!=''){
 
               for (i = 0; i<freeRooms.length;  i++) {
+                  if (freeRooms[i].search(/^\s*$/) != -1) {
+                      continue; // Skip empty lines
+                  }
                   room=freeRooms[i].split(",");
                   roomsInput.options[roomsInput.length]=new Option(room[1],room[0]);
 
