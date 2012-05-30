@@ -17,6 +17,7 @@ Hence, use this block at your own risk.
 
 * Changes *
 
+2012-05-30 - Minor fix to 'available rooms' list, added 'room name' to email subject line, removed default description 'class' when creating new entries
 2012-03-28 - New German translation from Ralf Krause; removed main background colour; fixed translation of help page
 2012-03-08 - Now able to edit a series of bookings (and series bookings retain their original ID)
 2012-02-27 - New capability 'block/mrbs:editunconfirmed' (see below for details)
