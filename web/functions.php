@@ -795,6 +795,7 @@ function notifyAdminOnBooking($new_entry , $new_id, $modified_enddate = null) {
     } else {
         $subject = get_string('mail_subject_entry', 'block_mrbs', $subjdetails);
     }
+    $subject = str_replace('&nbsp;', ' ', $subject);
 
     if ($new_entry)
     {
@@ -1038,6 +1039,7 @@ function notifyAdminOnDelete($mail_previous)
     $subjdetails->user = $mail_previous['createdby'];
     $subjdetails->room = $mail_previous['room_name'];
     $subject = get_string('mail_subject_delete','block_mrbs', $subjdetails);
+    $subject = str_replace('&nbsp;', ' ', $subject);
     $body = get_string('mail_body_del_entry','block_mrbs') . ": \n\n";
     // Displays deleted entry details
     $body .= "\n" . get_string('namebooker','block_mrbs') . ': ';
