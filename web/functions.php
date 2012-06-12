@@ -790,6 +790,7 @@ function notifyAdminOnBooking($new_entry , $new_id, $modified_enddate = null) {
     }
     $subjdetails->user = $create_by;
     $subjdetails->room = $room_name;
+    $subjdetails->entry_type = $typel[$type];
     if ($new_entry) {
         $subject = get_string('mail_subject_newentry', 'block_mrbs', $subjdetails);
     } else {
@@ -1034,10 +1035,13 @@ function notifyAdminOnDelete($mail_previous)
         return FALSE;
     }
     //
+
     $subjdetails = new stdClass;
     $subjdetails->date = unHtmlEntities($mail_previous['start_date']);
     $subjdetails->user = $mail_previous['createdby'];
     $subjdetails->room = $mail_previous['room_name'];
+    $subjdetails->entry_type = $typel[$mail_previous['type']];
+
     $subject = get_string('mail_subject_delete','block_mrbs', $subjdetails);
     $subject = str_replace('&nbsp;', ' ', $subject);
     $body = get_string('mail_body_del_entry','block_mrbs') . ": \n\n";
