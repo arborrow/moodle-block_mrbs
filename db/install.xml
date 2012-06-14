@@ -22,7 +22,7 @@
         <FIELD NAME="entry_type" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="end_time" NEXT="repeat_id"/>
         <FIELD NAME="repeat_id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="entry_type" NEXT="room_id"/>
         <FIELD NAME="room_id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" PREVIOUS="repeat_id" NEXT="timestamp"/>
-        <FIELD NAME="timestamp" TYPE="int" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="room_id" NEXT="create_by"/>
+        <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="room_id" NEXT="create_by"/>
         <FIELD NAME="create_by" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false" PREVIOUS="timestamp" NEXT="name"/>
         <FIELD NAME="name" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false" PREVIOUS="create_by" NEXT="type"/>
         <FIELD NAME="type" TYPE="char" LENGTH="1" NOTNULL="true" DEFAULT="E" SEQUENCE="false" PREVIOUS="name" NEXT="description"/>
@@ -42,7 +42,7 @@
         <FIELD NAME="end_date" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="rep_type" NEXT="rep_opt"/>
         <FIELD NAME="rep_opt" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false" PREVIOUS="end_date" NEXT="room_id"/>
         <FIELD NAME="room_id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" PREVIOUS="rep_opt" NEXT="timestamp"/>
-        <FIELD NAME="timestamp" TYPE="int" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="room_id" NEXT="create_by"/>
+        <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="room_id" NEXT="create_by"/>
         <FIELD NAME="create_by" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false" PREVIOUS="timestamp" NEXT="name"/>
         <FIELD NAME="name" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false" PREVIOUS="create_by" NEXT="type"/>
         <FIELD NAME="type" TYPE="char" LENGTH="1" NOTNULL="true" DEFAULT="E" SEQUENCE="false" PREVIOUS="name" NEXT="description"/>
