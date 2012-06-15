@@ -786,7 +786,7 @@ function notifyAdminOnBooking($new_entry , $new_id, $modified_enddate = null) {
         list($startperiodstr, $startdatestr) = getMailPeriodDateString($starttime);
         $subjdetails->date = $startdatestr;
     } else {
-        $subjdetails->date = getMailDateString($starttime);
+        $subjdetails->date = getMailTimeDateString($starttime);
     }
     $subjdetails->user = $create_by;
     $subjdetails->room = $room_name;
