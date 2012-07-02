@@ -378,15 +378,13 @@ if(empty($err))
                     // Get room name and area name. Would be better to avoid
                     // a database access just for that. Ran only if we need
                     // details
-                    if (MAIL_DETAILS)
-                    {
-                        $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
-                        $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a ";
-                        $sql .= "WHERE r.id=? AND r.area_id = a.id";
-                        $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
-                        $room_name = $dbroom->room_name;
-                        $area_name = $dbroom->area_name;
-                    }
+                    $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
+                    $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a ";
+                    $sql .= "WHERE r.id=? AND r.area_id = a.id";
+                    $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
+                    $room_name = $dbroom->room_name;
+                    $area_name = $dbroom->area_name;
+
                     // If this is a modified entry then call
                     // getPreviousEntryData to prepare entry comparison.
                     if ( $id>0 )
@@ -421,15 +419,13 @@ if(empty($err))
                     // Get room name and are name. Would be better to avoid
                     // a database access just for that. Ran only if we need
                     // details.
-                    if (MAIL_DETAILS)
-                    {
-                        $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
-                        $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a ";
-                        $sql .= "WHERE r.id=? AND r.area_id = a.id";
-                        $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
-                        $room_name = $dbroom->room_name;
-                        $area_name = $dbroom->area_name;
-                    }
+                    $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
+                    $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a ";
+                    $sql .= "WHERE r.id=? AND r.area_id = a.id";
+                    $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
+                    $room_name = $dbroom->room_name;
+                    $area_name = $dbroom->area_name;
+
                     // If this is a modified entry then call
                     // getPreviousEntryData to prepare entry comparison.
                    if ( $id>0 )
