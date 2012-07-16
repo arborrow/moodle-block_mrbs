@@ -119,7 +119,7 @@ if($room>0) {
 	{
         $updroom = new stdClass;
         $updroom->id = $room;
-        $updroom->room_name = $room_name;
+        $updroom->room_name = substr(trim($room_name), 0, 25);
         $updroom->description = $description;
         $updroom->capacity = $capacity;
         $updroom->room_admin_email = $room_admin_email;
@@ -134,7 +134,7 @@ if($room>0) {
     echo '<input type="hidden" name="room" value="'.$dbroom->id.'">';
     echo '<input type="hidden" name="sesskey" value="'.sesskey().'">';
     echo '<CENTER><TABLE>';
-    echo '<TR><TD>'.get_string('name').': </TD><TD><input type="text" name="room_name" value="'.s($dbroom->room_name).'"></TD></TR>';
+    echo '<TR><TD>'.get_string('name').': </TD><TD><input type="text" name="room_name" value="'.s($dbroom->room_name).'" maxlength="25"></TD></TR>';
     echo '<TR><TD>'.get_string('description').'</TD><TD><input type="text" name="description" value="'.s($dbroom->description).'"></TD></TR>';
     echo '<TR><TD>'.get_string('capacity','block_mrbs').':   </TD><TD><input type="text" name="capacity" value="'.$dbroom->capacity.'"></TD></TR>';
     echo '<TR><TD>'.get_string('room_admin_email','block_mrbs').': </TD><TD><input type="text" name="room_admin_email" MAXLENGTH=75 value="'.s($dbroom->room_admin_email).'"></TD>';
