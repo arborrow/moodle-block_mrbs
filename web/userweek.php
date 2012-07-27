@@ -169,7 +169,7 @@ if ( $pview != 1 ) {
 // This data will be retrieved day-by-day
 for ($j = 0; $j<=($num_of_days-1) ; $j++) {
 
-    $sql = "SELECT DISTINCT e.start_time, e.end_time, e.type, concat(e.name,' Rm:',r.room_name) name, e.id, e.description
+    $sql = "SELECT DISTINCT e.start_time, e.end_time, e.type, e.name AS entryname, r.room_name AS roomname, e.id, e.description
             FROM {block_mrbs_entry} e
                 join {block_mrbs_room} r on e.room_id=r.id
                 left join {course} c on e.name=c.shortname
@@ -194,6 +194,7 @@ for ($j = 0; $j<=($num_of_days-1) ; $j++) {
         if ($debug_flag) {
             echo "<br>DEBUG: result $i, id $entry->id, starts $entry->start_time, ends $entry->end_time\n";
         }
+        $entry->name = $entry->entryname.' Rm:'.$entry->roomname;
 
         // $d is a map of the screen that will be displayed
         // It looks like:

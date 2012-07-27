@@ -86,8 +86,8 @@ function mrbsForceMove($room_id, $starttime, $endtime,$name,$id=null){
                                 r.id,
                                 r.room_name,
                                 a.area_name,
-                                CONCAT(IF(r.description = ?,1,0),
-                                IF(a.id= ?,1,0)) AS sort
+                                IF (r.description = ?, 1, 0) AS sort1,
+                                IF (a.id = ?, 1, 0) AS sort2
                              FROM {block_mrbs_room} r
                              JOIN {block_mrbs_area} a
                                 ON r.area_id = a.id
@@ -102,7 +102,7 @@ function mrbsForceMove($room_id, $starttime, $endtime,$name,$id=null){
                              AND r.capacity >= ?
                              AND (r.description not like ?
                              OR r.id= ?)
-                             ORDER BY sort DESC';
+                             ORDER BY sort1 DESC, sort2 DESC';
 
         //dump them in first room on the list
         //            $findroomresult=get_record_sql($findroomquery,true);
