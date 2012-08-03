@@ -96,7 +96,7 @@ if ($series) {
 	        re.rep_num_weeks,
 	        u.id as userid,
             u.firstname,
-            u.lastname,
+            u.lastname
 			FROM  {block_mrbs_repeat} re left join {user} u on u.username = re.create_by, {block_mrbs_room} r, {block_mrbs_area} a
 			WHERE re.room_id = r.id
 			AND r.area_id = a.id
@@ -116,7 +116,7 @@ if ($series) {
 	        e.repeat_id,
 	        u.id as userid,
             u.firstname,
-            u.lastname,
+            u.lastname
 			FROM  {block_mrbs_entry} e left join {user} u on u.username = e.create_by, {block_mrbs_room} r, {block_mrbs_area} a
 			WHERE e.room_id = r.id
 			AND r.area_id = a.id
