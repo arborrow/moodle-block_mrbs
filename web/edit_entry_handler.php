@@ -45,6 +45,7 @@ $forcebook = optional_param('forcebook',FALSE,PARAM_BOOL);
 $edit_type = optional_param('edit_type','',PARAM_TEXT);
 $type = optional_param('type', '', PARAM_TEXT);
 $all_day = optional_param('all_day', false, PARAM_BOOL);
+$ampm = optional_param('ampm', null, PARAM_TEXT);
 // Deal with the 'array' params differently, depending on installed Moodle version
 if ($CFG->version < 2011120100) {
     $rep_day = optional_param('rep_day', NULL, PARAM_RAW);
@@ -227,11 +228,11 @@ else
 {
     if (!$twentyfourhour_format)
     {
-      if (isset($ampm) && ($ampm == "pm") && ($hour<12))
+      if (!is_null($ampm) && ($ampm == "pm") && ($hour<12))
       {
         $hour += 12;
       }
-      if (isset($ampm) && ($ampm == "am") && ($hour>11))
+      if (!is_null($ampm) && ($ampm == "am") && ($hour>11))
       {
         $hour -= 12;
       }
