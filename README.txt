@@ -17,6 +17,7 @@ Hence, use this block at your own risk.
 
 * Changes *
 
+2012-08-23 - Durations in hours can now be entered as either a decimal value (e.g. 1.25) or in hours and minutes (e.g. 1:15)
 2012-07-27 - Fix - cross DB compatibility issue when viewing entries
 2012-07-16 - Minor fix - limit room names to 25 characters (to avoid DB error)
 2012-05-30 - Minor fix to 'available rooms' list, added 'room name' to email subject line, removed default description 'class' when creating new entries

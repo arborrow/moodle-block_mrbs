@@ -28,7 +28,7 @@ $area = optional_param('area', 0,  PARAM_INT);
 $period = optional_param('period', 0, PARAM_INT);
 $hour = optional_param('hour', 0, PARAM_INT);
 $minute = optional_param('minute', 0, PARAM_INT);
-$duration = optional_param('duration', 0, PARAM_INT);
+$durationraw = optional_param('duration', 0, PARAM_RAW);
 $dur_units = optional_param('dur_units', 'periods', PARAM_TEXT);
 $create_by = optional_param('create_by', '', PARAM_TEXT);
 $name = optional_param('name', '', PARAM_TEXT);
@@ -162,7 +162,12 @@ foreach ($roomdetails as $room) {
 }
 
 // Support locales where ',' is used as the decimal point
-$duration = preg_replace('/,/', '.', $duration);
+$durationparts = explode(':', $durationraw, 2);
+if ($dur_units == 'hours' && count($durationparts) == 2) {
+    $duration = (float)intval($durationparts[0]) + ((float)intval($durationparts[1]) / 60.0);
+} else {
+    $duration = unformat_float($durationraw);
+}
 
 if( $enable_periods ) {
 	$resolution = 60;
