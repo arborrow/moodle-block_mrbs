@@ -56,6 +56,38 @@ function renameifexists($dbman, $tablename) {
     $DB->execute('ALTER TABLE '.$oldname.' RENAME TO '.$newname);
 }
 
+function block_mrbs_convert_timestamp($tablename, $fieldname) {
+    global $DB;
+
+    // Check to see if the field is currently of type 'timestamp'.
+    $fielddef = $DB->get_record_sql("SHOW COLUMNS FROM {".$tablename."} LIKE '".$fieldname."'");
+    if (!$fielddef) {
+        die("$fieldname does not exist in table $tablename");
+    }
+    if ($fielddef->type != 'timestamp') {
+        echo "$tablename.$fieldname does not need converting<br/>\n";
+        return;
+    }
+
+    // Create a temporary field called '[fieldname]_conv'.
+    $dbman = $DB->get_manager();
+    $tempfield = "{$fieldname}_conv";
+    $table = new xmldb_table($tablename);
+    $field = new xmldb_field($tempfield, XMLDB_TYPE_INTEGER, 11, null, null, null, null, $fieldname);
+    if (!$dbman->field_exists($table, $field)) {
+        $dbman->add_field($table, $field);
+    }
+    // Copy & convert the current date from [fieldname] => [fieldname]_conv
+    $DB->execute('UPDATE {'.$tablename.'} SET '.$tempfield.' = UNIX_TIMESTAMP('.$fieldname.')');
+
+    // Rename [fieldname] => [fieldname]_backup + rename [fieldname]_conv => [fieldname]
+    $backupfield = "{$fieldname}_backup";
+    $DB->execute('ALTER TABLE {'.$tablename.'} CHANGE '.$fieldname.' '.$backupfield.' TIMESTAMP');
+    $dbman->rename_field($table, $field, $fieldname);
+
+    echo "$tablename.$fieldname converted from timestamp to integer (backup data in $tablename.$backupfield)<br/>\n";
+}
+
 function xmldb_block_mrbs_upgrade($oldversion=0) {
     global $DB, $CFG;
 
@@ -115,6 +147,25 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
 
         // mrbs savepoint reached
         upgrade_block_savepoint(true, 2012022700, 'mrbs');
+    }
+
+    // Fix any 'timestamp' fields left from a Moodle 1.9 upgrade.
+    if ($oldversion < 2012091200) {
+        if ($DB->get_dbfamily() == 'mysql') {
+            echo "Converting timestamp fields (from early Moodle 1.9 versions of MRBS)<br/>\n";
+
+            block_mrbs_convert_timestamp('block_mrbs_entry', 'start_time');
+            block_mrbs_convert_timestamp('block_mrbs_entry', 'end_time');
+            block_mrbs_convert_timestamp('block_mrbs_entry', 'timestamp');
+
+            block_mrbs_convert_timestamp('block_mrbs_repeat', 'start_time');
+            block_mrbs_convert_timestamp('block_mrbs_repeat', 'end_time');
+            block_mrbs_convert_timestamp('block_mrbs_repeat', 'end_date');
+            block_mrbs_convert_timestamp('block_mrbs_repeat', 'timestamp');
+
+            // mrbs savepoint reached
+            upgrade_block_savepoint(true, 2012091200, 'mrbs');
+        }
     }
 
     return true;
