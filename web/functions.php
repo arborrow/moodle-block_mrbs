@@ -1398,7 +1398,7 @@ function to_hr_time($time){
     }
 }
 
-function check_max_advance_days_internal($checkdate) {
+function check_max_advance_days_internal(DateTime $checkdate) {
     global $max_advance_days;
 
     if ($max_advance_days < 0) {
@@ -1409,8 +1409,9 @@ function check_max_advance_days_internal($checkdate) {
     if ($checkdate < $now) {
         return true;
     }
-    $interval = $now->diff($checkdate);
-    if ($interval->days > $max_advance_days) {
+    $interval = intval($checkdate->format('U')) - intval($now->format('U'));
+    $interval = intval($interval / (24*60*60));
+    if ($interval > $max_advance_days) {
         return false;
     }
 
