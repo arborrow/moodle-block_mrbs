@@ -699,7 +699,7 @@ function notifyAdminOnBooking($new_entry , $new_id, $modified_enddate = null) {
     if (MAIL_AREA_ADMIN_ON_BOOKINGS) {
         // Look for list of area admins emails addresses
         if ($new_entry) {
-            $sql = "SELECT DISTINCT a.area_admin_email ";
+            $sql = "SELECT a.area_admin_email ";
             $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a, {block_mrbs_entry} e ";
             // If this is a repeating entry...
             if ($id_table == 'rep') {
@@ -707,7 +707,7 @@ function notifyAdminOnBooking($new_entry , $new_id, $modified_enddate = null) {
                 $sql .= ", {block_mrbs_repeat} rep ";
             }
             $sql .= "WHERE ${id_table}.id=? AND r.id=${id_table}.room_id AND a.id=r.area_id";
-            $emails = $DB->get_records_sql($sql, array($new_id));
+            $emails = $DB->get_records_sql($sql, array($new_id), 0, 1);
             if (!empty($emails)) {
                 $email = reset($emails);
                 if ($email->area_admin_email != NULL) {
@@ -727,7 +727,7 @@ function notifyAdminOnBooking($new_entry , $new_id, $modified_enddate = null) {
         // Look for list of room admins emails addresses
         if ($new_entry)
         {
-            $sql = "SELECT DISTINCT r.room_admin_email ";
+            $sql = "SELECT r.room_admin_email ";
             $sql .= "FROM {block_mrbs_room} r, {block_mrbs_entry} e ";
             // If this is a repeating entry...
             if ($id_table == 'rep') {
@@ -735,7 +735,7 @@ function notifyAdminOnBooking($new_entry , $new_id, $modified_enddate = null) {
                 $sql .= ", {block_mrbs_repeat} rep ";
             }
             $sql .= "WHERE ${id_table}.id= ? AND r.id=${id_table}.room_id";
-            $emails = $DB->get_records_sql($sql, array($new_id));
+            $emails = $DB->get_records_sql($sql, array($new_id), 0, 1);
 
             if (!empty($emails)) {
                 $email = reset($emails);
