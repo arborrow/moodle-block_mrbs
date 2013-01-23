@@ -211,7 +211,7 @@ if ($debug_flag) {
 }
 
 // Used below: localized "all day" text but with non-breaking spaces:
-$all_day = ereg_replace(" ", "&nbsp;", get_string('all_day','block_mrbs'));
+$all_day = str_replace(" ", "&nbsp;", get_string('all_day','block_mrbs'));
 
 //Get all meetings for this month in the room that we care about
 // This data will be retrieved day-by-day fo the whole month

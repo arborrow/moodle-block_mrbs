@@ -408,9 +408,9 @@ if (!empty($area)) {
                     }
                     $descrs = array();
                 } else if ($double_booked) {
-                    $descrs=split("\n",$descr);
-                    $long_descrs=split(",",$long_descr);
-                    $ids=split(",",$id);
+                    $descrs=explode("\n",$descr);
+                    $long_descrs=explode(",",$long_descr);
+                    $ids=explode(",",$id);
                 } else {
                     $descrs[]=$descr;
                     $long_descrs[]=$long_descr;
