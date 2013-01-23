@@ -17,6 +17,7 @@ Hence, use this block at your own risk.
 
 * Changes *
 
+2013-01-23 - Re-enabled the booking clashes detection. Fixed a couple of deprecated function warnings.
 2012-12-07 - Minor Moodle 2.4 compatibility fix
 2012-08-23 - Durations in hours can now be entered as either a decimal value (e.g. 1.25) or in hours and minutes (e.g. 1:15), fix am/pm handling on edit form
 2012-07-27 - Fix - cross DB compatibility issue when viewing entries
