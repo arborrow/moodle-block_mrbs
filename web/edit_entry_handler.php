@@ -347,13 +347,12 @@ foreach ( $rooms as $room_id ) {
                     email_to_user($DB->get_record('user', array('email'=> $mrbs_admin_email)), $USER, get_string('doublebookefailsubject', 'block_mrbs'), get_string('doublebookefailbody', 'block_mrbs', $oldbookinguser->username).get_string('doublebookebody', 'block_mrbs', $langvars));
                 }
             }
+        } else {
+            // If the user hasn't confirmed they want to double book, check the room is free.
+            $err .= mrbsCheckFree($room_id, $starttime, $endtime-1, $ignore_id, 0);
         }
     }
 
-    //    }else{
-    //        // If the user hasn't confirmed they want to double book, check the room is free.
-    //    $err .= mrbsCheckFree($room_id, $starttime, $endtime-1, $ignore_id, 0);
-    //    }
 } // end foreach rooms
 
 if(empty($err))
