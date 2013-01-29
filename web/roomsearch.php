@@ -37,6 +37,13 @@ $rep_num_weeks = optional_param('rep_num_weeks', 0, PARAM_INT);
 $force = optional_param('force', FALSE, PARAM_BOOL);
 $duration = optional_param('duration', 1, PARAM_INT);
 $all_day = optional_param('all_day', FALSE, PARAM_BOOL);
+if ($enable_periods) {
+    $default_dur_units = 'periods';
+} else {
+    $default_dur_units = 'hours';
+}
+
+        $dur_units = optional_param('dur_units', $default_dur_units, PARAM_TEXT);
 
 //If we dont know the right date then make it up
 if(($day==0) or ($month==0) or ($year==0))
@@ -49,7 +56,8 @@ if(($day==0) or ($month==0) or ($year==0))
 ?>
 
 <html><head>
-<script type="text/JavaScript">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/JavaScript">
     function openURL(sURL) {
         opener.document.location = sURL;window.close();
     }
