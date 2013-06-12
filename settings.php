@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of the MRBS block for Moodle
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -14,6 +13,17 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+
+// The following couple of lines stop a warning message when setting up PHPUnit.
+if (!isset($CFG->supportname)) {
+    $CFG->supportname = '';
+}
+if (!isset($CFG->supportemail)) {
+    $CFG->supportemail = '';
+}
 
 $cfg_mrbs = get_config('block/mrbs');
 
