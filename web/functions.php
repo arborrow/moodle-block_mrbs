@@ -1401,11 +1401,18 @@ function to_hr_time($time){
 function check_max_advance_days_internal(DateTime $checkdate) {
     global $max_advance_days;
 
+
     if ($max_advance_days < 0) {
         return true;
     }
 
-    $now = new DateTime();
+    $syscontext = context_system::instance();
+    if (has_capability('block/mrbs:ignoremaxadvancedays', $syscontext)) {
+        return true;
+    }
+
+
+        $now = new DateTime();
     if ($checkdate < $now) {
         return true;
     }
