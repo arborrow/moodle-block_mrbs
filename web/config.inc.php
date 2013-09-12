@@ -235,55 +235,6 @@ define ("MAIL_DETAILS", $cfg_mrbs->mail_details);
 # how to set mrbs to send emails to users/bookers, see INSTALL.
 define ("MAIL_BOOKER", $cfg_mrbs->mail_booker);
 
-# If MAIL_BOOKER is set to TRUE (see above) and you use an authentication
-# scheme other than 'auth_db', you need to provide the mail domain that will
-# be appended to the username to produce a valid email address (ie.
-# "@domain.com").
-define ("MAIL_DOMAIN", ''); //I am not including this option as we should be using Moodle email options - see CONTRIB-630
-
-# If you use MAIL_DOMAIN above and username returned by mrbs contains extra
-# strings appended like domain name ('username.domain'), you need to provide
-# this extra string here so that it will be removed from the username.
-define ("MAIL_USERNAME_SUFFIX", ''); //I am not including this option as we should be using Moodle email options - see CONTRIB-630
-
-# Set the name of the Backend used to transport your mails. Either "mail",
-# "smtp" or "sendmail". Default is 'mail'. See INSTALL for more details.
-define ("MAIL_ADMIN_BACKEND", "mail"); //I am not including this option as we should be using Moodle email options - see CONTRIB-630
-
-#*******************
-# Sendmail settings //I'm not going to include these as we will use Moodle mail defaults - see CONTRIB-630
-
-# Set the path of the Sendmail program (only used with "sendmail" backend).
-# Default is "/usr/bin/sendmail"
-define ("SENDMAIL_PATH", "/usr/bin/sendmail");
-
-# Set additional Sendmail parameters (only used with "sendmail" backend).
-# (example "-t -i"). Default is ""
-define ("SENDMAIL_ARGS", '');
-
-#*******************
-# SMTP settings
-
-# Set smtp server to connect. Default is 'localhost' (only used with "smtp"
-# backend).
-define ("SMTP_HOST", $CFG->smtphosts);
-
-# Set smtp port to connect. Default is '25' (only used with "smtp" backend).
-define ("SMTP_PORT", 25); //I'm not going to provide this option since Moodle does not provide it - see also MDL-15922 and MDL-15923
-
-# Set the username to use for SMTP authentication. Default is ""
-define ("SMTP_USERNAME", $CFG->smtpuser);
-
-# Set the password to use for SMTP authentication. Default is ""
-define ("SMTP_PASSWORD", $CFG->smtppass);
-
-# Set whether or not to use SMTP authentication. Default is 'FALSE'
-if (empty($CFG->smtpuser)) { //if not smtp user is provided then we assume no authentication
-    define ("SMTP_AUTH", FALSE); //Moodle assumes SMTP authentication
-} else { // authentication is required because there there is an smtp user provided
-define ("SMTP_AUTH", TRUE);
-}
-
 #****************************
 # Miscellaneous settings
 
