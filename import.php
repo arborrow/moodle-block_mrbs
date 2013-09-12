@@ -27,6 +27,8 @@
 //TODO:maybe set it up like tutorlink etc so that it can take uploaded files directly?
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 
+global $DB;
+
 //record time for time taken stat
 $script_start_time = time();
 
@@ -60,7 +62,7 @@ if (file_exists($cfg_mrbs->cronfile)) {
         $now = time();
         $DB->set_field_select('block_mrbs_entry', 'type', 'M', 'type=\'K\' and start_time > ?', array($now)); // Change old imported (type K) records to temporary type M
         while ($array = fgetcsv($mrbs_sessions)) { //import timetable into mrbs
-            $csvrow = new object;
+            $csvrow = new stdClass();
             $csvrow->start_time = clean_param($array[0], PARAM_TEXT);
             $csvrow->end_time = clean_param($array[1], PARAM_TEXT);
             $csvrow->first_date = clean_param($array[2], PARAM_TEXT);
@@ -70,7 +72,7 @@ if (file_exists($cfg_mrbs->cronfile)) {
             $csvrow->name = clean_param($array[6], PARAM_TEXT);
             $csvrow->description = clean_param($array[7], PARAM_TEXT);
 
-            list($year, $month, $day) = split('[/]', $csvrow->first_date);
+            list($year, $month, $day) = explode('/', $csvrow->first_date);
             $date = mktime(00, 00, 00, $month, $day, $year);
             $room = room_id_lookup($csvrow->room_name);
             $weeks = str_split($csvrow->weekpattern);
@@ -78,9 +80,8 @@ if (file_exists($cfg_mrbs->cronfile)) {
                 if (($week == 1) and ($date>$now)) {
                     $start_time = time_to_datetime($date, $csvrow->start_time);
                     $end_time = time_to_datetime($date, $csvrow->end_time);
-                    //echo userdate($date, '%d/%m/%Y %H:%M =>');
-                    //echo userdate($start_time, '%d/%m/%Y %H:%M')."\n";
                     if (!is_timetabled($csvrow->name, $start_time)) { ////only timetable class if it isn't already timetabled elsewhere (class been moved)
+                        $entry = new stdClass();
                         $entry->start_time = $start_time;
                         $entry->end_time = $end_time;
                         $entry->room_id = $room;
@@ -101,14 +102,13 @@ if (file_exists($cfg_mrbs->cronfile)) {
                                 AND e.room_id = ? AND type <>'K'";
 
                         //limit to 1 to keep this simpler- if there is a 3-way clash it will be noticed by one of the 2 teachers notified
-                        //if ($existingclass=get_record_sql($sql,true)) {
                         if ($existingclass = $DB->get_record_sql($sql, array(
                                                                             $start_time, $start_time, $end_time,
                                                                             $end_time, $start_time, $end_time, $room
                                                                        ))
                         ) {
                             $hr_start_time = date("j F, Y", $start_time).", ".to_hr_time($start_time);
-                            $a = new object;
+                            $a = new stdClass();
                             $a->oldbooking = $existingclass->description.'('.$existingclass->id.')';
                             $a->newbooking = $csvrow->description.'('.$newentryid.')';
                             $a->time = $hr_start_time;
@@ -148,7 +148,6 @@ if (file_exists($cfg_mrbs->cronfile)) {
         }
 
         // any remaining type M records are no longer in the import file, so delete
-        //        delete_records_select('block_mrbs_entry', 'type=\'M\'');
         $DB->delete_records_select('block_mrbs_entry', 'type=\'M\'');
 
         //move the processed file to prevent wasted time re-processing TODO: option for how long to keep these- I've found them useful for debugging but obviously can't keep them for ever
@@ -174,7 +173,7 @@ function room_id_lookup($name) {
     global $DB;
     if (!$room = $DB->get_record('block_mrbs_room', array('room_name' => $name))) {
         $error = "ERROR: failed to return id from database (room $name probably doesn't exist)";
-        $output .= $error."\n";
+        echo $error."\n";
         return 'error';
     } else {
         return $room->id;
@@ -222,6 +221,8 @@ function is_timetabled($name, $time) {
 function time_to_datetime($date, $time) {
     global $cfg_mrbs;
     list($hours, $mins) = explode(':', $time);
+    $hours = intval($hours);
+    $mins = intval($mins);
     if ($cfg_mrbs->enable_periods && $hours == 0 && $mins<count($cfg_mrbs->periods)) {
         $hours = 12; // Periods are imported as  P1 - 00:00, P2 - 00:01, P3 - 00:02, etc.
         // but stored internally as P1 - 12:00, P2 - 12:01, P3 - 12:02, etc.
