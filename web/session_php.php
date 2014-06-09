@@ -26,7 +26,7 @@ if (isset($cookie_path_override))
 else
 {
     $cookie_path = $PHP_SELF;
-    $cookie_path = ereg_replace('[^/]*$', '', $cookie_path);
+    $cookie_path = preg_replace('|[^/]*$|', '', $cookie_path);
 }
 session_set_cookie_params(0, $cookie_path);
 //session_start();

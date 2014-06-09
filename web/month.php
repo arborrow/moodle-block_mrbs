@@ -268,11 +268,9 @@ for ($day_num = 1; $day_num<=$days_in_month; $day_num++) {
                 $d[$day_num]["data"][] = "<====" . $all_day . "====>";
                 break;
             }
-	    } else {
-            //$start_str = ereg_replace(" ", "&nbsp;", period_time_string($entry->start_time));
-            //$end_str   = ereg_replace(" ", "&nbsp;", period_time_string($entry->end_time, -1));
-            $start_str = ereg_replace("&nbsp;", " ", period_time_string($entry->start_time));
-            $end_str   = ereg_replace("&nbsp;", " ", period_time_string($entry->end_time, -1));
+        } else {
+            $start_str = str_replace("&nbsp;", " ", period_time_string($entry->start_time));
+            $end_str   = str_replace("&nbsp;", " ", period_time_string($entry->end_time, -1));
             switch (cmp3($entry->start_time, $midnight[$day_num]) . cmp3($entry->end_time, $midnight_tonight[$day_num] + 1)) {
             case "> < ":         // Starts after midnight, ends before midnight
             case "= < ":         // Starts at midnight, ends before midnight
