@@ -371,8 +371,24 @@ if(empty($err))
                 $enddate = $rep_details->lasttime;
             }
 
+            $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
+            $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a ";
+            $sql .= "WHERE r.id=? AND r.area_id = a.id";
+            $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
+            $room_name = $dbroom->room_name;
+            $area_name = $dbroom->area_name;
+
             //Add to moodle logs
-            add_to_log(SITEID, 'mrbs', 'add booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);
+            if ($CFG->version > 2014051200) { // Moodle 2.7+
+                $params = array(
+                    'objectid' => $new_id,
+                    'other' => array('name' => $name, 'room' => $room_name),
+                );
+                $event = \block_mrbs\event\booking_created::create($params);
+                $event->trigger();
+            } else { // Before Moodle 2.7
+                add_to_log(SITEID, 'mrbs', 'add booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);
+            }
             // Send a mail to the Administrator
             if (MAIL_ADMIN_ON_BOOKINGS or MAIL_AREA_ADMIN_ON_BOOKINGS or MAIL_ROOM_ADMIN_ON_BOOKINGS or MAIL_BOOKER) {
                 // Send a mail only if this a new entry, or if this is an
@@ -380,16 +396,6 @@ if(empty($err))
                 // and if mrbsCreateRepeatingEntrys is successful
                 if ( ( (($id>0) && MAIL_ADMIN_ALL) or ($id==0) ) && (0 != $new_id) )
                 {
-                    // Get room name and area name. Would be better to avoid
-                    // a database access just for that. Ran only if we need
-                    // details
-                    $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
-                    $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a ";
-                    $sql .= "WHERE r.id=? AND r.area_id = a.id";
-                    $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
-                    $room_name = $dbroom->room_name;
-                    $area_name = $dbroom->area_name;
-
                     // If this is a modified entry then call
                     // getPreviousEntryData to prepare entry comparison.
                     if ( $id>0 )
@@ -412,8 +418,24 @@ if(empty($err))
             $new_id = mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $room_id,
                                             $create_by, $name, $type, $description, $id, $roomchange);
 
+            $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
+            $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a ";
+            $sql .= "WHERE r.id=? AND r.area_id = a.id";
+            $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
+            $room_name = $dbroom->room_name;
+            $area_name = $dbroom->area_name;
+
             //Add to moodle logs
-            add_to_log(SITEID, 'mrbs', 'edit booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);
+            if ($CFG->version > 2014051200) { // Moodle 2.7+
+                $params = array(
+                    'objectid' => $new_id,
+                    'other' => array('name' => $name, 'room' => $room_name),
+                );
+                $event = \block_mrbs\event\booking_updated::create($params);
+                $event->trigger();
+            } else { // Before Moodle 2.7
+                add_to_log(SITEID, 'mrbs', 'edit booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);
+            }
             // Send a mail to the Administrator
             if (MAIL_ADMIN_ON_BOOKINGS or MAIL_AREA_ADMIN_ON_BOOKINGS or MAIL_ROOM_ADMIN_ON_BOOKINGS or MAIL_BOOKER) {
                 // Send a mail only if this a new entry, or if this is an
@@ -421,16 +443,6 @@ if(empty($err))
                 // and if mrbsCreateRepeatingEntrys is successful
                 if ( ( (($id>0) && MAIL_ADMIN_ALL) or ($id==0) ) && (0 != $new_id) )
                 {
-                    // Get room name and are name. Would be better to avoid
-                    // a database access just for that. Ran only if we need
-                    // details.
-                    $sql = "SELECT r.id, r.room_name, r.area_id, a.area_name ";
-                    $sql .= "FROM {block_mrbs_room} r, {block_mrbs_area} a ";
-                    $sql .= "WHERE r.id=? AND r.area_id = a.id";
-                    $dbroom = $DB->get_record_sql($sql, array($room_id), MUST_EXIST);
-                    $room_name = $dbroom->room_name;
-                    $area_name = $dbroom->area_name;
-
                     // If this is a modified entry then call
                     // getPreviousEntryData to prepare entry comparison.
                    if ( $id>0 )
