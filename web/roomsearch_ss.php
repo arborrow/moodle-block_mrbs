@@ -33,6 +33,9 @@ $mincap = optional_param('mincap', 0,  PARAM_INT);
 $teaching = optional_param('teaching', false,  PARAM_BOOL);
 $special = optional_param('special', false,  PARAM_BOOL);
 $computer = optional_param('computer', false,  PARAM_BOOL);
+$hour = optional_param('hour', null, PARAM_INT);
+$minute = optional_param('minute', null, PARAM_INT);
+$ampm = optional_param('ampm', null, PARAM_ALPHA);
 
 
 

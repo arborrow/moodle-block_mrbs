@@ -15,6 +15,12 @@
 
 function RoomSearch(){
 //check for force book- if ticked we should be able to select any room
+    "use strict";
+    var hasPeriod, dayInput, day, monthInput, month, yearInput, year, periodInput, period, durationInput, duration, dur_unitsInput,
+        dur_units, mincapInput, mincap, teachingInput, teaching, specialInput, special, computerInput, computer, searchstring,
+        hourInput, hour, minuteInput, minute, ampmInput, ampm, i, freeRooms, room, j;
+
+    hasPeriod = !!document.getElementsByName('period').length;
 
     dayInput=document.getElementsByName('day');
     day=dayInput[0].selectedIndex + 1;
@@ -25,8 +31,23 @@ function RoomSearch(){
     yearInput=document.getElementsByName('year');
     year=yearInput[0].options[yearInput[0].selectedIndex].value;
 
-    periodInput=document.getElementsByName('period');
-    period=periodInput[0].selectedIndex;
+    if (hasPeriod) {
+        periodInput=document.getElementsByName('period');
+        period=periodInput[0].selectedIndex;
+    } else {
+        hourInput = document.getElementsByName('hour');
+        hour = parseInt(hourInput[0].value, 10);
+        minuteInput = document.getElementsByName('minute');
+        minute = parseInt(minuteInput[0].value, 10);
+
+        ampmInput = document.getElementsByName('ampm');
+        ampm = 'am';
+        for (i=0; i<ampmInput.length; i++) {
+            if (ampmInput[i].checked) {
+                ampm = ampmInput[i].value;
+            }
+        }
+    }
 
     durationInput=document.getElementsByName('duration');
     duration=durationInput[0].value;
@@ -46,9 +67,12 @@ function RoomSearch(){
     computerInput=document.getElementsByName('computer');
     if(computerInput[0].checked){computer=1;}else{computer=0;}
 
-
-
-    searchstring="?day="+day+"&month="+month+"&year="+year+"&period="+period+"&duration="+duration+"&dur_units="+dur_units+"&mincap="+mincap+"&teaching="+teaching+"&special="+special+"&computer="+computer;
+    searchstring="?day="+day+"&month="+month+"&year="+year+"&duration="+duration+"&dur_units="+dur_units+"&mincap="+mincap+"&teaching="+teaching+"&special="+special+"&computer="+computer;
+    if (hasPeriod) {
+        searchstring += "&period="+period;
+    } else {
+        searchstring += "&hour="+hour+"&min="+minute+"&ampm="+ampm;
+    }
 
     //have to trial and error to get right browser code
     var xmlHttp;
@@ -67,7 +91,6 @@ function RoomSearch(){
             }
             catch (e){
                 alert("Your browser does not support AJAX!");
-                return false;
             }
         }
     }
@@ -100,7 +123,7 @@ function RoomSearch(){
           }
 
         }
-    }
+    };
     xmlHttp.open("GET","roomsearch_ss.php"+searchstring,true);
     xmlHttp.send(null);
 }
@@ -108,6 +131,7 @@ function RoomSearch(){
 var mrbs_weekdaynames = null;
 
 function SetWeekDayNames(mon, tue, wed, thu, fri, sat, sun) {
+    "use strict";
     mrbs_weekdaynames=new Array(7);
     mrbs_weekdaynames[1]=mon;
     mrbs_weekdaynames[2]=tue;
@@ -119,7 +143,8 @@ function SetWeekDayNames(mon, tue, wed, thu, fri, sat, sun) {
 }
 
 function ChangeOptionDays(formObj, prefix, updatefreerooms, roomsearch){
-
+    "use strict";
+    var j;
     var DaysObject = eval("formObj." + prefix + "day");
     var currentDay = DaysObject.selectedIndex;
     var MonthObject = eval("formObj." + prefix + "month");

@@ -17,7 +17,7 @@ Hence, use this block at your own risk.
 
 * Changes *
 
-2014-06-09 - Confirmed compatibility with M2.6, removal of deprecated 'ereg_replace' funcion (minor warning message).
+2014-06-09 - Confirmed compatibility with M2.6, fixed roomsearch with periods disabled, removal of deprecated 'ereg_replace' funcion (minor warning message).
 2013-06-23 - New capability 'block/mrbs:ignoremaxadvancedays' - allows admin users to bypass the 'max_advance_days' restriction.
 2013-01-23 - Re-enabled the booking clashes detection. Fixed a couple of deprecated function warnings.
 2012-12-07 - Minor Moodle 2.4 compatibility fix
