@@ -495,7 +495,9 @@ if(strlen($err))
         echo '<input type="hidden" name="rep_end_day" value="'.$rep_end_day.'" />';
         echo '<input type="hidden" name="rep_end_year" value="'.$rep_end_year.'" />';
         echo '<input type="hidden" name="rep_num_weeks" value="'.$rep_num_weeks.'" />';
-        echo '<input type="hidden" name="rep_day" value="'.$rep_day.'" />';
+        foreach ($rep_day as $day) {
+            echo '<input type="hidden" name="rep_day[]" value="'.$day.'" />';
+        }
         echo '<input type="hidden" name="rep_opt" value="'.$rep_opt.'" />';
         echo '<input type="hidden" name="rep_enddate" value="'.$rep_enddate.'" />';
         echo '<input type="hidden" name="hour" value="'.$hour.'" />';
@@ -508,6 +510,7 @@ if(strlen($err))
             echo '<input type="hidden" name="rooms[]" value="'.$room.'" />';
         }
         echo '<input type="hidden" name="doublebook" value="1" />';
+        echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
         echo '<input type="submit" name="submit" value="'.get_string('idontcare', 'block_mrbs').'" />';
         echo '</form>';
     }
