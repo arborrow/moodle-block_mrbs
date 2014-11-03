@@ -56,6 +56,10 @@ function xmldb_block_mrbs_install() {
         assign_capability('block/mrbs:doublebook', CAP_ALLOW, $mrbsadminid, $context->id, true);
     }
 
-    // Clear any capability caches.
-    $context->mark_dirty();
+    // Clear any capability caches
+    if ($CFG->version < 2013111800) {
+        mark_context_dirty($context->path);
+    } else {
+        $context->mark_dirty();
+    }
 }
