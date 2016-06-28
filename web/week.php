@@ -102,8 +102,8 @@ for ($j = 0; $j<=($num_of_days-1); $j++) {
     //  0 => entering DST
     //  1 => leaving DST
     $dst_change[$j] = is_dst($month,$day+$j,$year);
-    $am7[$j]=mktime($morningstarts,$morningstarts_minutes,0,$month,$day+$j,$year,is_dst($month,$day+$j,$year,$morningstarts));
-    $pm7[$j]=mktime($eveningends,$eveningends_minutes,0,$month,$day+$j,$year,is_dst($month,$day+$j,$year,$eveningends));
+    $am7[$j]=mktime($morningstarts,$morningstarts_minutes,0,$month,$day+$j,$year);
+    $pm7[$j]=mktime($eveningends,$eveningends_minutes,0,$month,$day+$j,$year);
 }
 
 if ( $pview != 1 ) {
