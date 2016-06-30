@@ -323,7 +323,7 @@ foreach ( $rooms as $room_id ) {
                 entry.name as entryname,
                 entry.create_by,
                 room.room_name,
-                entry.start_time,
+                entry.start_time
               FROM {block_mrbs_entry} as entry
                 join {block_mrbs_room} as room on entry.room_id = room.id
              WHERE room.id = ?
