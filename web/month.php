@@ -93,11 +93,11 @@ for ($j = 1; $j<=$days_in_month; $j++) {
 	//  1 => leaving DST
 	$dst_change[$j] = is_dst($month, $j, $year);
     if (empty($enable_periods)) {
-		$midnight[$j] = mktime(0, 0, 0, $month, $j, $year, is_dst($month, $j, $year, 0));
-		$midnight_tonight[$j] = mktime(23, 59, 59, $month, $j, $year, is_dst($month, $j, $year, 23));
+		$midnight[$j] = mktime(0, 0, 0, $month, $j, $year);
+		$midnight_tonight[$j] = mktime(23, 59, 59, $month, $j, $year);
 	} else {
-		$midnight[$j] = mktime(12, 0, 0, $month, $j, $year, is_dst($month, $j, $year, 0));
-		$midnight_tonight[$j] = mktime(12, count($periods), 59, $month, $j, $year, is_dst($month, $j, $year, 23));
+		$midnight[$j] = mktime(12, 0, 0, $month, $j, $year);
+		$midnight_tonight[$j] = mktime(12, count($periods), 59, $month, $j, $year);
     }
 }
 

@@ -218,10 +218,10 @@ if($all_day)
     }
     else
     {
-        $starttime = mktime($morningstarts, 0, 0, $month, $day  , $year, is_dst($month, $day  , $year));
+        $starttime = mktime($morningstarts, 0, 0, $month, $day  , $year);
         $end_minutes = $eveningends_minutes + $morningstarts_minutes;
         ($eveningends_minutes > 59) ? $end_minutes += 60 : '';
-        $endtime   = mktime($eveningends, $end_minutes, 0, $month, $day, $year, is_dst($month, $day, $year));
+        $endtime   = mktime($eveningends, $end_minutes, 0, $month, $day, $year);
     }
 }
 else
@@ -238,8 +238,8 @@ else
       }
     }
 
-    $starttime = mktime($hour, $minute, 0, $month, $day, $year, is_dst($month, $day, $year, $hour));
-    $endtime   = mktime($hour, $minute, 0, $month, $day, $year, is_dst($month, $day, $year, $hour)) + ($units * $duration);
+    $starttime = mktime($hour, $minute, 0, $month, $day, $year);
+    $endtime   = mktime($hour, $minute, 0, $month, $day, $year) + ($units * $duration);
 
     // Round up the duration to the next whole resolution unit.
     // If they asked for 0 minutes, push that up to 1 resolution unit.

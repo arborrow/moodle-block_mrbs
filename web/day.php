@@ -80,8 +80,8 @@ print_header_mrbs($day, $month, $year, $area);
 //  0 => entering DST
 //  1 => leaving DST
 $dst_change = is_dst($month,$day,$year);
-$am7=mktime($morningstarts,$morningstarts_minutes,0,$month,$day,$year,is_dst($month,$day,$year,$morningstarts));
-$pm7=mktime($eveningends,$eveningends_minutes,0,$month,$day,$year,is_dst($month,$day,$year,$eveningends));
+$am7=mktime($morningstarts,$morningstarts_minutes,0,$month,$day,$year);
+$pm7=mktime($eveningends,$eveningends_minutes,0,$month,$day,$year);
 
 if ( $pview != 1 ) {
    echo "<table width=\"100%\"><tr><td width=\"40%\">";
