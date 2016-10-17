@@ -17,7 +17,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 function xmldb_block_mrbs_install() {
-    global $CFG, $DB;
+    global $DB;
 
     // Get system context.
     $context = context_system::instance();
@@ -53,9 +53,5 @@ function xmldb_block_mrbs_install() {
     }
 
     // Clear any capability caches
-    if ($CFG->version < 2013111800) {
-        mark_context_dirty($context->path);
-    } else {
-        $context->mark_dirty();
-    }
+    $context->mark_dirty();
 }

@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-function renameifexists($dbman, $tablename) {
+function renameifexists(database_manager $dbman, $tablename) {
     global $DB, $CFG;
 
     $oldname = $tablename;
