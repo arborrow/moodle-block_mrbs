@@ -149,7 +149,20 @@ if (!empty($rooms)) {
     $list = '';
     foreach ($rooms as $room) {
         if (allowed_to_book($USER, $room)) {
-            $list .= $room->id.','.$room->room_name.' ('.$room->description.' Capacity:'.$room->capacity.')'."\n";
+            $info = array();
+            $desc = trim(s($room->description));
+            if ($desc) {
+                $info[] = $desc;
+            }
+            if ($room->capacity) {
+                $info[] = $room->capacity;
+            }
+            if ($info) {
+                $info = ' ('.implode(', ', $info).')';
+            } else {
+                $info = '';
+            }
+            $list .= $room->id.','.$room->room_name.$info."\n";
         }
     }
     echo $list;
