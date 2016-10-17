@@ -82,11 +82,7 @@ if(!getAuthorised(1))
     exit;
 }
 
-if ($CFG->version < 2011120100) {
-    $context = get_context_instance(CONTEXT_SYSTEM);
-} else {
-    $context = context_system::instance();
-}
+$context = context_system::instance();
 
 $roomadmin = false;
 $editunconfirmed = has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false);

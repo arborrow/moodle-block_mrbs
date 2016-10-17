@@ -28,11 +28,7 @@ $room = optional_param('room', 0, PARAM_INT);
 $series = optional_param('series', 0, PARAM_INT);
 $pview = optional_param('pview', 0, PARAM_INT);
 
-if ($CFG->version < 2011120100) {
-    $context = get_context_instance(CONTEXT_SYSTEM);
-} else {
-    $context = context_system::instance();
-}
+$context = context_system::instance();
 
 //if the booking belongs to the user looking at it, they probably want to edit it
 if($record=$DB->get_record('block_mrbs_entry',array('id'=>$id))) {

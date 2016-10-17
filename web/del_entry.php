@@ -27,9 +27,7 @@ $series = optional_param('series', 0, PARAM_INT);
 $PAGE->set_url('/blocks/mrbs/web/del_entry.php', array('id'=>$id));
 require_login();
 
-if (!confirm_sesskey()) {
-    error('Invalid sesskey');
-}
+require_sesskey();
 
 if(getAuthorised(1) && ($info = mrbsGetEntryInfo($id)))
 {
@@ -42,11 +40,7 @@ if(getAuthorised(1) && ($info = mrbsGetEntryInfo($id)))
         $mail_previous = getPreviousEntryData($id, $series);
     }
     $roomadmin = false;
-    if ($CFG->version < 2011120100) {
-        $context = get_context_instance(CONTEXT_SYSTEM);
-    } else {
-        $context = context_system::instance();
-    }
+    $context = context_system::instance();
     if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
         $adminemail = $DB->get_field('block_mrbs_room', 'room_admin_email', array('id' => $info->room_id));
         if ($adminemail == $USER->email) {

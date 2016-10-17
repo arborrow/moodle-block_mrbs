@@ -99,11 +99,7 @@ require_login();
 // print the page header
 print_user_header_mrbs($day, $month, $year, $area);
 
-if ($CFG->version < 2011120100) {
-    $context = get_context_instance(CONTEXT_SYSTEM);
-} else {
-    $context = context_system::instance();
-}
+$context = context_system::instance();
 
 if (!$user || !has_capability('block/mrbs:viewalltt', $context)) {
     $user = $USER->id;

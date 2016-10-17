@@ -32,7 +32,7 @@ class block_mrbs extends block_base {
     }
 
     function get_content () {
-        global $USER, $CFG, $OUTPUT;
+        global $CFG, $OUTPUT;
 
         if ($this->content !== NULL) {
             return $this->content;
@@ -40,11 +40,7 @@ class block_mrbs extends block_base {
 
         $cfg_mrbs = get_config('block/mrbs');
 
-        if ($CFG->version < 2011120100) {
-            $context = get_context_instance(CONTEXT_SYSTEM);
-        } else {
-            $context = context_system::instance();
-        }
+        $context = context_system::instance();
 
         if (has_capability('block/mrbs:viewmrbs', $context) or has_capability('block/mrbs:editmrbs', $context) or has_capability('block/mrbs:administermrbs', $context)) {
             if (isset($CFG->block_mrbs_serverpath)) {
@@ -68,7 +64,7 @@ class block_mrbs extends block_base {
     }
 
     function cron() {
-        global $CFG, $DB;
+        global $CFG;
         include($CFG->dirroot.'/blocks/mrbs/import.php');
 
         return true;

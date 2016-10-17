@@ -31,11 +31,7 @@ $messagelang->href = $url->out();
 
 $message="$USER->firstname $USER->lastname requests that you move $description from room $room_name, $start_date. Please contact them to discuss this.\n\n[Give a reason]";
 
-if ($CFG->version < 2011120100) {
-    $context = get_context_instance(CONTEXT_SYSTEM);
-} else {
-    $context = context_system::instance();
-}
+$context = context_system::instance();
 
  if (has_capability('block/mrbs:editmrbs', $context) or has_capability('block/mrbs:administermrbs', $context)) {
     echo'<br><br><a href=# onClick="requestVacate.style.visibility=\'visible\';">'.get_string('requestvacate','block_mrbs').'</a>

@@ -20,11 +20,7 @@ function xmldb_block_mrbs_install() {
     global $CFG, $DB;
 
     // Get system context.
-    if ($CFG->version < 2011120100) {
-        $context = get_context_instance(CONTEXT_SYSTEM);
-    } else {
-        $context = context_system::instance();
-    }
+    $context = context_system::instance();
 
     // Create the viewer role.
     if (!$DB->record_exists('role', array('shortname' => 'mrbsviewer'))) {
