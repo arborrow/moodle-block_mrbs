@@ -75,6 +75,7 @@ if ($pview) {
 $PAGE->set_url($thisurl);
 require_login();
 
+$namefields = get_all_user_name_fields(true, 'u');
 if ($series) {
     $sql = "SELECT re.name,
             re.description,
@@ -92,8 +93,7 @@ if ($series) {
             re.rep_opt,
             re.rep_num_weeks,
             u.id as userid,
-            u.firstname,
-            u.lastname
+            $namefields
             FROM  {block_mrbs_repeat} re left join {user} u on u.username = re.create_by, {block_mrbs_room} r, {block_mrbs_area} a
             WHERE re.room_id = r.id
             AND r.area_id = a.id
@@ -112,8 +112,7 @@ if ($series) {
             e.end_time,
             e.repeat_id,
             u.id as userid,
-            u.firstname,
-            u.lastname
+            $namefields
             FROM  {block_mrbs_entry} e left join {user} u on u.username = e.create_by, {block_mrbs_room} r, {block_mrbs_area} a
             WHERE e.room_id = r.id
             AND r.area_id = a.id

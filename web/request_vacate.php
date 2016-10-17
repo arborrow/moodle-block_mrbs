@@ -18,7 +18,7 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 global $USER;
 
-$messagelang = new object();
+$messagelang = new stdClass();
 $messagelang->user = $USER->firstname.' '.$USER->lastname;
 if (empty($description)) {
     $messagelang->description = $name;

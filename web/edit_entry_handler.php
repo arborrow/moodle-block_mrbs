@@ -356,16 +356,12 @@ if (empty($err)) {
             $area_name = $dbroom->area_name;
 
             //Add to moodle logs
-            if ($CFG->version > 2014051200) { // Moodle 2.7+
-                $params = array(
-                    'objectid' => $new_id,
-                    'other' => array('name' => $name, 'room' => $room_name),
-                );
-                $event = \block_mrbs\event\booking_created::create($params);
-                $event->trigger();
-            } else { // Before Moodle 2.7
-                add_to_log(SITEID, 'mrbs', 'add booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);
-            }
+            $params = array(
+                'objectid' => $new_id,
+                'other' => array('name' => $name, 'room' => $room_name),
+            );
+            $event = \block_mrbs\event\booking_created::create($params);
+            $event->trigger();
             // Send a mail to the Administrator
             if (MAIL_ADMIN_ON_BOOKINGS or MAIL_AREA_ADMIN_ON_BOOKINGS or MAIL_ROOM_ADMIN_ON_BOOKINGS or MAIL_BOOKER) {
                 // Send a mail only if this a new entry, or if this is an
@@ -400,16 +396,12 @@ if (empty($err)) {
             $area_name = $dbroom->area_name;
 
             //Add to moodle logs
-            if ($CFG->version > 2014051200) { // Moodle 2.7+
-                $params = array(
-                    'objectid' => $new_id,
-                    'other' => array('name' => $name, 'room' => $room_name),
-                );
-                $event = \block_mrbs\event\booking_updated::create($params);
-                $event->trigger();
-            } else { // Before Moodle 2.7
-                add_to_log(SITEID, 'mrbs', 'edit booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$new_id, $name);
-            }
+            $params = array(
+                'objectid' => $new_id,
+                'other' => array('name' => $name, 'room' => $room_name),
+            );
+            $event = \block_mrbs\event\booking_updated::create($params);
+            $event->trigger();
             // Send a mail to the Administrator
             if (MAIL_ADMIN_ON_BOOKINGS or MAIL_AREA_ADMIN_ON_BOOKINGS or MAIL_ROOM_ADMIN_ON_BOOKINGS or MAIL_BOOKER) {
                 // Send a mail only if this a new entry, or if this is an
