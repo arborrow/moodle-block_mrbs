@@ -4,64 +4,64 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="block_mrbs_area" COMMENT="mrbs_area table retrofitted from MySQL" NEXT="block_mrbs_entry">
+    <TABLE NAME="block_mrbs_area" COMMENT="mrbs_area table retrofitted from MySQL">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="area_name"/>
-        <FIELD NAME="area_name" TYPE="char" LENGTH="30" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="area_admin_email"/>
-        <FIELD NAME="area_admin_email" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="area_name"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="area_name" TYPE="char" LENGTH="30" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="area_admin_email" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="block_mrbs_entry" COMMENT="mrbs_entry table retrofitted from MySQL" PREVIOUS="block_mrbs_area" NEXT="block_mrbs_repeat">
+    <TABLE NAME="block_mrbs_entry" COMMENT="mrbs_entry table retrofitted from MySQL">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="start_time"/>
-        <FIELD NAME="start_time" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="end_time"/>
-        <FIELD NAME="end_time" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="start_time" NEXT="entry_type"/>
-        <FIELD NAME="entry_type" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="end_time" NEXT="repeat_id"/>
-        <FIELD NAME="repeat_id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="entry_type" NEXT="room_id"/>
-        <FIELD NAME="room_id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" PREVIOUS="repeat_id" NEXT="timestamp"/>
-        <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="room_id" NEXT="create_by"/>
-        <FIELD NAME="create_by" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false" PREVIOUS="timestamp" NEXT="name"/>
-        <FIELD NAME="name" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false" PREVIOUS="create_by" NEXT="type"/>
-        <FIELD NAME="type" TYPE="char" LENGTH="1" NOTNULL="true" DEFAULT="E" SEQUENCE="false" PREVIOUS="name" NEXT="description"/>
-        <FIELD NAME="description" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="type" NEXT="roomchange"/>
-        <FIELD NAME="roomchange" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Used to flag edited entries which should be displayed as a 'room change'" PREVIOUS="description"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="start_time" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="end_time" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="entry_type" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="repeat_id" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="room_id" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="create_by" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="1" NOTNULL="true" DEFAULT="E" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="roomchange" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Used to flag edited entries which should be displayed as a 'room change'"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="block_mrbs_repeat" COMMENT="mrbs_repeat table retrofitted from MySQL" PREVIOUS="block_mrbs_entry" NEXT="block_mrbs_room">
+    <TABLE NAME="block_mrbs_repeat" COMMENT="mrbs_repeat table retrofitted from MySQL">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="start_time"/>
-        <FIELD NAME="start_time" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="end_time"/>
-        <FIELD NAME="end_time" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="start_time" NEXT="rep_type"/>
-        <FIELD NAME="rep_type" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="end_time" NEXT="end_date"/>
-        <FIELD NAME="end_date" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="rep_type" NEXT="rep_opt"/>
-        <FIELD NAME="rep_opt" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false" PREVIOUS="end_date" NEXT="room_id"/>
-        <FIELD NAME="room_id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" PREVIOUS="rep_opt" NEXT="timestamp"/>
-        <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="room_id" NEXT="create_by"/>
-        <FIELD NAME="create_by" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false" PREVIOUS="timestamp" NEXT="name"/>
-        <FIELD NAME="name" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false" PREVIOUS="create_by" NEXT="type"/>
-        <FIELD NAME="type" TYPE="char" LENGTH="1" NOTNULL="true" DEFAULT="E" SEQUENCE="false" PREVIOUS="name" NEXT="description"/>
-        <FIELD NAME="description" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="type" NEXT="rep_num_weeks"/>
-        <FIELD NAME="rep_num_weeks" TYPE="int" LENGTH="6" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="description"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="start_time" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="end_time" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="rep_type" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="end_date" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="rep_opt" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="room_id" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="create_by" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="1" NOTNULL="true" DEFAULT="E" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="rep_num_weeks" TYPE="int" LENGTH="6" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="block_mrbs_room" COMMENT="mrbs_room table retrofitted from MySQL" PREVIOUS="block_mrbs_repeat">
+    <TABLE NAME="block_mrbs_room" COMMENT="mrbs_room table retrofitted from MySQL">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="area_id"/>
-        <FIELD NAME="area_id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="room_name"/>
-        <FIELD NAME="room_name" TYPE="char" LENGTH="25" NOTNULL="true" SEQUENCE="false" PREVIOUS="area_id" NEXT="description"/>
-        <FIELD NAME="description" TYPE="char" LENGTH="60" NOTNULL="false" SEQUENCE="false" PREVIOUS="room_name" NEXT="capacity"/>
-        <FIELD NAME="capacity" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="description" NEXT="room_admin_email"/>
-        <FIELD NAME="room_admin_email" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="capacity" NEXT="booking_users"/>
-        <FIELD NAME="booking_users" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="A comma-separated list of the users who are allowed to book this room (empty=anyone can book)" PREVIOUS="room_admin_email"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="area_id" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="room_name" TYPE="char" LENGTH="25" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="char" LENGTH="60" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="capacity" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="room_admin_email" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="booking_users" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A comma-separated list of the users who are allowed to book this room (empty=anyone can book)"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
