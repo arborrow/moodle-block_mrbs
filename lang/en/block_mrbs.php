@@ -1,7 +1,7 @@
 <?php
 $string['about_mrbs']         = 'About MRBS';
 $string['accessdenied']       = 'Access Denied';
-$string['accessmrbs'] = 'Schedule a Resource (Computer Room)';
+$string['accessmrbs'] = 'Schedule a resource';
 $string['addarea']            = 'Add Area';
 $string['addentry']           = 'Add Entry';
 $string['addroom']            = 'Add Room';
