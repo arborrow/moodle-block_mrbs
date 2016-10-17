@@ -98,7 +98,20 @@ if ($area) {
         foreach ($rooms as $dbroom) {
             $editroomurl = new moodle_url('/blocks/mrbs/web/edit_area_room.php', array('room'=>$dbroom->id, 'sesskey'=>sesskey()));
             $delroomurl = new moodle_url('/blocks/mrbs/web/del.php', array('area'=>$area, 'room'=>$dbroom->id, 'type'=>'room', 'sesskey'=>sesskey()));
-            echo '<li>'.s($dbroom->room_name).' ('.s($dbroom->description).', '.$dbroom->capacity.') (<a href="'.$editroomurl.'">'.get_string('edit').'</a>) (<a href="'.$delroomurl.'">'.get_string('delete')."</a>)\n";
+            $info = array();
+            $desc = trim(s($dbroom->description));
+            if ($desc) {
+                $info[] = $desc;
+            }
+            if ($dbroom->capacity) {
+                $info[] = $dbroom->capacity;
+            }
+            if ($info) {
+                $info = '('.implode(', ', $info).') ';
+            } else {
+                $info = '';
+            }
+            echo '<li>'.s($dbroom->room_name).' '.$info.'(<a href="'.$editroomurl.'">'.get_string('edit').'</a>) (<a href="'.$delroomurl.'">'.get_string('delete')."</a>)\n";
         }
         echo '</ul>';
     }
