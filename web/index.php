@@ -23,29 +23,29 @@
 */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
 include("config.inc.php");
+global $DB;
 
-$day   = date("d");
+$day = date("d");
 $month = date("m");
-$year  = date("Y");
+$year = date("Y");
 
-switch ($default_view)
-{
-	case "month":
-		$redirect = new moodle_url('/blocks/mrbs/web/month.php', array('year'=>$year, 'month'=>$month));
-		break;
-	case "week":
-		$redirect = new moodle_url('/blocks/mrbs/web/week.php', array('year'=>$year, 'month'=>$month, 'day'=>$day));
-		break;
-	default:
-        $redirect = new moodle_url('/blocks/mrbs/web/day.php', array('day'=>$day, 'month'=>$month, 'year'=>$year));
+switch ($default_view) {
+    case "month":
+        $redirect = new moodle_url('/blocks/mrbs/web/month.php', array('year' => $year, 'month' => $month));
+        break;
+    case "week":
+        $redirect = new moodle_url('/blocks/mrbs/web/week.php', array('year' => $year, 'month' => $month, 'day' => $day));
+        break;
+    default:
+        $redirect = new moodle_url('/blocks/mrbs/web/day.php', array('day' => $day, 'month' => $month, 'year' => $year));
 }
 
 if (!empty($default_room)) {
-//	$sql = "select area_id from $tbl_room where id=$default_room";
-	$res = $DB->get_record('block_mrbs_room', array('id'=>$default_room));
-	if (!empty($res)) {
-        $redirect->params(array('area'=>$res->area_id, 'room'=>$default_room));
-	}
+    //	$sql = "select area_id from $tbl_room where id=$default_room";
+    $res = $DB->get_record('block_mrbs_room', array('id' => $default_room));
+    if (!empty($res)) {
+        $redirect->params(array('area' => $res->area_id, 'room' => $default_room));
+    }
 }
 
 redirect($redirect);

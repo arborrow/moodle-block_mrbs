@@ -18,7 +18,7 @@
 class block_mrbs extends block_base {
 
     function init() {
-        $this->title = get_string('blockname','block_mrbs');
+        $this->title = get_string('blockname', 'block_mrbs');
         $this->content_type = BLOCK_TYPE_TEXT;
     }
 
@@ -26,15 +26,14 @@ class block_mrbs extends block_base {
         return true;
     }
 
-
     function applicable_formats() {
         return array('all' => true);
     }
 
-    function get_content () {
+    function get_content() {
         global $CFG, $OUTPUT;
 
-        if ($this->content !== NULL) {
+        if ($this->content !== null) {
             return $this->content;
         }
 
@@ -60,7 +59,7 @@ class block_mrbs extends block_base {
             return $this->content;
         }
 
-        return NULL;
+        return null;
     }
 
     function cron() {

@@ -77,7 +77,7 @@ if (file_exists($cfg_mrbs->cronfile)) {
             $room = room_id_lookup($csvrow->room_name);
             $weeks = str_split($csvrow->weekpattern);
             foreach ($weeks as $week) {
-                if (($week == 1) and ($date>$now)) {
+                if (($week == 1) and ($date > $now)) {
                     $start_time = time_to_datetime($date, $csvrow->start_time);
                     $end_time = time_to_datetime($date, $csvrow->end_time);
                     if (!is_timetabled($csvrow->name, $start_time)) { ////only timetable class if it isn't already timetabled elsewhere (class been moved)
@@ -103,9 +103,9 @@ if (file_exists($cfg_mrbs->cronfile)) {
 
                         //limit to 1 to keep this simpler- if there is a 3-way clash it will be noticed by one of the 2 teachers notified
                         if ($existingclass = $DB->get_record_sql($sql, array(
-                                                                            $start_time, $start_time, $end_time,
-                                                                            $end_time, $start_time, $end_time, $room
-                                                                       ))
+                            $start_time, $start_time, $end_time,
+                            $end_time, $start_time, $end_time, $room
+                        ))
                         ) {
                             $hr_start_time = date("j F, Y", $start_time).", ".to_hr_time($start_time);
                             $a = new stdClass();
@@ -195,8 +195,8 @@ function is_timetabled($name, $time) {
     if ($DB->get_record('block_mrbs_entry', array('name' => $name, 'start_time' => $time, 'type' => 'L'))) {
         return true;
     } else if ($record = $DB->get_record('block_mrbs_entry', array(
-                                                                  'name' => $name, 'start_time' => $time, 'type' => 'M'
-                                                             ))
+        'name' => $name, 'start_time' => $time, 'type' => 'M'
+    ))
     ) {
         $upd = new stdClass;
         $upd->id = $record->id;
@@ -223,7 +223,7 @@ function time_to_datetime($date, $time) {
     list($hours, $mins) = explode(':', $time);
     $hours = intval($hours);
     $mins = intval($mins);
-    if ($cfg_mrbs->enable_periods && $hours == 0 && $mins<count($cfg_mrbs->periods)) {
+    if ($cfg_mrbs->enable_periods && $hours == 0 && $mins < count($cfg_mrbs->periods)) {
         $hours = 12; // Periods are imported as  P1 - 00:00, P2 - 00:01, P3 - 00:02, etc.
         // but stored internally as P1 - 12:00, P2 - 12:01, P3 - 12:02, etc.
     }

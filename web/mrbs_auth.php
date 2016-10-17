@@ -19,7 +19,9 @@ require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 
 // include the authentification wrappers
 include "auth_$auth[type].php";
-if (isset($auth['session'])) include "session_$auth[session].php";
+if (isset($auth['session'])) {
+    include "session_$auth[session].php";
+}
 
 /* getAuthorised($user, $pass, $level)
  *
@@ -33,12 +35,9 @@ if (isset($auth['session'])) include "session_$auth[session].php";
  *   0        - The user does not have the required access
  *   non-zero - The user has the required access
  */
-function getAuthorised($level)
-{
-    global $auth;
-
+function getAuthorised($level) {
     $user = getUserName();
-    if(isset($user) == FALSE) {
+    if (isset($user) == false) {
         authGet();
         return 0;
     }
@@ -57,16 +56,15 @@ function getAuthorised($level)
  *   0        - The user does not have the required access
  *   non-zero - The user has the required access
  */
-function getWritable($creator, $user)
-{
-    global $auth;
-
+function getWritable($creator, $user) {
     // Always allowed to modify your own stuff
-    if(strcasecmp($creator, $user) == 0)
+    if (strcasecmp($creator, $user) == 0) {
         return 1;
+    }
 
-    if(authGetUserLevel($user) >= 2)
+    if (authGetUserLevel($user) >= 2) {
         return 1;
+    }
 
     // Unathorised access
     return 0;
@@ -78,9 +76,8 @@ function getWritable($creator, $user)
  *
  * Retusns: Nothing
  */
-function showAccessDenied($day, $month, $year, $area)
-{
-    global $SERVER, $OUTPUT;
+function showAccessDenied($day, $month, $year, $area) {
+    global $OUTPUT;
 
     print_header_mrbs($day, $month, $year, $area);
     echo $OUTPUT->box(get_string('accessdenied', 'block_mrbs').'<br/>'.get_string('norights', 'block_mrbs'), 'generalbox boxaligncenter');
