@@ -168,5 +168,31 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
         }
     }
 
+    if ($oldversion < 2016101700) {
+        // Changing type of field area_name on table block_mrbs_area to char.
+        $table = new xmldb_table('block_mrbs_area');
+        $field = new xmldb_field('area_name', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'id');
+
+        // Launch change of type for field area_name.
+        $dbman->change_field_type($table, $field);
+
+        // Changing type of field room_name on table block_mrbs_room to char.
+        $table = new xmldb_table('block_mrbs_room');
+        $field = new xmldb_field('room_name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'area_id');
+
+        // Launch change of type for field room_name.
+        $dbman->change_field_type($table, $field);
+
+        // Changing type of field description on table block_mrbs_room to char.
+        $table = new xmldb_table('block_mrbs_room');
+        $field = new xmldb_field('description', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'room_name');
+
+        // Launch change of type for field description.
+        $dbman->change_field_type($table, $field);
+
+        // Mrbs savepoint reached.
+        upgrade_block_savepoint(true, 2016101700, 'mrbs');
+    }
+
     return true;
 }

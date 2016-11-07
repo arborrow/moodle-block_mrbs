@@ -133,8 +133,8 @@ if ($room > 0) {
     echo '<input type="hidden" name="room" value="'.$dbroom->id.'">';
     echo '<input type="hidden" name="sesskey" value="'.sesskey().'">';
     echo '<CENTER><TABLE>';
-    echo '<TR><TD>'.get_string('name').': </TD><TD><input type="text" name="room_name" value="'.s($dbroom->room_name).'" maxlength="25"></TD></TR>';
-    echo '<TR><TD>'.get_string('description').'</TD><TD><input type="text" name="description" value="'.s($dbroom->description).'"></TD></TR>';
+    echo '<TR><TD>'.get_string('name').': </TD><TD><input type="text" name="room_name" value="'.s($dbroom->room_name).'" maxlength="255"></TD></TR>';
+    echo '<TR><TD>'.get_string('description').'</TD><TD><input type="text" name="description" value="'.s($dbroom->description).'" maxlength="255"></TD></TR>';
     echo '<TR><TD>'.get_string('capacity', 'block_mrbs').':   </TD><TD><input type="text" name="capacity" value="'.$dbroom->capacity.'"></TD></TR>';
     echo '<TR><TD>'.get_string('room_admin_email', 'block_mrbs').': </TD><TD><input type="text" name="room_admin_email" MAXLENGTH=75 value="'.s($dbroom->room_admin_email).'"></TD>';
     if (!$valid_email) {
@@ -178,8 +178,8 @@ if ($area) {
     echo '<input type="hidden" name="area" value="'.$dbarea->id.'">';
     echo '<input type="hidden" name="sesskey" value="'.sesskey().'">';
     echo '<CENTER><TABLE>';
-    echo '<TR><TD>'.get_string('name').':       </TD><TD><input type="text" name="area_name" value="'.s($dbarea->area_name).'"></TD></TR>';
-    echo '<TR><TD>'.get_string('area_admin_email', 'block_mrbs').':       </TD><TD><input type="text" name="area_admin_email" MAXLENGTH=75 value="'.s($dbarea->area_admin_email).'"></TD>';
+    echo '<TR><TD>'.get_string('name').':       </TD><TD><input type="text" name="area_name" value="'.s($dbarea->area_name).'" maxlength="255"></TD></TR>';
+    echo '<TR><TD>'.get_string('area_admin_email', 'block_mrbs').':       </TD><TD><input type="text" name="area_admin_email" maxlength="255" value="'.s($dbarea->area_admin_email).'"></TD>';
     if (!$valid_email) {
         echo "<TD>&nbsp;</TD><TD><STRONG>".get_string('emailmustbereal')."</STRONG></TD>";
     }
