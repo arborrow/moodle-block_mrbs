@@ -56,7 +56,7 @@ if (!isset($cfg_mrbs->periods) or empty($cfg_mrbs->periods)) {
     }
 }
 $output = '';
-if (file_exists($cfg_mrbs->cronfile)) {
+if (!empty($cfg_mrbs->cronfile) && file_exists($cfg_mrbs->cronfile)) {
     if ($mrbs_sessions = fopen($cfg_mrbs->cronfile, 'r')) {
         $output .= get_string('startedimport', 'block_mrbs')."\n";
         $now = time();
