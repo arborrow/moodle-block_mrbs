@@ -409,7 +409,7 @@ if (!empty($area)) {
                             } else {
                                 echo "<a href=\"".($editurl->out(true, array('hour' => $hour, 'minute' => $minute)))."\">";
                             }
-                            echo '<img src="'.$OUTPUT->pix_url('new', 'block_mrbs').'" width="10" height="10" border="0"></a>';
+                            echo '<img src="'.$OUTPUT->image_url('new', 'block_mrbs').'" width="10" height="10" border="0"></a>';
                             echo "</center>";
                             if ($javascript_cursor) {
                                 echo "<SCRIPT language=\"JavaScript\">\n<!--\n";
