@@ -384,13 +384,13 @@ if (!empty($area)) {
                             // Not allowed to book this room
                             echo '<center>';
                             $title = get_string('notallowedbook', 'block_mrbs');
-                            echo '<img src="'.$OUTPUT->pix_url('toofaradvance', 'block_mrbs').'" width="10" height="10" border="0" alt="'.$title.'" title="'.$title.'" />';
+                            echo '<img src="'.$OUTPUT->image_url('toofaradvance', 'block_mrbs').'" width="10" height="10" border="0" alt="'.$title.'" title="'.$title.'" />';
                             echo '</center>';
                         } else if (!$advanceok) {
                             // Too far in advance to edit
                             echo '<center>';
                             $title = get_string('toofaradvance', 'block_mrbs', $max_advance_days);
-                            echo '<img src="'.$OUTPUT->pix_url('toofaradvance', 'block_mrbs').'" width="10" height="10" border="0" alt="'.$title.'" title="'.$title.'" />';
+                            echo '<img src="'.$OUTPUT->image_url('toofaradvance', 'block_mrbs').'" width="10" height="10" border="0" alt="'.$title.'" title="'.$title.'" />';
                             echo '</center>';
                         } else {
                             if ($javascript_cursor) {
