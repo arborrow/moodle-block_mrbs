@@ -19,7 +19,7 @@ class block_mrbs extends block_base {
 
     function init() {
         $this->title = get_string('blockname', 'block_mrbs');
-        $this->content_type = BLOCK_TYPE_TEXT;
+        //TODO: $this->content_type = BLOCK_TYPE_TEXT;
     }
 
     function has_config() {
@@ -30,30 +30,36 @@ class block_mrbs extends block_base {
         return array('all' => true);
     }
 
+    function specialization() {
+        $this->title = isset($this->config->title) ? format_string($this->config->title) : format_string(get_string('newmrbsblock', 'block_mrbs'));
+    }
+
+    function instance_allow_multiple() {
+        return true;
+    }
+
     function get_content() {
         global $CFG, $OUTPUT;
 
         if ($this->content !== null) {
             return $this->content;
         }
-
-        $cfg_mrbs = get_config('block/mrbs');
-
+        
         $context = context_system::instance();
 
         if (has_capability('block/mrbs:viewmrbs', $context) or has_capability('block/mrbs:editmrbs', $context) or has_capability('block/mrbs:administermrbs', $context)) {
-            if (isset($CFG->block_mrbs_serverpath)) {
-                $serverpath = $CFG->block_mrbs_serverpath;
+            $go = get_string('accessmrbs', 'block_mrbs');
+            $icon = $OUTPUT->pix_icon('web', 'MRBS icon', 'block_mrbs', array('height' => "16", 'width' => "16"));
+            $target = '';
+            if (isset($this->config->newwindow) and $this->config->newwindow) {
+                $target = ' target="_blank" ';
+            }
+            if (isset($this->config->serverpath)) {
+                $serverpath = $this->config->serverpath;
             } else {
                 $serverpath = $CFG->wwwroot.'/blocks/mrbs/web';
             }
-            $go = get_string('accessmrbs', 'block_mrbs');
-            $icon = '<img src="'.$OUTPUT->pix_url('web', 'block_mrbs').'" height="16" width="16" alt="" />';
-            $target = '';
-            if ($cfg_mrbs->newwindow) {
-                $target = ' target="_blank" ';
-            }
-            $this->content = new stdClass();
+            $this->content = new stdClass;
             $this->content->text = '<a href="'.$serverpath.'/index.php" '.$target.'>'.$icon.' &nbsp;'.$go.'</a>';
             $this->content->footer = '';
             return $this->content;
@@ -62,10 +68,4 @@ class block_mrbs extends block_base {
         return null;
     }
 
-    function cron() {
-        global $CFG;
-        include($CFG->dirroot.'/blocks/mrbs/import.php');
-
-        return true;
-    }
 }
