@@ -17,8 +17,9 @@
 
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 global $PAGE, $DB, $USER;
+include "config.inc.php";
 
-$dayurl = new moodle_url('/blocks/mrbs/web/day.php');
+$dayurl = new moodle_url('/blocks/mrbs/web/day.php', array('instance' => $instance_id));
 $PAGE->set_url($dayurl); // Hopefully will never be needed
 require_login();
 

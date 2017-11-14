@@ -44,7 +44,7 @@ class block_mrbs extends block_base {
         if ($this->content !== null) {
             return $this->content;
         }
-        
+
         $context = context_system::instance();
 
         if (has_capability('block/mrbs:viewmrbs', $context) or has_capability('block/mrbs:editmrbs', $context) or has_capability('block/mrbs:administermrbs', $context)) {
@@ -59,13 +59,45 @@ class block_mrbs extends block_base {
             } else {
                 $serverpath = $CFG->wwwroot.'/blocks/mrbs/web';
             }
+            if (isset($this->instance->id)) {
+				$instance = $this->instance->id;
+			} else {
+				$instance = 0;
+			}
             $this->content = new stdClass;
-            $this->content->text = '<a href="'.$serverpath.'/index.php" '.$target.'>'.$icon.' &nbsp;'.$go.'</a>';
+            $this->content->text = '<a href="'.$serverpath.'/index.php?instance='.$instance.'" '.$target.'>'.$icon.' &nbsp;'.$go.'</a>';
             $this->content->footer = '';
             return $this->content;
         }
 
         return null;
+    }
+    
+    function instance_config_save($data, $nolongerused = false) {
+		// modify type of select fields to be int
+		$data->newwindow = intval($data->newwindow);
+		$data->enable_periods = intval($data->enable_periods);
+		if ($data->enable_periods == 0) {
+			$data->morningstarts = intval($data->morningstarts);
+			$data->morningstarts_min = intval($data->morningstarts_min);
+			$data->eveningends = intval($data->eveningends);
+			$data->eveningends_min = intval($data->eveningends_min);
+		}
+		$data->weekstarts = intval($data->weekstarts);
+		$data->dateformat = intval($data->dateformat);
+		$data->timeformat = intval($data->timeformat);
+		$data->view_week_number = intval($data->view_week_number);
+		$data->times_right_side = intval($data->times_right_side);
+		$data->javascript_cursor = intval($data->javascript_cursor);
+		$data->show_plus_link = intval($data->show_plus_link);
+		$data->mail_admin_on_bookings = intval($data->mail_admin_on_bookings);
+		$data->mail_area_admin_on_bookings = intval($data->mail_area_admin_on_bookings);
+		$data->mail_room_admin_on_bookings = intval($data->mail_room_admin_on_bookings);
+		$data->mail_admin_on_delete = intval($data->mail_admin_on_delete);
+		$data->mail_admin_all = intval($data->mail_admin_all);
+		$data->mail_details = intval($data->mail_details);
+		$data->mail_booker = intval($data->mail_booker);
+		parent::instance_config_save($data, $nolongerused);
     }
 
 }

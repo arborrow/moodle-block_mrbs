@@ -21,8 +21,21 @@
 ###########################################################################
 
 //For integration with Moodle
+# debug function
+function kill($data){ var_dump($data); exit; }
+@ini_set('display_errors','1');
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
-$cfg_mrbs = get_config('block/mrbs'); //get Moodle config settings for the MRBS block
+global $DB;
+
+$instance_id = required_param('instance', 0, PARAM_INT);
+if(! isset($instance_id)) {
+    throw new \coding_exception('instance_id is a required param.');
+}
+$tmp = $DB->get_record('block_instances', array('id' => $instance_id), '*', MUST_EXIST);
+if(! isset($tmp)) {
+    throw new \coding_exception('block_instance with id '.$instance_id.' must exist.');
+}
+$cfg_mrbs = unserialize(base64_decode($tmp->configdata)); //get Moodle config settings for this instance of the MRBS block
 ###################
 # Database settings
 ###################

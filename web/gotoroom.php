@@ -40,7 +40,7 @@ if (($day == 0) or ($month == 0) or ($year == 0)) {
 }
 
 $thisurl = new moodle_url('/blocks/mrbs/web/gotoroom.php', array(
-    'day' => $day, 'month' => $month, 'year' => $year, 'room' => $room
+    'instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year, 'room' => $room
 ));
 $PAGE->set_url($thisurl);
 require_login();
@@ -50,15 +50,15 @@ if (!getAuthorised(1)) {
     exit;
 }
 
-$sql = "SELECT area_id, area_name FROM {block_mrbs_room} AS r JOIN {block_mrbs_area} AS a ON a.id = r.area_id WHERE room_name = ? OR room_name = ?";
+$sql = "SELECT area_id, area_name FROM {block_mrbs_room} AS r JOIN {block_mrbs_area} AS a ON a.id = r.area_id WHERE instance = ? AND (room_name = ? OR room_name = ?)";
 
-$area = $DB->get_record_sql($sql, array($room, '0'.$room), IGNORE_MULTIPLE);
+$area = $DB->get_record_sql($sql, array($instance_id, $room, '0'.$room), IGNORE_MULTIPLE);
 if ($area) {
     $areaurl = new moodle_url('/blocks/mrbs/web/day.php',
-                              array('day' => $day, 'month' => $month, 'year' => $year, 'area' => $area->area_id));
+                              array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year, 'area' => $area->area_id));
     redirect($areaurl);
 } else {
     $notfoundurl = new moodle_url('/blocks/mrbs/web/day.php',
-                                  array('day' => $day, 'month' => $month, 'year' => $year, 'roomnotfound' => $room));
+                                  array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year, 'roomnotfound' => $room));
     redirect($notfoundurl);
 }

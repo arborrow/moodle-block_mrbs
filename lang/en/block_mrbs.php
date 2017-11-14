@@ -233,6 +233,7 @@ $string['mustlogin'] = 'You must be logged in to Moodle before you can access th
 $string['must_set_description'] = 'You must set a description';
 $string['must_set_name'] = 'You must set a name';
 $string['namebooker']         = 'Reservation for';
+$string['newbooking'] = 'New Booking';
 $string['newmrbsblock'] = 'New MRBS';
 $string['newwindow'] = 'New window'; //see MDL-15952
 $string['no_rooms_for_area']  = 'No rooms defined for this area';

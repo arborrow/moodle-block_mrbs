@@ -21,14 +21,13 @@ require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for 
 // over the place. so we test to see if it is set, and if not then set
 // it.
 require_once('mrbs_auth.php');
-
 $pview = optional_param('pview', 0, PARAM_INT);
 
-function print_user_header_mrbs($day = null, $month = null, $year = null, $area = null) {
-    print_header_mrbs($day, $month, $year, $area, true);
+function print_user_header_mrbs($day = null, $month = null, $year = null, $instance_id = 0, $area = null) {
+    print_header_mrbs($day, $month, $year, $instance_id, $area, true);
 }
 
-function print_header_mrbs($day = null, $month = null, $year = null, $area = null, $userview = false) //if values are not passed assume NULL
+function print_header_mrbs($day = null, $month = null, $year = null, $instance_id = 0, $area = null, $userview = false) //if values are not passed assume NULL
 {
     global $search_str, $locale_warning, $pview;
     global $OUTPUT, $PAGE, $USER;
@@ -37,7 +36,7 @@ function print_header_mrbs($day = null, $month = null, $year = null, $area = nul
     $strmrbs = get_string('blockname', 'block_mrbs');
 
     if (!$site = get_site()) {
-        redirect(new moodle_url('/admin/index.php'));
+        redirect(new moodle_url('/admin/index.php', array('instance' => $instance_id)));
     }
 
     $context = context_system::instance();
@@ -93,28 +92,28 @@ function print_header_mrbs($day = null, $month = null, $year = null, $area = nul
         }
 
         $titlestr = get_string('mrbs', 'block_mrbs');
-        $homeurl = new moodle_url('/blocks/mrbs/web/index.php');
+        $homeurl = new moodle_url('/blocks/mrbs/web/index.php', array('instance' => $instance_id));
 
         $gotostr = get_string('goto', 'block_mrbs');
-        $gotourl = new moodle_url('/blocks/mrbs/web/day.php');
+        $gotourl = new moodle_url('/blocks/mrbs/web/day.php', array('instance' => $instance_id));
         if ($userview) {
-            $gotourl = new moodle_url('/blocks/mrbs/web/userweek.php');
+            $gotourl = new moodle_url('/blocks/mrbs/web/userweek.php', array('instance' => $instance_id));
         }
 
         $roomsearchstr = get_string('roomsearch', 'block_mrbs');
-        $roomsearchurl = new moodle_url('/blocks/mrbs/web/roomsearch.php');
+        $roomsearchurl = new moodle_url('/blocks/mrbs/web/roomsearch.php', array('instance' => $instance_id));
 
         $helpstr = get_string('help');
-        $helpurl = new moodle_url('/blocks/mrbs/web/help.php', array('day' => $day, 'month' => $month, 'year' => $year));
+        $helpurl = new moodle_url('/blocks/mrbs/web/help.php', array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year));
 
         $adminstr = get_string('admin');
-        $adminurl = new moodle_url('/blocks/mrbs/web/admin.php', array('day' => $day, 'month' => $month, 'year' => $year));
+        $adminurl = new moodle_url('/blocks/mrbs/web/admin.php', array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year));
 
         $reportstr = get_string('report');
-        $reporturl = new moodle_url('/blocks/mrbs/web/report.php');
+        $reporturl = new moodle_url('/blocks/mrbs/web/report.php', array('instance' => $instance_id));
 
         $searchstr = get_string('search');
-        $searchurl = new moodle_url('/blocks/mrbs/web/search.php');
+        $searchurl = new moodle_url('/blocks/mrbs/web/search.php', array('instance' => $instance_id));
         $searchadvurl = new moodle_url($searchurl, array('advanced' => 1));
 
         $level = authGetUserLevel($USER->id);
@@ -141,7 +140,7 @@ HTML1END;
         if (!empty($area)) {
             echo "<INPUT TYPE=HIDDEN NAME=area VALUE=$area>\n";
         }
-
+		echo "<INPUT TYPE=HIDDEN NAME=instance VALUE=$instance_id>\n";
         echo <<<HTML2END
                 <SCRIPT LANGUAGE="JavaScript">
                     <!--
@@ -157,7 +156,7 @@ HTML2END;
         if (!$userview) {
             if (has_capability("block/mrbs:forcebook", $context)) {
                 echo '<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER>
-                  <a href="edit_entry.php?force=TRUE">'.get_string('forciblybook', 'block_mrbs').'</a>
+                  <a href="edit_entry.php?instance='.$instance_id.'&force=TRUE">'.get_string('forciblybook', 'block_mrbs').'</a>
               </TD>';
             }
 
@@ -178,8 +177,9 @@ HTML2END;
             echo '<TD CLASS="banner" BGCOLOR="#C0E0FF" ALIGN=CENTER><FORM METHOD=GET ACTION="'.$searchurl.'">';
             echo '<FONT SIZE=2><A HREF="'.$searchadvurl.'">'.$searchstr.'</A></FONT>
                   <INPUT TYPE=TEXT   NAME="search_str" VALUE="'.$search_str.'" SIZE=10>
-                  <INPUT TYPE=HIDDEN NAME=day        VALUE="'.$day.'"        >
-                  <INPUT TYPE=HIDDEN NAME=month      VALUE="'.$month.'"        >
+                  <INPUT TYPE=HIDDEN NAME=instance   VALUE="'.$instance_id.'" >
+                  <INPUT TYPE=HIDDEN NAME=day        VALUE="'.$day.'"         >
+                  <INPUT TYPE=HIDDEN NAME=month      VALUE="'.$month.'"       >
                   <INPUT TYPE=HIDDEN NAME=year       VALUE="'.$year.'"        >';
             if (!empty($area)) {
                 echo "<INPUT TYPE=HIDDEN NAME=area VALUE=$area>\n";
@@ -339,11 +339,11 @@ function fatal_error($need_header, $message) {
 // Return a default area; used if no area is already known. This returns the
 // lowest area ID in the database (no guaranty there is an area 1).
 // This could be changed to implement something like per-user defaults.
-function get_default_area() {
+function get_default_area($instance_id) {
     global $DB;
 
     // Get first area in database
-    $area = $DB->get_records('block_mrbs_area', null, 'area_name', 'id', 0, 1);
+    $area = $DB->get_records('block_mrbs_area', array('instance' => $instance_id), 'area_name', 'id', 0, 1);
     if (empty($area)) {
         return 0;
     }
@@ -355,11 +355,11 @@ function get_default_area() {
 // Return a default room given a valid area; used if no room is already known.
 // This returns the first room in alphbetic order in the database.
 // This could be changed to implement something like per-user defaults.
-function get_default_room($area) {
+function get_default_room($instance_id, $area) {
     global $DB;
 
     // Get first room in database
-    $room = $DB->get_records('block_mrbs_room', array('area_id' => $area), 'room_name', 'id', 0, 1);
+    $room = $DB->get_records('block_mrbs_room', array('instance' => $instance_id, 'area_id' => $area), 'room_name', 'id', 0, 1);
     if (empty($room)) {
         return 0;
     }
@@ -480,14 +480,14 @@ function round_t_up($t, $resolution, $am7) {
 
 // generates some html that can be used to select which area should be
 // displayed.
-function make_area_select_html($link, $current, $year, $month, $day) {
+function make_area_select_html($link, $current, $instance_id, $year, $month, $day) {
     global $DB;
 
     $out_html = "
 <form name=\"areaChangeForm\" method=get action=\"$link\">
   <select name=\"area\" onChange=\"document.areaChangeForm.submit()\">";
 
-    $areas = $DB->get_records('block_mrbs_area', null, 'area_name');
+    $areas = $DB->get_records('block_mrbs_area', array('instance' => $instance_id), 'area_name');
     foreach ($areas as $area) {
         $selected = ($area->id == $current) ? "selected" : "";
         $out_html .= "
@@ -496,6 +496,7 @@ function make_area_select_html($link, $current, $year, $month, $day) {
     $out_html .= "
   </select>
 
+  <INPUT TYPE=HIDDEN NAME=instance   VALUE=\"$instance_id\">
   <INPUT TYPE=HIDDEN NAME=day        VALUE=\"$day\">
   <INPUT TYPE=HIDDEN NAME=month      VALUE=\"$month\">
   <INPUT TYPE=HIDDEN NAME=year       VALUE=\"$year\">
@@ -505,14 +506,14 @@ function make_area_select_html($link, $current, $year, $month, $day) {
     return $out_html;
 } // end make_area_select_html
 
-function make_room_select_html($link, $area, $current, $year, $month, $day) {
+function make_room_select_html($link, $area, $current, $instance_id, $year, $month, $day) {
     global $DB;
 
     $out_html = "
 <form name=\"roomChangeForm\" method=get action=\"$link\">
   <select name=\"room\" onChange=\"document.roomChangeForm.submit()\">";
 
-    $rooms = $DB->get_records('block_mrbs_room', array('area_id' => $area), 'room_name');
+    $rooms = $DB->get_records('block_mrbs_room', array('instance' => $instance_id, 'area_id' => $area), 'room_name');
     foreach ($rooms as $room) {
         $selected = ($room->id == $current) ? "selected" : "";
         $out_html .= "
@@ -520,6 +521,7 @@ function make_room_select_html($link, $area, $current, $year, $month, $day) {
     }
     $out_html .= "
   </select>
+  <INPUT TYPE=HIDDEN NAME=instance   VALUE=\"$instance_id\">
   <INPUT TYPE=HIDDEN NAME=day        VALUE=\"$day\"        >
   <INPUT TYPE=HIDDEN NAME=month      VALUE=\"$month\"        >
   <INPUT TYPE=HIDDEN NAME=year       VALUE=\"$year\"      >
@@ -528,7 +530,7 @@ function make_room_select_html($link, $area, $current, $year, $month, $day) {
 </form>\n";
 
     return $out_html;
-} // end make_area_select_html
+} // end make_room_select_html
 
 // This will return the appropriate value for isdst for mktime().
 // The order of the arguments was chosen to match those of mktime.

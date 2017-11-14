@@ -76,10 +76,10 @@ function getWritable($creator, $user) {
  *
  * Retusns: Nothing
  */
-function showAccessDenied($day, $month, $year, $area) {
+function showAccessDenied($day, $month, $year, $instance_id, $area) {
     global $OUTPUT;
 
-    print_header_mrbs($day, $month, $year, $area);
+    print_header_mrbs($day, $month, $year, $instance_id, $area);
     echo $OUTPUT->box(get_string('accessdenied', 'block_mrbs').'<br/>'.get_string('norights', 'block_mrbs'), 'generalbox boxaligncenter');
     echo '<br/>';
     echo $OUTPUT->footer();

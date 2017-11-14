@@ -17,7 +17,7 @@
 
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 
-function mrbsForceMove($room_id, $starttime, $endtime, $name, $id = null) {
+function mrbsForceMove($instance_id, $room_id, $starttime, $endtime, $name, $id = null) {
 
     global $USER;
     global $DB;
@@ -50,15 +50,15 @@ function mrbsForceMove($room_id, $starttime, $endtime, $name, $id = null) {
     if (!empty($id)) {
         $sql .= ' AND e.id!=?';
     }
-    $sql .= ' AND e.room_id = ? ORDER BY e.start_time';
+    $sql .= ' AND e.room_id = ? AND e.instance = ?ORDER BY e.start_time';
 
     if (!empty($id)) {
         $oldbookings = $DB->get_records_sql($sql, array(
-            $starttime, $endtime, $starttime, $starttime, $endtime, $endtime, $id, $room_id
+            $starttime, $endtime, $starttime, $starttime, $endtime, $endtime, $id, $room_id, $instance_id
         ));
     } else {
         $oldbookings = $DB->get_records_sql($sql, array(
-            $starttime, $endtime, $starttime, $starttime, $endtime, $endtime, $room_id
+            $starttime, $endtime, $starttime, $starttime, $endtime, $endtime, $room_id, $instance_id
         ));
     }
 
@@ -119,7 +119,7 @@ function mrbsForceMove($room_id, $starttime, $endtime, $name, $id = null) {
             '%teaching%',
             $class_size,
             '%special%',
-            $oldbooking->area_id
+            $oldbooking->area_id  //TODO: maybe room_id ?
         );
 
         $findroomresult = $DB->get_record_sql($findroomquery, $params);
@@ -136,6 +136,7 @@ function mrbsForceMove($room_id, $starttime, $endtime, $name, $id = null) {
         $langvars->newbookingname = $name;
 
         $booking = new stdClass;
+        $booking->instance = $oldbooking->instance;
         $booking->id = $oldbooking->entryid;
         $booking->room_id = $findroomresult->id;
 

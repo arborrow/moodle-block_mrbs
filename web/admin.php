@@ -34,11 +34,11 @@ if (($day == 0) or ($month == 0) or ($year == 0)) {
     $year = date("Y");
 }
 
-$thisurl = new moodle_url('/blocks/mrbs/web/admin.php', array('day' => $day, 'month' => $month, 'year' => $year));
+$thisurl = new moodle_url('/blocks/mrbs/web/admin.php', array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year));
 if ($area) {
     $thisurl->param('area', $area);
 } else {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 
 $PAGE->set_url($thisurl);
@@ -49,12 +49,12 @@ if (!getAuthorised(2)) {
     exit();
 }
 
-print_header_mrbs($day, $month, $year, isset($area) ? $area : "");
+print_header_mrbs($day, $month, $year, $instance_id, isset($area) ? $area : "");
 
 // If area is set but area name is not known, get the name.
 if ($area) {
     if (empty($area_name)) {
-        $dbarea = $DB->get_record('block_mrbs_area', array('id' => $area), 'area_name', MUST_EXIST);
+        $dbarea = $DB->get_record('block_mrbs_area', array('instance' => $instance_id, 'id' => $area), 'area_name', MUST_EXIST);
         $area_name = $dbarea->area_name;
     }
 }
@@ -69,7 +69,7 @@ if (isset($area_name)) {
 echo '</b></center></th></tr><tr><td class="border">';
 
 // This cell has the areas
-$areas = $DB->get_records('block_mrbs_area', null, 'area_name');
+$areas = $DB->get_records('block_mrbs_area', array('instance' => $instance_id), 'area_name');
 
 if (empty($areas)) {
     echo get_string('noareas', 'block_mrbs');
@@ -78,11 +78,11 @@ if (empty($areas)) {
     foreach ($areas as $dbarea) {
         $area_name_q = urlencode($dbarea->area_name);
         $adminurl = new moodle_url('/blocks/mrbs/web/admin.php', array(
-            'area' => $dbarea->id, 'area_name' => $area_name_q, 'sesskey' => sesskey()
+            'instance' => $instance_id, 'area' => $dbarea->id, 'area_name' => $area_name_q, 'sesskey' => sesskey()
         ));
-        $editroomurl = new moodle_url('/blocks/mrbs/web/edit_area_room.php', array('area' => $dbarea->id, 'sesskey' => sesskey()));
+        $editroomurl = new moodle_url('/blocks/mrbs/web/edit_area_room.php', array('instance' => $instance_id, 'area' => $dbarea->id, 'sesskey' => sesskey()));
         $delareaurl = new moodle_url('/blocks/mrbs/web/del.php', array(
-            'area' => $dbarea->id, 'type' => 'area', 'sesskey' => sesskey()
+            'instance' => $instance_id, 'area' => $dbarea->id, 'type' => 'area', 'sesskey' => sesskey()
         ));
         echo '<li><a href="'.$adminurl.'">'.s($dbarea->area_name).'</a> (<a href="'.$editroomurl.'">'.get_string('edit').'</a>) (<a href="'.$delareaurl.'">'.get_string('delete')."</a>)\n";
     }
@@ -92,7 +92,7 @@ echo '</td><td class="border">';
 
 // This one has the rooms
 if ($area) {
-    $rooms = $DB->get_records('block_mrbs_room', array('area_id' => $area), 'room_name');
+    $rooms = $DB->get_records('block_mrbs_room', array('instance' => $instance_id, 'area_id' => $area), 'room_name');
     if (empty($rooms)) {
         //    $res = sql_query("select id, room_name, description, capacity from $tbl_room where area_id=$area order by room_name");
         echo get_string('norooms', 'block_mrbs');
@@ -100,10 +100,10 @@ if ($area) {
         echo '<ul>';
         foreach ($rooms as $dbroom) {
             $editroomurl = new moodle_url('/blocks/mrbs/web/edit_area_room.php', array(
-                'room' => $dbroom->id, 'sesskey' => sesskey()
+                'instance' => $instance_id, 'room' => $dbroom->id, 'sesskey' => sesskey()
             ));
             $delroomurl = new moodle_url('/blocks/mrbs/web/del.php', array(
-                'area' => $area, 'room' => $dbroom->id, 'type' => 'room', 'sesskey' => sesskey()
+                'instance' => $instance_id, 'area' => $area, 'room' => $dbroom->id, 'type' => 'room', 'sesskey' => sesskey()
             ));
             $info = array();
             $desc = trim(s($dbroom->description));
@@ -126,7 +126,7 @@ if ($area) {
     echo get_string('noarea', 'block_mrbs');
 }
 
-$addareaurl = new moodle_url('/blocks/mrbs/web/add.php', array('type' => 'area', 'sesskey' => sesskey()));
+$addareaurl = new moodle_url('/blocks/mrbs/web/add.php', array('instance' => $instance_id, 'type' => 'area', 'sesskey' => sesskey()));
 $addroomurl = new moodle_url($addareaurl, array('type' => 'room', 'area' => $area));
 
 echo '</tr><tr><td class="border"><h3 ALIGN=CENTER>'.get_string('addarea', 'block_mrbs').'</h3>';

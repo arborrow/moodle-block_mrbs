@@ -37,11 +37,11 @@ if (($day == 0) or ($month == 0) or ($year == 0)) {
     $year = date("Y");
 }
 
-$thisurl = new moodle_url('/blocks/mrbs/web/del.php', array('day' => $day, 'month' => $month, 'year' => $year, 'type' => $type));
+$thisurl = new moodle_url('/blocks/mrbs/web/del.php', array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year, 'type' => $type));
 if ($area) {
     $thisurl->param('area', $area);
 } else {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 if ($room) {
     $thisurl->param('room', $room);
@@ -58,7 +58,7 @@ if (!getAuthorised(2)) {
 }
 require_sesskey();
 
-$adminurl = new moodle_url('/blocks/mrbs/web/admin.php');
+$adminurl = new moodle_url('/blocks/mrbs/web/admin.php', array('instance' => $instance_id));
 
 // This is gonna blast away something. We want them to be really
 // really sure that this is what they want to do.
@@ -69,20 +69,20 @@ if ($type == "room") {
     // We are supposed to delete a room
     if ($confirm) {
         // Delete bookings
-        $DB->delete_records('block_mrbs_entry', array('room_id' => $room));
+        $DB->delete_records('block_mrbs_entry', array('instance' => $instance_id, 'room_id' => $room));
 
         // Delete the room
-        $DB->delete_records('block_mrbs_room', array('id' => $room));
+        $DB->delete_records('block_mrbs_room', array('instance' => $instance_id, 'id' => $room));
 
         // Go back to the admin page
         redirect($adminurl);
     } else {
-        print_header_mrbs($day, $month, $year, $area);
+        print_header_mrbs($day, $month, $year, $instance_id, $area);
 
         // We tell them how bad what theyre about to do is
         // Find out how many appointments would be deleted
 
-        $bookings = $DB->get_records('block_mrbs_entry', array('room_id' => $room));
+        $bookings = $DB->get_records('block_mrbs_entry', array('instance' => $instance_id, 'room_id' => $room));
         if (!empty($bookings)) {
             echo get_string('deletefollowing', 'block_mrbs').":<ul>";
 
@@ -107,16 +107,16 @@ if ($type == "room") {
 if ($type == "area") {
     // We are only going to let them delete an area if there are
     // no rooms. its easier
-    $n = $DB->count_records('block_mrbs_room', array('area_id' => $area));
+    $n = $DB->count_records('block_mrbs_room', array('instance' => $instance_id, 'area_id' => $area));
     if ($n == 0) {
         // OK, nothing there, lets blast it away
-        $DB->delete_records('block_mrbs_area', array('id' => $area));
+        $DB->delete_records('block_mrbs_area', array('instance' => $instance_id, 'id' => $area));
 
         // Redirect back to the admin page
         redirect($adminurl);
     } else {
         // There are rooms left in the area
-        print_header_mrbs($day, $month, $year, $area);
+        print_header_mrbs($day, $month, $year, $instance_id, $area);
 
         echo '<br/><p>'.get_string('delarea', 'block_mrbs').'</p>';
         echo '<a href="'.$adminurl.'">'.get_string('backadmin', 'block_mrbs')."</a>";

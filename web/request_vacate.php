@@ -27,7 +27,7 @@ if (empty($description)) {
 }
 $messagelang->room = $room_name;
 $messagelang->datetime = $start_date;
-$url = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id' => $id));
+$url = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('instance' => $instance_id, 'id' => $id));
 $messagelang->href = $url->out();
 
 $message = "$USER->firstname $USER->lastname requests that you move $description from room $room_name, $start_date. Please contact them to discuss this.\n\n[Give a reason]";
@@ -38,6 +38,7 @@ if (has_capability('block/mrbs:editmrbs', $context) or has_capability('block/mrb
     echo '<br><br><a href=# onClick="requestVacate.style.visibility=\'visible\';">'.get_string('requestvacate', 'block_mrbs').'</a>
         <form id="editing" method="post" action="request_vacate_send.php">
         <div id="request_vacate">
+        <input type="hidden" name="instance" value="'.$booking->instance.'" />
         <input type="hidden" name="id" value="'.$booking->userid.'" />
         <input type="hidden" name="sesskey" value="'.sesskey().'" />';
     print_textarea(true, 15, 350, 0, 0, 'message', get_string('requestvacatemessage_html', 'block_mrbs', $messagelang));

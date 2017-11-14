@@ -21,6 +21,7 @@ require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
  *
  * Check to see if the time period specified is free
  *
+ * $instance_id - MRBS instance
  * $room_id   - Which room are we checking
  * $starttime - The start of period
  * $endtime   - The end of the period
@@ -31,15 +32,15 @@ require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
  *   nothing   - The area is free
  *   something - An error occured, the return value is human readable
  */
-function mrbsCheckFree($room_id, $starttime, $endtime, $ignore, $repignore) {
+function mrbsCheckFree($instance_id, $room_id, $starttime, $endtime, $ignore, $repignore) {
     global $DB;
     global $enable_periods;
     global $periods;
 
     // Select any meetings which overlap ($starttime,$endtime) for this room:
-    $sql = "start_time < ? AND end_time > ? AND room_id = ? ";
+    $sql = "start_time < ? AND end_time > ? AND instance = ? AND room_id = ? ";
 
-    $params = array($endtime, $starttime, $room_id);
+    $params = array($endtime, $starttime, $instance_id, $room_id);
 
     if ($ignore > 0) {
         $sql .= " AND id <> ?";
@@ -56,13 +57,13 @@ function mrbsCheckFree($room_id, $starttime, $endtime, $ignore, $repignore) {
         return "";
     }
     // Get the room's area ID for linking to day, week, and month views:
-    $area = mrbsGetRoomArea($room_id);
+    $area = mrbsGetRoomArea($instance_id, $room_id);
 
     // Build a string listing all the conflicts:
     $err = "";
     foreach ($entries as $entry) {
         $starts = getdate($entry->start_time);
-        $param_ym = array('area' => $area, 'year' => $starts['year'], 'month' => $starts['mon']);
+        $param_ym = array('instance' => $instance_id, 'area' => $area, 'year' => $starts['year'], 'month' => $starts['mon']);
         $param_ymd = array_merge($param_ym, array('day' => $starts['mday']));
 
         if ($enable_periods) {
@@ -72,7 +73,7 @@ function mrbsCheckFree($room_id, $starttime, $endtime, $ignore, $repignore) {
             $startstr = userdate($entry->start_time, '%A %d %B %Y %H:%M:%S');
         }
 
-        $viewurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('id' => $entry->id));
+        $viewurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('instance' => $instance_id, 'id' => $entry->id));
         $dayurl = new moodle_url('/blocks/mrbs/web/day.php', $param_ymd);
         $weekurl = new moodle_url('/blocks/mrbs/web/week.php', array_merge($param_ymd, array('room' => $room_id)));
         $monthurl = new moodle_url('/blocks/mrbs/web/month.php', array_merge($param_ym, array('room' => $room_id)));
@@ -92,6 +93,7 @@ function mrbsCheckFree($room_id, $starttime, $endtime, $ignore, $repignore) {
  * Delete an entry, or optionally all entrys.
  *
  * $user   - Who's making the request
+ * $instance_id - MRBS instance
  * $id     - The entry to delete
  * $series - If set, delete the series, except user modified entrys
  * $all    - If set, include user modified entrys in the series delete
@@ -101,18 +103,18 @@ function mrbsCheckFree($room_id, $starttime, $endtime, $ignore, $repignore) {
  *   0        - An error occured
  *   non-zero - The entry was deleted
  */
-function mrbsDelEntry($user, $id, $series, $all, $roomadminoverride = false) {
+function mrbsDelEntry($user, $instance_id, $id, $series, $all, $roomadminoverride = false) {
     global $DB;
 
-    $repeat_id = $DB->get_field('block_mrbs_entry', 'repeat_id', array('id' => $id));
+    $repeat_id = $DB->get_field('block_mrbs_entry', 'repeat_id', array('instance' => $instance_id, 'id' => $id));
     if ($repeat_id < 0) {
         return 0;
     }
 
     if ($series) {
-        $params = array('repeat_id' => $repeat_id);
+        $params = array('instance' => $instance_id, 'repeat_id' => $repeat_id);
     } else {
-        $params = array('id' => $id);
+        $params = array('instance' => $instance_id, 'id' => $id);
     }
 
     $removed = 0;
@@ -126,13 +128,13 @@ function mrbsDelEntry($user, $id, $series, $all, $roomadminoverride = false) {
             continue;
         }
 
-        $DB->delete_records('block_mrbs_entry', array('id' => $entry->id));
+        $DB->delete_records('block_mrbs_entry', array('instance' => $instance_id, 'id' => $entry->id));
 
         $removed++;
     }
 
-    if ($repeat_id > 0 && $DB->count_records('block_mrbs_entry', array('repeat_id' => $repeat_id)) == 0) {
-        $DB->delete_records('block_mrbs_repeat', array('id' => $repeat_id));
+    if ($repeat_id > 0 && $DB->count_records('block_mrbs_entry', array('instance' => $instance_id, 'repeat_id' => $repeat_id)) == 0) {
+        $DB->delete_records('block_mrbs_repeat', array('instance' => $instance_id, 'id' => $repeat_id));
     }
 
     return $removed > 0;
@@ -146,6 +148,7 @@ function mrbsDelEntry($user, $id, $series, $all, $roomadminoverride = false) {
  * $endtime     - End time of entry
  * $entry_type  - Entry type
  * $repeat_id   - Repeat ID
+ * $instance_id - MRBS instance
  * $room_id     - Room ID
  * $owner       - Owner
  * $name        - Name
@@ -157,7 +160,7 @@ function mrbsDelEntry($user, $id, $series, $all, $roomadminoverride = false) {
  *   0        - An error occured while inserting the entry
  *   non-zero - The entry's ID
  */
-function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $room_id,
+function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $instance_id, $room_id,
                                $owner, $name, $type, $description, $oldid = 0, $roomchange = false) {
     global $DB;
 
@@ -166,6 +169,7 @@ function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $r
     $add->end_time = $endtime;
     $add->entry_type = $entry_type;
     $add->repeat_id = $repeat_id;
+    $add->instance = $instance_id;
     $add->room_id = $room_id;
     $add->create_by = $owner;
     $add->name = $name;
@@ -199,6 +203,7 @@ function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $r
  * $rep_type    - The repeat type
  * $rep_enddate - When the repeating ends
  * $rep_opt     - Any options associated with the entry
+ * $instance_id - MRBS instance
  * $room_id     - Room ID
  * $owner       - Owner
  * $name        - Name
@@ -210,7 +215,8 @@ function mrbsCreateSingleEntry($starttime, $endtime, $entry_type, $repeat_id, $r
  *   non-zero - The entry's ID
  */
 function mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt,
-                               $room_id, $owner, $name, $type, $description, $rep_num_weeks, $oldrepeatid = 0) {
+                               $instance_id, $room_id, $owner, $name, $type, $description,
+                               $rep_num_weeks, $oldrepeatid = 0) {
     global $DB;
 
     $add = new stdClass;
@@ -220,6 +226,7 @@ function mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $r
     $add->end_time = $endtime;
     $add->rep_type = $rep_type;
     $add->end_date = $rep_enddate;
+    $add->instance = $instance_id;
     $add->room_id = $room_id;
     $add->create_by = $owner;
     $add->type = $type;
@@ -402,6 +409,7 @@ function mrbsGetRepeatEntryList($time, $enddate, $rep_type, $rep_opt, $max_ittr,
  * $rep_type    - The repeat type
  * $rep_enddate - When the repeating ends
  * $rep_opt     - Any options associated with the entry
+ * $instance_id - MRBS instance
  * $room_id     - Room ID
  * $owner       - Owner
  * $name        - Name
@@ -413,11 +421,13 @@ function mrbsGetRepeatEntryList($time, $enddate, $rep_type, $rep_opt, $max_ittr,
  *   non-zero - The entry's ID
  */
 function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt,
-                                   $room_id, $owner, $name, $type, $description, $rep_num_weeks, $roomchange = false, $oldid = 0) {
+                                   $instance_id, $room_id, $owner, $name, $type, $description,
+                                   $rep_num_weeks, $roomchange = false, $oldid = 0) {
     global $max_rep_entrys, $DB;
 
     $ret = new stdClass;
     $ret->id = 0;
+    $ret->instance = $instance_id;
     $ret->repeating = 1;
     $ret->requested = 0;
     $ret->created = 0;
@@ -430,17 +440,17 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
 
     $repeatid = 0;
     if ($oldid) {
-        $repeatid = $DB->get_field('block_mrbs_entry', 'repeat_id', array('id' => $oldid));
+        $repeatid = $DB->get_field('block_mrbs_entry', 'repeat_id', array('instance' => $instance_id, 'id' => $oldid));
     }
 
     if (empty($reps)) {
         if ($repeatid) {
             // This was a repeat entry, but the entry no longer has any repeats, so delete the repeats (but not this entry)
-            $DB->delete_records_select('block_mrbs_entry', 'repeat_id = :repeatid AND id <> :oldid', compact('repeatid', 'oldid'));
-            $DB->delete_records('block_mrbs_repeat', array('id' => $repeatid));
+            $DB->delete_records_select('block_mrbs_entry', 'instance = :instance_id AND repeat_id = :repeatid AND id <> :oldid', compact('instance_id', 'repeatid', 'oldid'));
+            $DB->delete_records('block_mrbs_repeat', array('instance' => $instance_id, 'id' => $repeatid));
         }
 
-        $ret->id = mrbsCreateSingleEntry($starttime, $endtime, 0, 0, $room_id, $owner, $name, $type, $description, $oldid, $roomchange);
+        $ret->id = mrbsCreateSingleEntry($starttime, $endtime, 0, 0, $instance_id, $room_id, $owner, $name, $type, $description, $oldid, $roomchange);
         $ret->repeating = 0;
         $ret->requested = 1;
         $ret->created = 1;
@@ -448,14 +458,14 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
         return $ret;
     }
 
-    $ret->id = mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt, $room_id, $owner, $name, $type, $description, $rep_num_weeks, $repeatid);
+    $ret->id = mrbsCreateRepeatEntry($starttime, $endtime, $rep_type, $rep_enddate, $rep_opt, $instance_id, $room_id, $owner, $name, $type, $description, $rep_num_weeks, $repeatid);
 
     if ($ret->id) {
         $oldids = array();
         if ($repeatid) {
             // If there are old entries, we will update each of them in turn, as we go through the repeats
             // if we run out, we will create extra; any leftovers will be deleted
-            $oldids = $DB->get_fieldset_sql('SELECT id FROM {block_mrbs_entry} WHERE repeat_id = ? ORDER BY start_time', array($repeatid));
+            $oldids = $DB->get_fieldset_sql('SELECT id FROM {block_mrbs_entry} WHERE instance = ? AND repeat_id = ? ORDER BY start_time', array($instance_id, $repeatid));
         }
 
         for ($i = 0; $i < count($reps); $i++) {
@@ -475,7 +485,8 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
             }
 
             mrbsCreateSingleEntry($reps[$i], $reps[$i] + $diff, 1, $ret->id,
-                                  $room_id, $owner, $name, $type, $description, $updateid, $roomchange);
+                                  $instance_id, $room_id, $owner, $name, $type,
+                                  $description, $updateid, $roomchange);
             $ret->lasttime = $reps[$i];
 
             $ret->created++;
@@ -483,7 +494,7 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
 
         // Delete any repeats that are no longer needed
         for ($i = count($reps); $i < count($oldids); $i++) {
-            $DB->delete_records('block_mrbs_entry', array('id' => $oldids[$i]));
+            $DB->delete_records('block_mrbs_entry', array('instance' => $instance_id, 'id' => $oldids[$i]));
         }
     }
     return $ret;
@@ -493,19 +504,20 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
  *
  * Get the booking's entrys
  *
+ * $instance_id = The MRBS instance.
  * $id = The ID for which to get the info for.
  *
  * Returns:
  *    nothing = The ID does not exist
  *    array   = The bookings info
  */
-function mrbsGetEntryInfo($id) {
+function mrbsGetEntryInfo($instance_id, $id) {
     global $DB;
-    return $DB->get_record('block_mrbs_entry', array('id' => $id));
+    return $DB->get_record('block_mrbs_entry', array('instance' => $instance_id, 'id' => $id));
 }
 
-function mrbsGetRoomArea($id) {
+function mrbsGetRoomArea($instance_id, $id) {
     global $DB;
 
-    return $DB->get_field('block_mrbs_room', 'area_id', array('id' => $id));
+    return $DB->get_field('block_mrbs_room', 'area_id', array('instance' => $instance_id, 'id' => $id));
 }

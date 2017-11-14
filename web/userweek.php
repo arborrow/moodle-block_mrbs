@@ -81,12 +81,12 @@ $thisurl = new moodle_url($baseurl);
 if ($area > 0) {
     $thisurl->param('area', $area);
 } else {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 if ($room > 0) {
     $thisurl->param('room', $area);
 } else {
-    $room = get_default_room($area);
+    $room = get_default_room($instance_id, $area);
     // Note $room will be 0 if there are no rooms; this is checked for below.
 }
 if ($morningstarts_minutes > 0) {
@@ -128,7 +128,7 @@ if ($pview != 1) {
     echo "</td>\n";
 
     //Draw the three month calendars
-    minicals($year, $month, $day, $area, $room, 'week', $user);
+    minicals($year, $month, $day, $area, $instance_id, $room, 'week', $user);
     echo "</tr></table>\n";
 }
 
