@@ -21,13 +21,10 @@
 ###########################################################################
 
 //For integration with Moodle
-# debug function
-function kill($data){ var_dump($data); exit; }
-@ini_set('display_errors','1');
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 global $DB;
 
-$instance_id = required_param('instance', 0, PARAM_INT);
+$instance_id = required_param('instance', PARAM_INT);
 if(! isset($instance_id)) {
     throw new \coding_exception('instance_id is a required param.');
 }

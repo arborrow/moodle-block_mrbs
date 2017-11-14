@@ -14,12 +14,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 class block_mrbs extends block_base {
 
     function init() {
         $this->title = get_string('blockname', 'block_mrbs');
-        //TODO: $this->content_type = BLOCK_TYPE_TEXT;
+        $this->content_type = BLOCK_TYPE_TEXT;
     }
 
     function has_config() {
@@ -31,6 +30,10 @@ class block_mrbs extends block_base {
     }
 
     function specialization() {
+	if($this->config == null) {
+	    $this->config = get_config('block/mrbs');
+	    $this->config->title = get_string('newmrbsblock','block_mrbs');
+	}
         $this->title = isset($this->config->title) ? format_string($this->config->title) : format_string(get_string('newmrbsblock', 'block_mrbs'));
     }
 
@@ -54,16 +57,16 @@ class block_mrbs extends block_base {
             if (isset($this->config->newwindow) and $this->config->newwindow) {
                 $target = ' target="_blank" ';
             }
-            if (isset($this->config->serverpath)) {
+            if (isset($this->config->serverpath) && $this->config->serverpath != "") {
                 $serverpath = $this->config->serverpath;
             } else {
                 $serverpath = $CFG->wwwroot.'/blocks/mrbs/web';
             }
             if (isset($this->instance->id)) {
-				$instance = $this->instance->id;
-			} else {
-				$instance = 0;
-			}
+		$instance = $this->instance->id;
+	    } else {
+		$instance = 0;
+	    }
             $this->content = new stdClass;
             $this->content->text = '<a href="'.$serverpath.'/index.php?instance='.$instance.'" '.$target.'>'.$icon.' &nbsp;'.$go.'</a>';
             $this->content->footer = '';

@@ -27,6 +27,9 @@ if (!isset($CFG->supportemail)) {
 
 $cfg_mrbs = get_config('block/mrbs');
 
+$settings->add(new admin_setting_heading('mrbs_default_settings', get_string('settings_heading_default','block_mrbs'),
+                                                                  get_string('settings_default_comment','block_mrbs')));
+
 $options = array(0 => get_string('pagewindow', 'block_mrbs'), 1 => get_string('newwindow', 'block_mrbs'));
 $settings->add(new admin_setting_configselect('newwindow', get_string('config_new_window', 'block_mrbs'), get_string('config_new_window2', 'block_mrbs'), 1, $options));
 $settings->settings->newwindow->plugin = 'block/mrbs';

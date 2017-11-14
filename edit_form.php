@@ -32,8 +32,6 @@ class block_mrbs_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_title', get_string('configtitle', 'block_html'));
         $mform->setType('config_title', PARAM_TEXT);
 
-        $cfg_mrbs = get_config('block/mrbs');
-
         $options = array(0 => get_string('pagewindow', 'block_mrbs'), 1 => get_string('newwindow', 'block_mrbs'));
         $mform->addElement('select', 'config_newwindow', get_string('config_new_window', 'block_mrbs'), $options);
         $mform->setDefault('config_newwindow',1);
@@ -59,21 +57,17 @@ class block_mrbs_edit_form extends block_edit_form {
         $mform->addElement('static','','',get_string('config_enable_periods2','block_mrbs'));
         $mform->setDefault('config_enable_periods', 1);
         
-        if (isset($cfg_mrbs->enable_periods)) {
-            if ($cfg_mrbs->enable_periods == 0) {
-
                 // Resolution
-
                 unset($options);
                 $strunits = get_string('resolution_units', 'block_mrbs');
                 $options = array(
                     '900' => '15'.$strunits, '1800' => '30'.$strunits, '2700' => '45'.$strunits, '3600' => '60'.$strunits,
                     '4500' => '75'.$strunits, '5400' => '90'.$strunits, '6300' => '105'.$strunits, '7200' => '120'.$strunits
                 );
-                $mform->addElement('select', 'config_resolution', get_string('config_resolution', 'block_mrbs'));
+                $mform->addElement('select', 'config_resolution', get_string('config_resolution', 'block_mrbs'), $options);
                 $mform->addElement('static', '', '', get_string('config_resolution2', 'block_mrbs'));
                 $mform->setDefault('config_resolution', '1800');
-                
+                $mform->disabledIf('config_resolution', 'config_enable_periods', 'eq', '1');
                 // Start Time (Hours)
                 unset($options);
                 $options = array(
@@ -81,20 +75,20 @@ class block_mrbs_edit_form extends block_edit_form {
                     11 => '11', 12 => '12', 13 => '13', 14 => '14', 15 => '15', 16 => '16', 17 => '17', 18 => '18', 19 => '19', 20 => '20',
                     21 => '21', 22 => '22', 23 => '23'
                 );
-                $mform->addElement('select', 'config_morningstarts', get_string('config_morningstarts', 'block_mrbs'));
+                $mform->addElement('select', 'config_morningstarts', get_string('config_morningstarts', 'block_mrbs'), $options);
                 $mform->addElement('static', '', '', get_string('config_morningstarts2', 'block_mrbs'));
                 $mform->setDefault('config_morningstarts', 7);
-                
+                $mform->disabledIf('config_morningstarts', 'config_enable_periods', 'eq', '1');
                 // Start Time (Min)
                 unset($options);
                 $options = array(
                     0 => '00', 5 => '05', 10 => '10', 15 => '15', 20 => '20', 25 => '25', 30 => '30', 35 => '35', 40 => '40', 45 => '45',
                     50 => '50', 55 => '55'
                 );
-                $mform->addElement('select', 'config_morningstarts_min', get_string('config_morningstarts_min', 'block_mrbs'));
+                $mform->addElement('select', 'config_morningstarts_min', get_string('config_morningstarts_min', 'block_mrbs'), $options);
                 $mform->addElement('static', '', '', get_string('config_morningstarts_min2', 'block_mrbs'));
                 $mform->setDefault('config_morningstarts_min', 0);
-                
+                $mform->disabledIf('config_morningstarts_min', 'config_enable_periods', 'eq', '1');
                 // End Time (Hours)
                 unset($options);
                 $options = array(
@@ -102,28 +96,27 @@ class block_mrbs_edit_form extends block_edit_form {
                     11 => '11', 12 => '12', 13 => '13', 14 => '14', 15 => '15', 16 => '16', 17 => '17', 18 => '18', 19 => '19', 20 => '20',
                     21 => '21', 22 => '22', 23 => '23'
                 );
-                $mform->addElement('select', 'config_eveningends', get_string('config_eveningends', 'block_mrbs'));
+                $mform->addElement('select', 'config_eveningends', get_string('config_eveningends', 'block_mrbs'), $options);
                 $mform->addElement('static', '', '', get_string('config_eveningends2', 'block_mrbs'));
                 $mform->setDefault('config_eveningends', 19);
-                
+                $mform->disabledIf('config_eveningends', 'config_enable_periods', 'eq', '1');
                 // End Time Time (Min)
                 unset($options);
                 $options = array(
                     0 => '00', 5 => '05', 10 => '10', 15 => '15', 20 => '20', 25 => '25', 30 => '30', 35 => '35', 40 => '40', 45 => '45',
                     50 => '50', 55 => '55'
                 );
-                $mform->addElement('select', 'config_eveningends_min', get_string('config_eveningends_min', 'block_mrbs'));
+                $mform->addElement('select', 'config_eveningends_min', get_string('config_eveningends_min', 'block_mrbs'), $options);
                 $mform->addElement('static', '', '', get_string('config_eveningends_min2', 'block_mrbs'));
                 $mform->setDefault('config_eveningends_min', 0);
-			} else {  //Use Custom Periods
-                $mform->addElement('textarea', 'periods', get_string('config_periods', 'block_mrbs'));
+                $mform->disabledIf('config_eveningends_min', 'config_enable_periods', 'eq', '1');
+                //Use Custom Periods
+                $mform->addElement('textarea', 'config_periods', get_string('config_periods', 'block_mrbs'));
                 $mform->addElement('static', '', '', get_string('config_periods2', 'block_mrbs'));
-                $mform->setType('periods', PARAM_TEXT);
-            }
-        }
+                $mform->setType('config_periods', PARAM_TEXT);
+                $mform->disabledIf('config_periods', 'config_enable_periods', 'neq', '1');
 
         // Date Information
-
         //Start of Week
         unset($options);
         $options = array(
