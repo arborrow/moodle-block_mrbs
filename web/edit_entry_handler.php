@@ -315,7 +315,7 @@ foreach ($rooms as $room_id) {
                 $oldbookinguser = $DB->get_record('user', array('username' => $clashingbooking->create_by));
                 $langvars->user = $USER->firstname.' '.$USER->lastname;
                 $langvars->room = $clashingbooking->room_name;
-                $langvars->time = to_hr_time($clashingbooking->start_time);
+                $langvars->time = to_hr_time($cfg_mrbs->enable_periods, $cfg_mrbs->periods, $clashingbooking->start_time);
                 $langvars->date = userdate($clashingbooking->start_time, '%A %d/%m/%Y');
                 $langvars->oldbooking = $clashingbooking->entryname;
                 $langvars->newbooking = $name;

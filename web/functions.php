@@ -1284,16 +1284,17 @@ function get_user_by_email($email) {
 /**
  * Convert a unix time to a human readable time. Gives period output if periods are enabled.
  *
+ * @param bool $enable_periods custom periods enabled
+ * @param string $periods custom periods listing in lines
  * @param int $time Unix timestamp
  * @return string       Name of the period or time in Hours:Minutes format
  *
  */
-function to_hr_time($time) {
-    $cfg_mrbs = get_config('block/mrbs');
-    if ($cfg_mrbs->enable_periods) {
-        $periods = explode("\n", $cfg_mrbs->periods);
+function to_hr_time($enable_periods, $periods, $time) {
+    if ($enable_periods) {
+        $periodslist = explode("\n", $periods);
         $period = intval(date('i', $time));
-        return trim($periods[$period]);
+        return trim($periodslist[$period]);
     } else {
         return date('G:i', $time);
     }

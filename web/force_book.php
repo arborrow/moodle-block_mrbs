@@ -22,7 +22,15 @@ function mrbsForceMove($instance_id, $room_id, $starttime, $endtime, $name, $id 
     global $USER;
     global $DB;
 
-    $cfg_mrbs = get_config('block/mrbs');
+    $instance_id = required_param('instance', PARAM_INT);
+    if(! isset($instance_id)) {
+        throw new \coding_exception('instance_id is a required param.');
+    }
+    $tmp = $DB->get_record('block_instances', array('id' => $instance_id), '*', MUST_EXIST);
+    if(! isset($tmp)) {
+        throw new \coding_exception('block_instance with id '.$instance_id.' must exist.');
+    }
+    $cfg_mrbs = unserialize(base64_decode($tmp->configdata)); //get Moodle config settings for this instance of the MRBS block
 
     $output = '';
 
@@ -65,7 +73,7 @@ function mrbsForceMove($instance_id, $room_id, $starttime, $endtime, $name, $id 
     foreach ($oldbookings as $oldbooking) {
 
         $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
-        $hrstarttime = to_hr_time($oldbooking->start_time - ($today));
+        $hrstarttime = to_hr_time($cfg_mrbs->enable_periods, $cfg_mrbs->periods, $oldbooking->start_time - ($today));
 
         //Work out how many students so they don't get put in a tiny classroom
         $sizequery = 'SELECT count(*) as count
