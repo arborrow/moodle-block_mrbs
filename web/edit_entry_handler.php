@@ -71,17 +71,17 @@ if (!$area) {
 $PAGE->set_url(new moodle_url('/blocks/mrbs/web/edit_entry_handler.php', array('instance' => $instance_id)));
 require_login();
 
-if (!getAuthorised(1)) {
+if (!getAuthorised($instance_id, 1)) {
     showAccessDenied($day, $month, $year, $area);
     exit;
 }
 
-$context = context_system::instance();
+$context = context_block::instance($instance_id);
 $PAGE->set_context($context);
 
 $roomadmin = false;
 $editunconfirmed = has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false);
-if (!getWritable($create_by, getUserName())) {
+if (!getWritable($instance_id, $create_by, getUserName())) {
     if ($editunconfirmed) {
         foreach ($rooms as $key => $room) {
             $adminemail = $DB->get_field('block_mrbs_room', 'room_admin_email', array('id' => $room));
@@ -100,7 +100,7 @@ if (!getWritable($create_by, getUserName())) {
 }
 
 // Make sure that confirmed bookings can't be made by non-room admins
-if (authGetUserLevel(getUserName()) < 2 && $editunconfirmed) {
+if (authGetUserLevel($instance_id, getUserName()) < 2 && $editunconfirmed) {
     foreach ($rooms as $room) {
         $adminemail = $DB->get_field('block_mrbs_room', 'room_admin_email', array('id' => $room));
         if ($adminemail != $USER->email) {

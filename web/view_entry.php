@@ -29,7 +29,7 @@ $room = optional_param('room', 0, PARAM_INT);
 $series = optional_param('series', 0, PARAM_INT);
 $pview = optional_param('pview', 0, PARAM_INT);
 
-$context = context_system::instance();
+$context = context_block::instance($instance_id);
 
 //if the booking belongs to the user looking at it, they probably want to edit it
 if ($record = $DB->get_record('block_mrbs_entry', array('id' => $id))) {
@@ -296,7 +296,7 @@ print_header_mrbs($day, $month, $year, $instance_id, $area);
 
 <?php
 
-$canedit = getWritable($booking->create_by, getUserName());
+$canedit = getWritable($instance_id, $booking->create_by, getUserName());
 if ($canedit || $roomadmin) {
     if (!$series) {
         $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('instance' => $instance_id, 'id' => $id));

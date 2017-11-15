@@ -45,7 +45,7 @@ $thisurl = new moodle_url('/blocks/mrbs/web/gotoroom.php', array(
 $PAGE->set_url($thisurl);
 require_login();
 
-if (!getAuthorised(1)) {
+if (!getAuthorised($instance_id, 1)) {
     showAccessDenied($day, $month, $year, null);
     exit;
 }

@@ -23,7 +23,7 @@ $dayurl = new moodle_url('/blocks/mrbs/web/day.php', array('instance' => $instan
 $PAGE->set_url($dayurl); // Hopefully will never be needed
 require_login();
 
-$context = context_system::instance();
+$context = context_block::instance($instance_id);
 
 if (!has_capability('block/mrbs:editmrbs', $context) && !has_capability('block/mrbs:administermrbs', $context)) {
     redirect($dayurl);

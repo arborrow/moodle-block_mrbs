@@ -102,7 +102,7 @@ require_login();
 // print the page header
 print_user_header_mrbs($day, $month, $year, $area);
 
-$context = context_system::instance();
+$context = context_block::instance($instance_id);
 
 if (!$user || !has_capability('block/mrbs:viewalltt', $context)) {
     $user = $USER->id;

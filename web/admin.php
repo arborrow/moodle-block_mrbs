@@ -44,7 +44,7 @@ if ($area) {
 $PAGE->set_url($thisurl);
 require_login();
 
-if (!getAuthorised(2)) {
+if (!getAuthorised($instance_id, 2)) {
     showAccessDenied($day, $month, $year, $area);
     exit();
 }

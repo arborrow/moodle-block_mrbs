@@ -120,7 +120,7 @@ function mrbsDelEntry($user, $instance_id, $id, $series, $all, $roomadminoverrid
     $removed = 0;
     $entries = $DB->get_records('block_mrbs_entry', $params);
     foreach ($entries as $entry) {
-        if (!$roomadminoverride && !getWritable($entry->create_by, $user)) {
+        if (!$roomadminoverride && !getWritable($instance_id, $entry->create_by, $user)) {
             continue;
         }
 

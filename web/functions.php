@@ -69,7 +69,6 @@ function print_header_mrbs($day = null, $month = null, $year = null, $instance_i
         $search_str = "";
     }
 
-    $context = context_system::instance();
 
     /// Print the header
     $PAGE->set_context($context);
@@ -133,7 +132,7 @@ function print_header_mrbs($day = null, $month = null, $year = null, $instance_i
         $searchurl = new moodle_url('/blocks/mrbs/web/search.php', array('instance' => $instance_id));
         $searchadvurl = new moodle_url($searchurl, array('advanced' => 1));
 
-        $level = authGetUserLevel($USER->id);
+        $level = authGetUserLevel($instance_id, $USER->id);
         $canadmin = $level >= 2;
 
         echo <<<HTML1END
