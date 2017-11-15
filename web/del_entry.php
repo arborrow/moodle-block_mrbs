@@ -30,7 +30,7 @@ require_login();
 
 require_sesskey();
 
-if (getAuthorised(1) && ($info = mrbsGetEntryInfo($instance_id, $id))) {
+if (getAuthorised($instance_id, 1) && ($info = mrbsGetEntryInfo($instance_id, $id))) {
     $day = userdate($info->start_time, "%d");
     $month = userdate($info->start_time, "%m");
     $year = userdate($info->start_time, "%Y");
@@ -40,7 +40,7 @@ if (getAuthorised(1) && ($info = mrbsGetEntryInfo($instance_id, $id))) {
         $mail_previous = getPreviousEntryData($id, $series);
     }
     $roomadmin = false;
-    $context = context_system::instance();
+    $context = context_block::instance($instance_id);
     if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
         $adminemail = $DB->get_field('block_mrbs_room', 'room_admin_email', array('instance' => $instance_id, 'id' => $info->room_id));
         if ($adminemail == $USER->email) {

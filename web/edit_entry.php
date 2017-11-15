@@ -72,7 +72,7 @@ if (!empty($minute)) {
 $PAGE->set_url($thisurl);
 require_login();
 
-if (!getAuthorised(1)) {
+if (!getAuthorised($instance_id, 1)) {
     showAccessDenied($day, $month, $year, $area);
     exit;
 }
@@ -214,10 +214,10 @@ $enable_periods ? toPeriodString($start_min, $duration, $dur_units) : toTimeStri
 
 //now that we know all the data to fill the form with we start drawing it
 
-$context = context_system::instance();
+$context = context_block::instance($instance_id);
 
 $roomadmin = false;
-if (!getWritable($create_by, getUserName())) {
+if (!getWritable($instance_id, $create_by, getUserName())) {
     if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
         if ($room_id) {
             $dbroom = $DB->get_record('block_mrbs_room', array('id' => $room_id));
@@ -520,7 +520,7 @@ print_header_mrbs($day, $month, $year, $instance_id, $area);
                         if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
                             $unconfirmed = true;
                         }
-                        if (authGetUserLevel(getUserName()) < 2 && $unconfirmed) {
+                        if (authGetUserLevel($instance_id, getUserName()) < 2 && $unconfirmed) {
                             if ($USER->email != $rooms[$room_id]->room_admin_email) {
                                 $type = 'U';
                                 $unconfirmedonly = true;

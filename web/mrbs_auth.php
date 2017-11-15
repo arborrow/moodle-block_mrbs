@@ -23,32 +23,32 @@ if (isset($auth['session'])) {
     include "session_$auth[session].php";
 }
 
-/* getAuthorised($user, $pass, $level)
+/* getAuthorised($instance_id, $level)
  *
- * Check to see if the user name/password is valid
+ * Check to see if the user has required access level
  *
- * $user  - The user name
- * $pass  - The users password
+ * $instance_id - MRBS instance
  * $level - The access level required
  *
  * Returns:
  *   0        - The user does not have the required access
  *   non-zero - The user has the required access
  */
-function getAuthorised($level) {
+function getAuthorised($instance_id, $level) {
     $user = getUserName();
     if (isset($user) == false) {
         authGet();
         return 0;
     }
 
-    return authGetUserLevel($user) >= $level;
+    return authGetUserLevel($instance_id, $user) >= $level;
 }
 
-/* getWritable($creator, $user)
+/* getWritable($instance_id, $creator, $user)
  *
  * Determines if a user is able to modify an entry
  *
+ * $instance_id - MRBS instance
  * $creator - The creator of the entry
  * $user    - Who wants to modify it
  *
@@ -56,13 +56,13 @@ function getAuthorised($level) {
  *   0        - The user does not have the required access
  *   non-zero - The user has the required access
  */
-function getWritable($creator, $user) {
+function getWritable($instance_id, $creator, $user) {
     // Always allowed to modify your own stuff
     if (strcasecmp($creator, $user) == 0) {
         return 1;
     }
 
-    if (authGetUserLevel($user) >= 2) {
+    if (authGetUserLevel($instance_id, $user) >= 2) {
         return 1;
     }
 

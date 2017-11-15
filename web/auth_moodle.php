@@ -46,9 +46,9 @@ function authValidateUser($user, $pass) {
     return 1;
 }
 
-function authGetUserLevel($user) {
+function authGetUserLevel($instance_id, $user) {
     // HACK For Moodle 1.7 With Roles Block...
-    $context = context_system::instance();
+    $context = context_block::instance($instance_id);
 
     // Set Access leve for users via MRBS block and Moodle 1.7 roles
     if (has_capability('block/mrbs:administermrbs', $context)) {
