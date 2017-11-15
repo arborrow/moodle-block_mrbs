@@ -661,7 +661,7 @@ print_header_mrbs($day, $month, $year, $instance_id, $area);
                 <?php
                 if ($id) { //always be able to delete entry and if part of a series then add option to delete entire series.
                     $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array(
-                        'instance => $instance_id, 'id' => $id, 'series' => 0, 'sesskey' => sesskey()
+                        'instance' => $instance_id, 'id' => $id, 'series' => 0, 'sesskey' => sesskey()
                     ));
                     echo "<NOSCRIPT><a id=\"dellink\" HREF=\"".$delurl."\">".get_string('deleteentry', 'block_mrbs')."</A></NOSCRIPT>"
                         ."<script type=\"text/javascript\">
