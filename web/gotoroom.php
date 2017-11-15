@@ -50,7 +50,7 @@ if (!getAuthorised(1)) {
     exit;
 }
 
-$sql = "SELECT area_id, area_name FROM {block_mrbs_room} AS r JOIN {block_mrbs_area} AS a ON a.id = r.area_id WHERE instance = ? AND (room_name = ? OR room_name = ?)";
+$sql = "SELECT area_id, area_name FROM {block_mrbs_room} AS r JOIN {block_mrbs_area} AS a ON a.id = r.area_id WHERE r.instance = ? AND (room_name = ? OR room_name = ?)";
 
 $area = $DB->get_record_sql($sql, array($instance_id, $room, '0'.$room), IGNORE_MULTIPLE);
 if ($area) {

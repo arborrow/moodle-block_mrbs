@@ -77,6 +77,7 @@ if (!getAuthorised(1)) {
 }
 
 $context = context_system::instance();
+$PAGE->set_context($context);
 
 $roomadmin = false;
 $editunconfirmed = has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false);
@@ -373,7 +374,7 @@ if (empty($err)) {
                     if ($id > 0) {
                         $mail_previous = getPreviousEntryData($id, $rep_details->repeating);
                     }
-                    $result = notifyAdminOnBooking(($id == 0), $new_id, $enddate);
+                    $result = notifyAdminOnBooking($instance_id, ($id == 0), $new_id, $enddate);
                 }
             }
         } else {
@@ -413,7 +414,7 @@ if (empty($err)) {
                     if ($id > 0) {
                         $mail_previous = getPreviousEntryData($id, 0);
                     }
-                    $result = notifyAdminOnBooking(($id == 0), $new_id);
+                    $result = notifyAdminOnBooking($instance_id, ($id == 0), $new_id);
                 }
             }
         }

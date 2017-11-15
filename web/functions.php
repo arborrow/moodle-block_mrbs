@@ -30,11 +30,24 @@ function print_user_header_mrbs($day = null, $month = null, $year = null, $insta
 function print_header_mrbs($day = null, $month = null, $year = null, $instance_id = 0, $area = null, $userview = false) //if values are not passed assume NULL
 {
     global $search_str, $locale_warning, $pview;
-    global $OUTPUT, $PAGE, $USER;
+    global $OUTPUT, $PAGE, $USER, $DB;
     global $javascript_cursor;
 
-    $strmrbs = get_string('blockname', 'block_mrbs');
-
+    $instance_id = required_param('instance', PARAM_INT);
+    if(! isset($instance_id)) {
+        throw new \coding_exception('instance_id is a required param.');
+    }
+    $tmp = $DB->get_record('block_instances', array('id' => $instance_id), '*', MUST_EXIST);
+    if(! isset($tmp)) {
+        throw new \coding_exception('block_instance with id '.$instance_id.' must exist.');
+    }
+    $cfg_mrbs = unserialize(base64_decode($tmp->configdata)); //get Moodle config settings for this instance of the MRBS block
+    if( isset($cfg_mrbs->title)) {
+        $strmrbs = $cfg_mrbs->title;
+    } else {
+        $strmrbs = get_string('blockname', 'block_mrbs');
+    }
+    
     if (!$site = get_site()) {
         redirect(new moodle_url('/admin/index.php', array('instance' => $instance_id)));
     }
@@ -91,7 +104,11 @@ function print_header_mrbs($day = null, $month = null, $year = null, $instance_i
             echo "[Warning: ".$locale_warning."]";
         }
 
-        $titlestr = get_string('mrbs', 'block_mrbs');
+        if (isset($cfg_mrbs->title)) {
+            $titlestr = $cfg_mrbs->title;
+        } else {
+            $titlestr = get_string('mrbs', 'block_mrbs');
+        }
         $homeurl = new moodle_url('/blocks/mrbs/web/index.php', array('instance' => $instance_id));
 
         $gotostr = get_string('goto', 'block_mrbs');
@@ -647,14 +664,15 @@ function getMailTimeDateString($t, $inc_time = true) {
 /**
  * Send email to administrator to notify a new/changed entry.
  *
+ * @param int $instance_id MRBS instance
  * @param bool $new_entry to know if this is a new entry or not
  * @param int $new_id used for create a link to the new entry
  * @param int $modified_enddate if set, represents the actual end date of the repeat booking (after restrictions)
  * @return bool                 TRUE or PEAR error object if fails
  */
-function notifyAdminOnBooking($new_entry, $new_id, $modified_enddate = null) {
-    global $DB;
-    global $url_base, $returl, $name, $description, $area_name;
+function notifyAdminOnBooking($instance_id, $new_entry, $new_id, $modified_enddate = null) {
+    global $DB, $CFG;
+    global $url_base, $name, $description, $area_name;
     global $room_name, $starttime, $duration, $dur_units, $end_date, $endtime;
     global $rep_enddate, $typel, $type, $create_by, $rep_type, $enable_periods;
     global $rep_opt, $rep_num_weeks;
@@ -770,10 +788,9 @@ function notifyAdminOnBooking($new_entry, $new_id, $modified_enddate = null) {
     }
     // Set the link to view entry page
     if (isset($url_base) && ($url_base != "")) {
-        $body .= "$url_base/view_entry.php?id=$new_id";
+        $body .= "$url_base/view_entry.php?instance=".$instance_id."&id=$new_id";
     } else {
-        ('' != $returl) ? $url = explode(basename($returl), $returl) : '';
-        $body .= $url[0]."view_entry.php?id=$new_id";
+        $body .= $CFG->wwwroot."/blocks/mrbs/web/view_entry.php?instance=".$instance_id."&id=$new_id";
     }
     if ($rep_type > 0) {
         $body .= "&series=1";
@@ -931,10 +948,11 @@ function notifyAdminOnBooking($new_entry, $new_id, $modified_enddate = null) {
 /**
  * Send email to administrator to notify a new/changed entry.
  *
+ * @param   int   $instance_id MRBS instance
  * @param   array $mail_previous contains deleted entry data forr email body
  * @return  bool    TRUE or PEAR error object if fails
  */
-function notifyAdminOnDelete($mail_previous) {
+function notifyAdminOnDelete($instance_id, $mail_previous) {
     global $typel, $enable_periods, $auth, $DB;
 
     $recipientlist = array();
@@ -1272,7 +1290,9 @@ function unHtmlEntities($string) {
 }
 
 function get_user_by_email($email) {
-    if ($recipient_user = get_complete_user_data('email', $email)) {
+    global $DB;
+    $id = $DB->get_field('user','id', array('email' => $email),IGNORE_MISSING || IGNORE_MULTIPLE);
+    if ($id && $recipient_user = get_complete_user_data('id', $id)) {
         return $recipient_user;
     } else {
         return false;

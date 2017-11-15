@@ -51,7 +51,7 @@ if (getAuthorised(1) && ($info = mrbsGetEntryInfo($instance_id, $id))) {
 
     if ($result) {
         // Send a mail to the Administrator
-        (MAIL_ADMIN_ON_DELETE) ? $result = notifyAdminOnDelete($mail_previous) : '';
+        (MAIL_ADMIN_ON_DELETE) ? $result = notifyAdminOnDelete($instance_id, $mail_previous) : '';
         $desturl = new moodle_url('/blocks/mrbs/web/day.php', array(
             'instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year, 'area' => $area
         ));
