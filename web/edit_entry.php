@@ -333,7 +333,7 @@ print_header_mrbs($day, $month, $year, $instance_id, $area);
         <?php if ($edit_type != 'series' && $rep_id) { ?>
             <tr>
                 <td colspan="2"><b><?php $editseriesurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array(
-                            'id' => $id, 'edit_type' => 'series'
+                            'instance' => $instance_id, 'id' => $id, 'edit_type' => 'series'
                         ));
                         echo get_string('editingserieswarning', 'block_mrbs');
                         echo html_writer::link($editseriesurl, get_string('editseries', 'block_mrbs')); ?>
@@ -661,7 +661,7 @@ print_header_mrbs($day, $month, $year, $instance_id, $area);
                 <?php
                 if ($id) { //always be able to delete entry and if part of a series then add option to delete entire series.
                     $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array(
-                        'id' => $id, 'series' => 0, 'sesskey' => sesskey()
+                        'instance => $instance_id, 'id' => $id, 'series' => 0, 'sesskey' => sesskey()
                     ));
                     echo "<NOSCRIPT><a id=\"dellink\" HREF=\"".$delurl."\">".get_string('deleteentry', 'block_mrbs')."</A></NOSCRIPT>"
                         ."<script type=\"text/javascript\">
@@ -669,7 +669,7 @@ print_header_mrbs($day, $month, $year, $instance_id, $area);
                  </script>";
                     if ($rep_id) {
                         $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array(
-                            'id' => $id, 'series' => 1, 'sesskey' => sesskey(),
+                            'instance' => $instance_id, 'id' => $id, 'series' => 1, 'sesskey' => sesskey(),
                             'day' => $day, 'month' => $month, 'year' => $year
                         ));
                         echo " - ";

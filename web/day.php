@@ -110,7 +110,7 @@ if ($pview != 1) {
     echo "</td>\n";
 
     //insert the goto room form
-    $gotoroom = new moodle_url('/blocks/mrbs/web/gotoroom.php');
+    $gotoroom = new moodle_url('/blocks/mrbs/web/gotoroom.php', array('instance' => $instance_id));
     $gostr = get_string('goroom', 'block_mrbs');
     $gotoval = '';
     $gotomsg = '';
@@ -439,7 +439,7 @@ if (!empty($area)) {
                 for ($i = 0; $i < count($descrs); $i++) {
                     $viewentry = new moodle_url('/blocks/mrbs/web/view_entry.php',
                                                 array(
-													'instance' => $instance_id,
+                                                    'instance' => $instance_id,
                                                     'id' => $ids[$i], 'area' => $area, 'day' => $day, 'month' => $month,
                                                     'year' => $year
                                                 ));

@@ -443,7 +443,7 @@ if (strlen($err)) {
 
     echo $err;
     if (has_capability('block/mrbs:doublebook', $context) && $errtype == MRBS_ERR_DOUBLEBOOK) {
-        $thisurl = new moodle_url('/blocks/mrbs/web/edit_entry_handler.php');
+        $thisurl = new moodle_url('/blocks/mrbs/web/edit_entry_handler.php', array('instance' => $instance_id));
         echo '<form method="post" action="'.$thisurl.'">';
         echo '<input type="hidden" name="name" value="'.$name.'" />';
         echo '<input type="hidden" name="description" value="'.$description.'" />';

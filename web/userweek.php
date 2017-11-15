@@ -75,7 +75,7 @@ if (($weekday = (date("w", $time) - $weekstarts + 7) % 7) > 0) {
 }
 
 $baseurl = new moodle_url('/blocks/mrbs/web/userweek.php', array(
-    'day' => $day, 'month' => $month, 'year' => $year
+    'instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year
 )); // Used as the basis for URLs throughout this file
 $thisurl = new moodle_url($baseurl);
 if ($area > 0) {
@@ -268,6 +268,7 @@ for ($j = 0; $j <= ($num_of_days - 1); $j++) {
     $t = mktime(12, 0, 0, $month, $day + $j, $year);
     $dayurl = new moodle_url('/blocks/mrbs/web/day.php',
                              array(
+                                 'instance' => $insance_id,
                                  'year' => userdate($t, "%Y"), 'month' => userdate($t, "%m"),
                                  'day' => userdate($t, "%d"), 'area' => $area
                              ));
@@ -397,6 +398,7 @@ for ($t = $starttime; $t <= $endtime; $t += $resolution) {
                 }
                 $viewentry = new moodle_url('/blocks/mrbs/web/view_entry.php',
                                             array(
+                                                'instance' => $instance_id,
                                                 'id' => $ids[$i], 'area' => $area, 'day' => $wday,
                                                 'month' => $wmonth, 'year' => $wyear
                                             ));

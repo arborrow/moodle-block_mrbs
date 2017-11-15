@@ -332,7 +332,7 @@ for ($j = 0; $j <= ($num_of_days - 1); $j++) {
     $t = mktime(12, 0, 0, $month, $day + $j, $year);
     $dayurl = new moodle_url('/blocks/mrbs/web/day.php',
                              array(
-								 'instance' => $instance_id,
+                                 'instance' => $instance_id,
                                  'year' => userdate($t, "%Y"), 'month' => userdate($t, "%m"),
                                  'day' => userdate($t, "%d"), 'area' => $area
                              ));

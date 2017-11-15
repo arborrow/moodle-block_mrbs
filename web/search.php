@@ -179,7 +179,7 @@ foreach ($result as $entry) {
     $link = getdate($entry->start_time);
     $dayurl = new moodle_url('/blocks/mrbs/web/day.php',
                              array(
-								 'instance' => $instance_id, 
+                                 'instance' => $instance_id, 
                                  'day' => $link['mday'], 'month' => $link['mon'], 'year' => $link['year'],
                                  'area' => $entry->area_id
                              ));
