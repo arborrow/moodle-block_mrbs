@@ -48,7 +48,7 @@ class block_mrbs extends block_base {
             return $this->content;
         }
 
-        $context = context_system::instance();
+        $context = context_block::instance($this->instance->id);
 
         if (has_capability('block/mrbs:viewmrbs', $context) or has_capability('block/mrbs:editmrbs', $context) or has_capability('block/mrbs:administermrbs', $context)) {
             $go = get_string('accessmrbs', 'block_mrbs');

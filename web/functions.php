@@ -52,7 +52,7 @@ function print_header_mrbs($day = null, $month = null, $year = null, $instance_i
         redirect(new moodle_url('/admin/index.php', array('instance' => $instance_id)));
     }
 
-    $context = context_system::instance();
+    $context = context_block::instance($instance_id);
     require_capability('block/mrbs:viewmrbs', $context);
 
     // If we dont know the right date then make it up
