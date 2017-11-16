@@ -33,6 +33,8 @@ class block_mrbs extends block_base {
 	if($this->config == null) {
 	    $this->config = get_config('block/mrbs');
 	    $this->config->title = get_string('newmrbsblock','block_mrbs');
+	    $this->config->linkname = get_string('accessmrbs','blockmrbs');
+	    $this->instance_config_commit();
 	}
         $this->title = isset($this->config->title) ? format_string($this->config->title) : format_string(get_string('newmrbsblock', 'block_mrbs'));
     }
@@ -67,10 +69,10 @@ class block_mrbs extends block_base {
                 $serverpath = $CFG->wwwroot.'/blocks/mrbs/web';
             }
             if (isset($this->instance->id)) {
-		$instance = $this->instance->id;
-	    } else {
-		$instance = 0;
-	    }
+                $instance = $this->instance->id;
+            } else {
+                throw new \coding_error("Instance id must be set<br/>\n");
+            }
             $this->content = new stdClass;
             $this->content->text = '<a href="'.$serverpath.'/index.php?instance='.$instance.'" '.$target.'>'.$icon.' &nbsp;'.$go.'</a>';
             $this->content->footer = '';

@@ -14,7 +14,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
 // probably a bad place to put this, but for error reporting purposes
 // $pview must be defined. if it's not then there's errors generated all
@@ -30,9 +29,9 @@ function print_user_header_mrbs($day = null, $month = null, $year = null, $insta
 function print_header_mrbs($day = null, $month = null, $year = null, $instance_id = 0, $area = null, $userview = false) //if values are not passed assume NULL
 {
     global $search_str, $locale_warning, $pview;
-    global $OUTPUT, $PAGE, $USER, $DB;
+    global $OUTPUT, $PAGE, $USER, $DB, $COURSE;
     global $javascript_cursor;
-
+    
     $instance_id = required_param('instance', PARAM_INT);
     if(! isset($instance_id)) {
         throw new \coding_exception('instance_id is a required param.');
