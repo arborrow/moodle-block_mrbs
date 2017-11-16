@@ -236,8 +236,8 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
             $dbman->add_field($table, $field);
             echo "Added instance field to mrbs table block_mrbs_room<br/>\n";
         }
-        // Add context level block to manager, student, teacher archetype
-        $roles = ('student', 'teacher','manager');
+        // Add context level block to manager, student, editingteacher archetype
+        $roles = array('student', 'editingteacher','manager');
         foreach($roles as $role) {
             $roleid = $DB->get_field('role', 'id', array('shortname' => $role), MUST_EXIST);
             if(! $roleid) {
@@ -245,11 +245,11 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
             }
             $levels = get_role_contextlevels($roleid);
             if(! in_array(CONTEXT_BLOCK, $levels)) {
-                $levels = array_push($levels, CONTEXT_BLOCK);
-                set_role_contextlevels($role, $levels);
+                array_push($levels, CONTEXT_BLOCK);
+                set_role_contextlevels($roleid, $levels);
             }
         }
-        echo "Added context level block to manager, student, teacher roles.<br/>\n<br/>\n";
+        echo "Added context level block to manager, student, editingteacher roles.<br/>\n<br/>\n";
         
         echo "Imported global mrbs to instance \'Imported MRBS\' with id '.$instance_id.'<br/>\n";
         echo "Please add \'?instance='.$instance_id.'\' to point your links to this instance.<br/>\n";
