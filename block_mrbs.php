@@ -51,7 +51,11 @@ class block_mrbs extends block_base {
         $context = context_block::instance($this->instance->id);
 
         if (has_capability('block/mrbs:viewmrbs', $context) or has_capability('block/mrbs:editmrbs', $context) or has_capability('block/mrbs:administermrbs', $context)) {
-            $go = get_string('accessmrbs', 'block_mrbs');
+            if (isset($this->instance->linkname)) {
+                $go = $this->instance->linkname;
+            } else {
+                $go = get_string('accessmrbs', 'block_mrbs');
+            }
             $icon = $OUTPUT->pix_icon('web', 'MRBS icon', 'block_mrbs', array('height' => "16", 'width' => "16"));
             $target = '';
             if (isset($this->config->newwindow) and $this->config->newwindow) {

@@ -46,7 +46,7 @@ $PAGE->set_url($thisurl);
 require_login();
 
 if (!getAuthorised($instance_id, 1)) {
-    showAccessDenied($day, $month, $year, null);
+    showAccessDenied($day, $month, $year, $instance_id, null);
     exit;
 }
 

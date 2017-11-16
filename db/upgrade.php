@@ -168,7 +168,7 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
         }
     }
 
-    if ($oldversion < 2017111501) {
+    if ($oldversion < 2017111601) {
 	// Create system context instance from global config and move data to that instance.
 	echo "Moving first instance to block in system context on site-index page<br/>\n";
 	
@@ -236,11 +236,26 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
             $dbman->add_field($table, $field);
             echo "Added instance field to mrbs table block_mrbs_room<br/>\n";
         }
+        // Add context level block to manager, student, teacher archetype
+        $roles = ('student', 'teacher','manager');
+        foreach($roles as $role) {
+            $roleid = $DB->get_field('role', 'id', array('shortname' => $role), MUST_EXIST);
+            if(! $roleid) {
+                throw new \coding_exception("The \'".$role."\' role must exist<br/>\n");
+            }
+            $levels = get_role_contextlevels($roleid);
+            if(! in_array(CONTEXT_BLOCK, $levels)) {
+                $levels = array_push($levels, CONTEXT_BLOCK);
+                set_role_contextlevels($role, $levels);
+            }
+        }
+        echo "Added context level block to manager, student, teacher roles.<br/>\n<br/>\n";
+        
         echo "Imported global mrbs to instance \'Imported MRBS\' with id '.$instance_id.'<br/>\n";
         echo "Please add \'?instance='.$instance_id.'\' to point your links to this instance.<br/>\n";
         
 	// mrbs savepoint reached
-	upgrade_block_savepoint(true, 2017111501, 'mrbs');
+	upgrade_block_savepoint(true, 2017111601, 'mrbs');
     }
     return true;
 }

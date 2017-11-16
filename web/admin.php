@@ -14,9 +14,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+# debug function
+function kill($data){ var_dump($data); exit; }
+@ini_set('display_errors','1');
 
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
-global $PAGE, $CFG, $DB;
+global $PAGE, $CFG, $DB, $COURSE;
 require "config.inc.php";
 require "functions.php";
 require_once("mrbs_auth.php");
@@ -44,8 +47,10 @@ if ($area) {
 $PAGE->set_url($thisurl);
 require_login();
 
+$context = context_block::instance($instance_id);
+if(has_capability('mrbs:
 if (!getAuthorised($instance_id, 2)) {
-    showAccessDenied($day, $month, $year, $area);
+    showAccessDenied($day, $month, $year, $instance_id, $area);
     exit();
 }
 

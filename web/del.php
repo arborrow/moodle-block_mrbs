@@ -53,7 +53,7 @@ $PAGE->set_url($thisurl);
 require_login();
 
 if (!getAuthorised($instance_id, 2)) {
-    showAccessDenied($day, $month, $year, $area);
+    showAccessDenied($day, $month, $year, $instance_id, $area);
     exit();
 }
 require_sesskey();

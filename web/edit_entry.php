@@ -73,7 +73,7 @@ $PAGE->set_url($thisurl);
 require_login();
 
 if (!getAuthorised($instance_id, 1)) {
-    showAccessDenied($day, $month, $year, $area);
+    showAccessDenied($day, $month, $year, $instance_id, $area);
     exit;
 }
 
@@ -228,7 +228,7 @@ if (!getWritable($instance_id, $create_by, getUserName())) {
     }
 
     if (!$roomadmin) {
-        showAccessDenied($day, $month, $year, $area);
+        showAccessDenied($day, $month, $year, $instance_id, $area);
         exit;
     }
 }

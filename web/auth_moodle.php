@@ -39,7 +39,6 @@
  *      $auth["session"] = "moodle";
  *
  */
-
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
 
 function authValidateUser($user, $pass) {

@@ -32,6 +32,11 @@ class block_mrbs_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_title', get_string('configtitle', 'block_html'));
         $mform->setType('config_title', PARAM_TEXT);
 
+        $mform->addElement('text', 'config_linkname', get_string('config_linkname', 'block_html'));
+        $mform->addElement('static', '', '', get_string('config_linkname2', 'block_mrbs'));
+        $mform->setType('config_linkname', PARAM_TEXT);
+        $mform->setDefault('config_linkname', get_string('accessmrbs', 'block_html');
+        
         $options = array(0 => get_string('pagewindow', 'block_mrbs'), 1 => get_string('newwindow', 'block_mrbs'));
         $mform->addElement('select', 'config_newwindow', get_string('config_new_window', 'block_mrbs'), $options);
         $mform->setDefault('config_newwindow',1);
