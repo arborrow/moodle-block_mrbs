@@ -168,11 +168,37 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
         }
     }
 
+    if ($oldversion < 2016101700) {
+        // Changing type of field area_name on table block_mrbs_area to char.
+        $table = new xmldb_table('block_mrbs_area');
+        $field = new xmldb_field('area_name', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'id');
+
+        // Launch change of type for field area_name.
+        $dbman->change_field_type($table, $field);
+
+        // Changing type of field room_name on table block_mrbs_room to char.
+        $table = new xmldb_table('block_mrbs_room');
+        $field = new xmldb_field('room_name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'area_id');
+
+        // Launch change of type for field room_name.
+        $dbman->change_field_type($table, $field);
+
+        // Changing type of field description on table block_mrbs_room to char.
+        $table = new xmldb_table('block_mrbs_room');
+        $field = new xmldb_field('description', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'room_name');
+
+        // Launch change of type for field description.
+        $dbman->change_field_type($table, $field);
+
+        // Mrbs savepoint reached.
+        upgrade_block_savepoint(true, 2016101700, 'mrbs');
+    }
+
     if ($oldversion < 2017111601) {
-	// Create system context instance from global config and move data to that instance.
-	echo "Moving first instance to block in system context on site-index page<br/>\n";
-	
-	// Add this block to the blocks on site-index.
+        // Create system context instance from global config and move data to that instance.
+        echo "Moving first instance to block in system context on site-index page<br/>\n";
+
+        // Add this block to the blocks on site-index.
         $blockname = 'mrbs';
         $page = new moodle_page();
         $page->set_context(context_system::instance());
@@ -187,26 +213,26 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
             // Add the block to site-index.
             $page->blocks->add_region(BLOCK_POS_LEFT);
             $page->blocks->add_block($blockname, BLOCK_POS_LEFT, -8, false, 'site-index');
-	    
-	    // Move configuration from global config to instance
-	    $cfg_mrbs = get_config('block/mrbs');
-	    $cfg_mrbs = 'Imported MRBS';
-	    $tmp = $DB->get_record('block_instances', $criteria, '*', MUST_EXIST);
-	    if(!isset($tmp)) {
-		throw new \coding_exception('block_instance \'block_mrbs\' with id '.$instance_id.' must exist on \'site-index\'.');
-	    }
-	    $instance_id = $tmp->id;
-	    $tmp->configdata = base64_encode(serialize($cfg_mrbs));
-	    $DB->update_record('block_instances', $tmp);
+            
+            // Move configuration from global config to instance
+            $cfg_mrbs = get_config('block/mrbs');
+            $cfg_mrbs = 'Imported MRBS';
+            $tmp = $DB->get_record('block_instances', $criteria, '*', MUST_EXIST);
+            if(!isset($tmp)) {
+                throw new \coding_exception('block_instance \'block_mrbs\' with id '.$instance_id.' must exist on \'site-index\'.');
+            }
+            $instance_id = $tmp->id;
+            $tmp->configdata = base64_encode(serialize($cfg_mrbs));
+            $DB->update_record('block_instances', $tmp);
         } else {
-	    $instance_id = $DB->get_field('block_instances', 'id', $criteria, MUST_EXIST);
-	}
-	if(!isset($instance_id)) {
+            $instance_id = $DB->get_field('block_instances', 'id', $criteria, MUST_EXIST);
+        }
+        if(!isset($instance_id)) {
             throw new \coding_exception('block instance \'block_mrbs\' with id '.$instance_id.' must exist on \'site-index\'');
-	}
+        }
 
-	// Add instance field to each table.
-	echo "Adding instance field to each mrbs table<br/>\n";
+        // Add instance field to each table.
+        echo "Adding instance field to each mrbs table<br/>\n";
 
         $table = new xmldb_table('block_mrbs_area');
         $field = new xmldb_field('instance', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, $instance_id, 'id');
@@ -254,8 +280,8 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
         echo "Imported global mrbs to instance \'Imported MRBS\' with id '.$instance_id.'<br/>\n";
         echo "Please add \'?instance='.$instance_id.'\' to point your links to this instance.<br/>\n";
         
-	// mrbs savepoint reached
-	upgrade_block_savepoint(true, 2017111601, 'mrbs');
+        // mrbs savepoint reached
+        upgrade_block_savepoint(true, 2017111601, 'mrbs');
     }
     return true;
 }

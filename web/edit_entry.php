@@ -66,7 +66,7 @@ if (!empty($hour)) {
     $thisurl->param('hour', $hour);
 }
 if (!empty($minute)) {
-    $thisurl->param('minute', $minute);;
+    $thisurl->param('minute', $minute);
 }
 
 $PAGE->set_url($thisurl);
