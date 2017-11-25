@@ -38,6 +38,10 @@ $settings->add(new admin_setting_configtext('serverpath', get_string('serverpath
                                             get_string('adminview', 'block_mrbs'), $CFG->wwwroot.'/blocks/mrbs/web', PARAM_URL));
 $settings->settings->serverpath->plugin = 'block/mrbs';
 
+$settings->add(new admin_setting_configtext('default_instance', get_string('default_instance', 'block_mrbs'),
+                                            get_string('default_instance2', 'block_mrbs'), 0, PARAM_INT));
+$settings->settings->serverpath->plugin = 'block/mrbs';
+
 $settings->add(new admin_setting_configtext('admin', get_string('config_admin', 'block_mrbs'), get_string('config_admin2', 'block_mrbs'), $CFG->supportname, PARAM_TEXT));
 $settings->settings->admin->plugin = 'block/mrbs';
 

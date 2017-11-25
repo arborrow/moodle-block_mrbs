@@ -22,9 +22,14 @@
 
 //For integration with Moodle
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
-global $DB;
+global $DB,$CFG;
 
-$instance_id = required_param('instance', PARAM_INT);
+$instance_id = optional_param('instance', PARAM_INT);
+if(!isset($instance_id)) {
+    if(isset($CFG->default_instance)) {
+        $instance_id = $CFG->default_instance;
+    }
+}
 if(! isset($instance_id)) {
     throw new \coding_exception('instance_id is a required param.');
 }

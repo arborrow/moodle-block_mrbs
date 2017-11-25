@@ -216,12 +216,13 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
             
             // Move configuration from global config to instance
             $cfg_mrbs = get_config('block/mrbs');
-            $cfg_mrbs = 'Imported MRBS';
+            $cfg_mrbs->name = 'Imported MRBS';
             $tmp = $DB->get_record('block_instances', $criteria, '*', MUST_EXIST);
             if(!isset($tmp)) {
                 throw new \coding_exception('block_instance \'block_mrbs\' with id '.$instance_id.' must exist on \'site-index\'.');
             }
             $instance_id = $tmp->id;
+            $cfg_mrbs->default_instance = $instance_id;
             $tmp->configdata = base64_encode(serialize($cfg_mrbs));
             $DB->update_record('block_instances', $tmp);
         } else {
