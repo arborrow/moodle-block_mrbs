@@ -25,35 +25,36 @@ include "mrbs_sql.php";
 $id = required_param('id', PARAM_INT);
 $series = optional_param('series', 0, PARAM_INT);
 
-$PAGE->set_url('/blocks/mrbs/web/del_entry.php', array('id' => $id));
+$PAGE->set_url('/blocks/mrbs/web/del_entry.php', array('instance' => $instance_id, 'id' => $id));
 require_login();
 
 require_sesskey();
 
-if (getAuthorised(1) && ($info = mrbsGetEntryInfo($id))) {
+if (getAuthorised($instance_id, 1) && ($info = mrbsGetEntryInfo($instance_id, $id))) {
     $day = userdate($info->start_time, "%d");
     $month = userdate($info->start_time, "%m");
     $year = userdate($info->start_time, "%Y");
-    $area = mrbsGetRoomArea($info->room_id);
+    $area = mrbsGetRoomArea($instance_id, $info->room_id);
 
     if (MAIL_ADMIN_ON_DELETE) { // Gather all fields values for use in emails.
         $mail_previous = getPreviousEntryData($id, $series);
     }
     $roomadmin = false;
-    $context = context_system::instance();
+    $context = context_block::instance($instance_id);
+    $PAGE->set_context($context);
     if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
-        $adminemail = $DB->get_field('block_mrbs_room', 'room_admin_email', array('id' => $info->room_id));
+        $adminemail = $DB->get_field('block_mrbs_room', 'room_admin_email', array('instance' => $instance_id, 'id' => $info->room_id));
         if ($adminemail == $USER->email) {
             $roomadmin = true;
         }
     }
-    $result = mrbsDelEntry(getUserName(), $id, $series, 1, $roomadmin);
+    $result = mrbsDelEntry(getUserName(), $instance_id, $id, $series, 1, $roomadmin);
 
     if ($result) {
         // Send a mail to the Administrator
-        (MAIL_ADMIN_ON_DELETE) ? $result = notifyAdminOnDelete($mail_previous) : '';
+        (MAIL_ADMIN_ON_DELETE) ? $result = notifyAdminOnDelete($instance_id, $mail_previous) : '';
         $desturl = new moodle_url('/blocks/mrbs/web/day.php', array(
-            'day' => $day, 'month' => $month, 'year' => $year, 'area' => $area
+            'instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year, 'area' => $area
         ));
         redirect($desturl);
         exit();
@@ -61,4 +62,4 @@ if (getAuthorised(1) && ($info = mrbsGetEntryInfo($id))) {
 }
 
 // If you got this far then we got an access denied.
-showAccessDenied($day, $month, $year, $area);
+showAccessDenied($day, $month, $year, $instance_id, $area);

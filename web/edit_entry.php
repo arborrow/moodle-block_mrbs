@@ -43,12 +43,12 @@ if (($day == 0) or ($month == 0) or ($year == 0)) {
     $year = date("Y");
 }
 
-$thisurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('day' => $day, 'month' => $month, 'year' => $year));
+$thisurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year));
 
 if ($area) {
     $thisurl->param('area', $area);
 } else {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 if ($id) {
     $thisurl->param('id', $id);
@@ -66,14 +66,14 @@ if (!empty($hour)) {
     $thisurl->param('hour', $hour);
 }
 if (!empty($minute)) {
-    $thisurl->param('minute', $minute);;
+    $thisurl->param('minute', $minute);
 }
 
 $PAGE->set_url($thisurl);
 require_login();
 
-if (!getAuthorised(1)) {
-    showAccessDenied($day, $month, $year, $area);
+if (!getAuthorised($instance_id, 1)) {
+    showAccessDenied($day, $month, $year, $instance_id, $area);
     exit;
 }
 
@@ -91,7 +91,7 @@ if (!getAuthorised(1)) {
 // and if it's a modification we need to get all the old data from the db.
 // If we had $id passed in then it's a modification.
 if ($id > 0) {
-    $entry = $DB->get_record('block_mrbs_entry', array('id' => $id), '*', MUST_EXIST);
+    $entry = $DB->get_record('block_mrbs_entry', array('instance' => $instance_id, 'id' => $id), '*', MUST_EXIST);
     // Note: Removed stripslashes() calls from name and description. Previous
     // versions of MRBS mistakenly had the backslash-escapes in the actual database
     // records because of an extra addslashes going on. Fix your database and
@@ -117,7 +117,7 @@ if ($id > 0) {
     $rep_id = $entry->repeat_id;
 
     if ($entry_type >= 1) {
-        $repeat = $DB->get_record('block_mrbs_repeat', array('id' => $rep_id), '*', MUST_EXIST);
+        $repeat = $DB->get_record('block_mrbs_repeat', array('instance' => $instance_id, 'id' => $rep_id), '*', MUST_EXIST);
         $rep_type = $repeat->rep_type;
 
         if ($edit_type == "series") {
@@ -185,7 +185,7 @@ if ($id > 0) {
 // If we have not been provided with a room_id
 
 if ($room_id == 0) {
-    $dbroom = $DB->get_records('block_mrbs_room', null, 'room_name', 'id', 0, 1);
+    $dbroom = $DB->get_records('block_mrbs_room', array('instance' => $instance_id), 'room_name', 'id', 0, 1);
     if ($dbroom) {
         $dbroom = reset($dbroom);
         $room_id = $dbroom->id;
@@ -214,10 +214,10 @@ $enable_periods ? toPeriodString($start_min, $duration, $dur_units) : toTimeStri
 
 //now that we know all the data to fill the form with we start drawing it
 
-$context = context_system::instance();
+$context = context_block::instance($instance_id);
 
 $roomadmin = false;
-if (!getWritable($create_by, getUserName())) {
+if (!getWritable($instance_id, $create_by, getUserName())) {
     if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
         if ($room_id) {
             $dbroom = $DB->get_record('block_mrbs_room', array('id' => $room_id));
@@ -228,14 +228,14 @@ if (!getWritable($create_by, getUserName())) {
     }
 
     if (!$roomadmin) {
-        showAccessDenied($day, $month, $year, $area);
+        showAccessDenied($day, $month, $year, $instance_id, $area);
         exit;
     }
 }
 
 $PAGE->requires->js('/blocks/mrbs/web/updatefreerooms.js', true);
 
-print_header_mrbs($day, $month, $year, $area);
+print_header_mrbs($day, $month, $year, $instance_id, $area);
 
 ?>
 <SCRIPT LANGUAGE="JavaScript">
@@ -333,7 +333,7 @@ print_header_mrbs($day, $month, $year, $area);
         <?php if ($edit_type != 'series' && $rep_id) { ?>
             <tr>
                 <td colspan="2"><b><?php $editseriesurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array(
-                            'id' => $id, 'edit_type' => 'series'
+                            'instance' => $instance_id, 'id' => $id, 'edit_type' => 'series'
                         ));
                         echo get_string('editingserieswarning', 'block_mrbs');
                         echo html_writer::link($editseriesurl, get_string('editseries', 'block_mrbs')); ?>
@@ -432,9 +432,9 @@ print_header_mrbs($day, $month, $year, $area);
 
         <?php
         // Determine the area id of the room in question first
-        $area_id = $DB->get_field('block_mrbs_room', 'area_id', array('id' => $room_id), MUST_EXIST);
+        $area_id = $DB->get_field('block_mrbs_room', 'area_id', array('instance' => $instance_id, 'id' => $room_id), MUST_EXIST);
         // determine if there is more than one area
-        $areas = $DB->get_records('block_mrbs_area', null, 'area_name');
+        $areas = $DB->get_records('block_mrbs_area', array('instance' => $instance_id), 'area_name');
         // if there is more than one area then give the option
         // to choose areas.
         if (count($areas) > 1) {
@@ -476,7 +476,7 @@ print_header_mrbs($day, $month, $year, $area);
                                 <?php
                                 // select the rooms in the area determined above
                                 //$sql = "select id, room_name from $tbl_room where area_id=$area_id order by room_name";
-                                $rooms = $DB->get_records('block_mrbs_room', array('area_id' => $area_id), 'room_name');
+                                $rooms = $DB->get_records('block_mrbs_room', array('instance' => $instance_id, 'area_id' => $area_id), 'room_name');
 
                                 $i = 0;
                                 foreach ($rooms as $dbroom) {
@@ -520,7 +520,7 @@ print_header_mrbs($day, $month, $year, $area);
                         if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
                             $unconfirmed = true;
                         }
-                        if (authGetUserLevel(getUserName()) < 2 && $unconfirmed) {
+                        if (authGetUserLevel($instance_id, getUserName()) < 2 && $unconfirmed) {
                             if ($USER->email != $rooms[$room_id]->room_admin_email) {
                                 $type = 'U';
                                 $unconfirmedonly = true;
@@ -661,7 +661,7 @@ print_header_mrbs($day, $month, $year, $area);
                 <?php
                 if ($id) { //always be able to delete entry and if part of a series then add option to delete entire series.
                     $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array(
-                        'id' => $id, 'series' => 0, 'sesskey' => sesskey()
+                        'instance' => $instance_id, 'id' => $id, 'series' => 0, 'sesskey' => sesskey()
                     ));
                     echo "<NOSCRIPT><a id=\"dellink\" HREF=\"".$delurl."\">".get_string('deleteentry', 'block_mrbs')."</A></NOSCRIPT>"
                         ."<script type=\"text/javascript\">
@@ -669,7 +669,7 @@ print_header_mrbs($day, $month, $year, $area);
                  </script>";
                     if ($rep_id) {
                         $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array(
-                            'id' => $id, 'series' => 1, 'sesskey' => sesskey(),
+                            'instance' => $instance_id, 'id' => $id, 'series' => 1, 'sesskey' => sesskey(),
                             'day' => $day, 'month' => $month, 'year' => $year
                         ));
                         echo " - ";
@@ -689,6 +689,7 @@ print_header_mrbs($day, $month, $year, $area);
     <INPUT TYPE=HIDDEN NAME="create_by" VALUE="<?php echo $create_by ?>">
     <INPUT TYPE=HIDDEN NAME="rep_id" VALUE="<?php echo $rep_id ?>">
     <INPUT TYPE=HIDDEN NAME="edit_type" VALUE="<?php echo $edit_type ?>">
+    <INPUT TYPE=HIDDEN NAME="instance" VALUE="<?php echo $instance_id; ?>">
     <?php if (isset($id)) {
         echo "<INPUT TYPE=HIDDEN NAME=\"id\"        VALUE=\"$id\">\n";
     }

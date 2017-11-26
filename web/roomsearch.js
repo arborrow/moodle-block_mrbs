@@ -18,7 +18,7 @@ function RoomSearch() {
     "use strict";
     var hasPeriod, dayInput, day, monthInput, month, yearInput, year, periodInput, period, durationInput, duration, dur_unitsInput,
         dur_units, mincapInput, mincap, teachingInput, teaching, specialInput, special, computerInput, computer, searchstring,
-        hourInput, hour, minuteInput, minute, ampmInput, ampm, i, freeRooms, room, j;
+        hourInput, hour, minuteInput, minute, ampmInput, ampm, i, freeRooms, room, j, instance_idInput, instance_id;
 
     hasPeriod = !!document.getElementsByName('period').length;
 
@@ -55,6 +55,9 @@ function RoomSearch() {
     dur_unitsInput = document.getElementsByName('dur_units');
     dur_units = dur_unitsInput[0].options[dur_unitsInput[0].selectedIndex].value;
 
+	instance_idInput = document.getElementsByName('instance');
+	instance_id = instance_idInput[0].value;
+	
     mincapInput = document.getElementsByName('mincap');
     mincap = mincapInput[0].value;
 
@@ -79,7 +82,7 @@ function RoomSearch() {
         computer = 0;
     }
 
-    searchstring = "?day=" + day + "&month=" + month + "&year=" + year + "&duration=" + duration + "&dur_units=" + dur_units + "&mincap=" + mincap + "&teaching=" + teaching + "&special=" + special + "&computer=" + computer;
+    searchstring = "?instance=" + instance_id + "&day=" + day + "&month=" + month + "&year=" + year + "&duration=" + duration + "&dur_units=" + dur_units + "&mincap=" + mincap + "&teaching=" + teaching + "&special=" + special + "&computer=" + computer;
     if (hasPeriod) {
         searchstring += "&period=" + period;
     } else {

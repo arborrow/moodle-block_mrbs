@@ -54,7 +54,7 @@ if ($pview != 1) {
             echo '<b>[ ';
         }
         $url = new moodle_url('/blocks/mrbs/web/day.php', array_merge(array(
-                                                                          'year' => $cyear, 'month' => $cmonth, 'day' => $cday
+                                                                          'instance' => $instance_id, 'year' => $cyear, 'month' => $cmonth, 'day' => $cday
                                                                       ), $params));
         echo "<a href=\"".$url."\">$str</a>\n";
         if ($i == 0) {
@@ -96,7 +96,7 @@ if ($pview != 1) {
             echo '<b>[ ';
         }
         $url = new moodle_url('/blocks/mrbs/web/week.php', array_merge(array(
-                                                                           'year' => $cyear, 'month' => $cmonth, 'day' => $cday
+                                                                           'instance' => $instance_id, 'year' => $cyear, 'month' => $cmonth, 'day' => $cday
                                                                        ), $params));
         echo "<a href=\"".$url."\">$str</a>\n";
         if ($i == 0) {
@@ -117,7 +117,7 @@ if ($pview != 1) {
         if ($i == 0) {
             echo '<b>[ ';
         }
-        $url = new moodle_url('/blocks/mrbs/web/month.php', array_merge(array('year' => $cyear, 'month' => $cmonth), $params));
+        $url = new moodle_url('/blocks/mrbs/web/month.php', array_merge(array('instance' => $instance_id, 'year' => $cyear, 'month' => $cmonth), $params));
         echo "<a href=\"".$url."\">$str</a>\n";
         if ($i == 0) {
             echo ']</b> ';

@@ -22,7 +22,18 @@
 
 //For integration with Moodle
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
-$cfg_mrbs = get_config('block/mrbs'); //get Moodle config settings for the MRBS block
+global $DB,$CFG;
+
+$cfg_mrbs = get_config('block/mrbs');
+$instance_id = optional_param('instance', $cfg_mrbs->default_instance, PARAM_INT);
+if(! isset($instance_id)) {
+    throw new \coding_exception('Either instance_id or mrbs->default_instance is required.');
+}
+$tmp = $DB->get_record('block_instances', array('id' => $instance_id), '*', MUST_EXIST);
+if(! isset($tmp)) {
+    throw new \coding_exception('block_instance with id '.$instance_id.' must exist.');
+}
+$cfg_mrbs = unserialize(base64_decode($tmp->configdata)); //get Moodle config settings for this instance of the MRBS block
 ###################
 # Database settings
 ###################

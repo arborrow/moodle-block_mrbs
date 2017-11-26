@@ -14,7 +14,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 class block_mrbs extends block_base {
 
     function init() {
@@ -30,6 +29,20 @@ class block_mrbs extends block_base {
         return array('all' => true);
     }
 
+    function specialization() {
+	if($this->config == null) {
+	    $this->config = get_config('block/mrbs');
+	    $this->config->title = get_string('newmrbsblock','block_mrbs');
+	    $this->config->linkname = get_string('accessmrbs','blockmrbs');
+	    $this->instance_config_commit();
+	}
+        $this->title = isset($this->config->title) ? format_string($this->config->title) : format_string(get_string('newmrbsblock', 'block_mrbs'));
+    }
+
+    function instance_allow_multiple() {
+        return true;
+    }
+
     function get_content() {
         global $CFG, $OUTPUT;
 
@@ -37,35 +50,63 @@ class block_mrbs extends block_base {
             return $this->content;
         }
 
-        $cfg_mrbs = get_config('block/mrbs');
-
-        $context = context_system::instance();
+        $context = context_block::instance($this->instance->id);
 
         if (has_capability('block/mrbs:viewmrbs', $context) or has_capability('block/mrbs:editmrbs', $context) or has_capability('block/mrbs:administermrbs', $context)) {
-            if (isset($CFG->block_mrbs_serverpath)) {
-                $serverpath = $CFG->block_mrbs_serverpath;
+            if (isset($this->instance->linkname)) {
+                $go = $this->instance->linkname;
+            } else {
+                $go = get_string('accessmrbs', 'block_mrbs');
+            }
+            $icon = $OUTPUT->pix_icon('web', 'MRBS icon', 'block_mrbs', array('height' => "16", 'width' => "16"));
+            $target = '';
+            if (isset($this->config->newwindow) and $this->config->newwindow) {
+                $target = ' target="_blank" ';
+            }
+            if (isset($this->config->serverpath) && $this->config->serverpath != "") {
+                $serverpath = $this->config->serverpath;
             } else {
                 $serverpath = $CFG->wwwroot.'/blocks/mrbs/web';
             }
-            $go = get_string('accessmrbs', 'block_mrbs');
-            $icon = '<img src="'.$OUTPUT->pix_url('web', 'block_mrbs').'" height="16" width="16" alt="" />';
-            $target = '';
-            if ($cfg_mrbs->newwindow) {
-                $target = ' target="_blank" ';
+            if (isset($this->instance->id)) {
+                $instance = $this->instance->id;
+            } else {
+                throw new \coding_error("Instance id must be set<br/>\n");
             }
-            $this->content = new stdClass();
-            $this->content->text = '<a href="'.$serverpath.'/index.php" '.$target.'>'.$icon.' &nbsp;'.$go.'</a>';
+            $this->content = new stdClass;
+            $this->content->text = '<a href="'.$serverpath.'/index.php?instance='.$instance.'" '.$target.'>'.$icon.' &nbsp;'.$go.'</a>';
             $this->content->footer = '';
             return $this->content;
         }
 
         return null;
     }
-
-    function cron() {
-        global $CFG;
-        include($CFG->dirroot.'/blocks/mrbs/import.php');
-
-        return true;
+    
+    function instance_config_save($data, $nolongerused = false) {
+		// modify type of select fields to be int
+		$data->newwindow = intval($data->newwindow);
+		$data->enable_periods = intval($data->enable_periods);
+		if ($data->enable_periods == 0) {
+			$data->morningstarts = intval($data->morningstarts);
+			$data->morningstarts_min = intval($data->morningstarts_min);
+			$data->eveningends = intval($data->eveningends);
+			$data->eveningends_min = intval($data->eveningends_min);
+		}
+		$data->weekstarts = intval($data->weekstarts);
+		$data->dateformat = intval($data->dateformat);
+		$data->timeformat = intval($data->timeformat);
+		$data->view_week_number = intval($data->view_week_number);
+		$data->times_right_side = intval($data->times_right_side);
+		$data->javascript_cursor = intval($data->javascript_cursor);
+		$data->show_plus_link = intval($data->show_plus_link);
+		$data->mail_admin_on_bookings = intval($data->mail_admin_on_bookings);
+		$data->mail_area_admin_on_bookings = intval($data->mail_area_admin_on_bookings);
+		$data->mail_room_admin_on_bookings = intval($data->mail_room_admin_on_bookings);
+		$data->mail_admin_on_delete = intval($data->mail_admin_on_delete);
+		$data->mail_admin_all = intval($data->mail_admin_all);
+		$data->mail_details = intval($data->mail_details);
+		$data->mail_booker = intval($data->mail_booker);
+		parent::instance_config_save($data, $nolongerused);
     }
+
 }
