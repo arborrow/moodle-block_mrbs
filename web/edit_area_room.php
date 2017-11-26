@@ -54,7 +54,7 @@ if (($day == 0) or ($month == 0) or ($year == 0)) {
 }
 
 $thisurl = new moodle_url('/blocks/mrbs/web/edit_area_room.php', array(
-    'day' => $day, 'month' => $month, 'year' => $year, 'sesskey' => sesskey()
+    'instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year, 'sesskey' => sesskey()
 ));
 if ($room) {
     $thisurl->param('room', $room);
@@ -66,8 +66,8 @@ if ($area) {
 $PAGE->set_url($thisurl);
 require_login();
 
-if (!getAuthorised(2)) {
-    showAccessDenied($day, $month, $year, $area);
+if (!getAuthorised($instance_id, 2)) {
+    showAccessDenied($day, $month, $year, $instance_id, $area);
     exit();
 }
 require_sesskey();
@@ -76,16 +76,16 @@ require_sesskey();
 if (($change_done)) {
     if (!empty($room)) // Get the area the room is in
     {
-        $area = $DB->get_field('block_mrbs_room', 'area_id', array('id' => $room));
+        $area = $DB->get_field('block_mrbs_room', 'area_id', array('instance' => $instance_id, 'id' => $room));
     }
     $adminurl = new moodle_url('/blocks/mrbs/web/admin.php', array(
-        'day' => $day, 'month' => $month, 'year' => $year, 'area' => $area
+        'instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year, 'area' => $area
     ));
     redirect($adminurl);
     exit();
 }
 
-print_header_mrbs($day, $month, $year, isset($area) ? $area : "");
+print_header_mrbs($day, $month, $year, $instance_id, isset($area) ? $area : "");
 
 echo $OUTPUT->heading(get_string('editroomarea', 'block_mrbs'), 2);
 
@@ -118,6 +118,7 @@ if ($room > 0) {
     if ($change_room && $valid_email && $valid_email2) {
         $updroom = new stdClass;
         $updroom->id = $room;
+        $updroom->instance = $instance_id;
         $updroom->room_name = substr(trim($room_name), 0, 25);
         $updroom->description = $description;
         $updroom->capacity = $capacity;
@@ -127,14 +128,15 @@ if ($room > 0) {
         $DB->update_record('block_mrbs_room', $updroom);
     }
 
-    $dbroom = $DB->get_record('block_mrbs_room', array('id' => $room), '*', MUST_EXIST);
+    $dbroom = $DB->get_record('block_mrbs_room', array('instance' => $instance_id, 'id' => $room), '*', MUST_EXIST);
     echo '<h3 ALIGN=CENTER>'.get_string('editroom', 'block_mrbs').'</h3>';
     echo '<form action="'.$thisurl->out_omit_querystring().'" method="post">';
+    echo '<input type="hidden" name="instance" value="'.$dbroom->instance.'">';
     echo '<input type="hidden" name="room" value="'.$dbroom->id.'">';
     echo '<input type="hidden" name="sesskey" value="'.sesskey().'">';
     echo '<CENTER><TABLE>';
-    echo '<TR><TD>'.get_string('name').': </TD><TD><input type="text" name="room_name" value="'.s($dbroom->room_name).'" maxlength="25"></TD></TR>';
-    echo '<TR><TD>'.get_string('description').'</TD><TD><input type="text" name="description" value="'.s($dbroom->description).'"></TD></TR>';
+    echo '<TR><TD>'.get_string('name').': </TD><TD><input type="text" name="room_name" value="'.s($dbroom->room_name).'" maxlength="255"></TD></TR>';
+    echo '<TR><TD>'.get_string('description').'</TD><TD><input type="text" name="description" value="'.s($dbroom->description).'" maxlength="255"></TD></TR>';
     echo '<TR><TD>'.get_string('capacity', 'block_mrbs').':   </TD><TD><input type="text" name="capacity" value="'.$dbroom->capacity.'"></TD></TR>';
     echo '<TR><TD>'.get_string('room_admin_email', 'block_mrbs').': </TD><TD><input type="text" name="room_admin_email" MAXLENGTH=75 value="'.s($dbroom->room_admin_email).'"></TD>';
     if (!$valid_email) {
@@ -166,20 +168,22 @@ if ($area) {
     if ($change_area && $valid_email) {
         $updarea = new stdClass;
         $updarea->id = $area;
+        $updarea->instance = $instance_id;
         $updarea->area_name = $area_name;
         $updarea->area_admin_email = $area_admin_email;
         $DB->update_record('block_mrbs_area', $updarea);
     }
 
-    $dbarea = $DB->get_record('block_mrbs_area', array('id' => $area), '*', MUST_EXIST);
+    $dbarea = $DB->get_record('block_mrbs_area', array('instance' => $instance_id, 'id' => $area), '*', MUST_EXIST);
 
     echo '<h3 ALIGN=CENTER>'.get_string('editarea', 'block_mrbs').'</h3>';
     echo '<form action="'.$thisurl->out_omit_querystring().'" method="post">';
+    echo '<input type="hidden" name="instance" value="'.$dbarea->instance.'">';
     echo '<input type="hidden" name="area" value="'.$dbarea->id.'">';
     echo '<input type="hidden" name="sesskey" value="'.sesskey().'">';
     echo '<CENTER><TABLE>';
-    echo '<TR><TD>'.get_string('name').':       </TD><TD><input type="text" name="area_name" value="'.s($dbarea->area_name).'"></TD></TR>';
-    echo '<TR><TD>'.get_string('area_admin_email', 'block_mrbs').':       </TD><TD><input type="text" name="area_admin_email" MAXLENGTH=75 value="'.s($dbarea->area_admin_email).'"></TD>';
+    echo '<TR><TD>'.get_string('name').':       </TD><TD><input type="text" name="area_name" value="'.s($dbarea->area_name).'" maxlength="255"></TD></TR>';
+    echo '<TR><TD>'.get_string('area_admin_email', 'block_mrbs').':       </TD><TD><input type="text" name="area_admin_email" maxlength="255" value="'.s($dbarea->area_admin_email).'"></TD>';
     if (!$valid_email) {
         echo "<TD>&nbsp;</TD><TD><STRONG>".get_string('emailmustbereal')."</STRONG></TD>";
     }

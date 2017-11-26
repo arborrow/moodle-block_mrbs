@@ -38,17 +38,17 @@ if (($day == 0) or ($month == 0) or ($year == 0)) {
     $year = date("Y");
 }
 
-$thisurl = new moodle_url('/blocks/mrbs/web/help.php', array('day' => $day, 'month' => $month, 'year' => $year));
+$thisurl = new moodle_url('/blocks/mrbs/web/help.php', array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year));
 if ($area > 0) {
     $thisurl->param('area', $area);
 } else {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 
 $PAGE->set_url($thisurl);
 require_login();
 
-print_header_mrbs($day, $month, $year, $area);
+print_header_mrbs($day, $month, $year, $instance_id, $area);
 
 echo "<H3>".get_string('about_mrbs', 'block_mrbs')."</H3>\n";
 echo "<P><a href=\"http://mrbs.sourceforge.net\">".get_string('mrbs', 'block_mrbs')."</a> - ".get_mrbs_version()."\n";

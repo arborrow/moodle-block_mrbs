@@ -21,7 +21,6 @@
  *  regularly, it will replace any non-edited imported bookings with a new copy but
  * not any that have been edited.
  *
- * It is included by the blocks cron() function each time it runs
  */
 
 //TODO:maybe set it up like tutorlink etc so that it can take uploaded files directly?
@@ -32,147 +31,153 @@ global $DB;
 //record time for time taken stat
 $script_start_time = time();
 
-$cfg_mrbs = get_config('block/mrbs'); //get Moodle config settings for the MRBS block
-if (!isset($cfg_mrbs->periods) or empty($cfg_mrbs->periods)) {
-    $cfg_mrbs->periods = array();
-    $cfg_mrbs->periods[] = "Period&nbsp;1";
-    $cfg_mrbs->periods[] = "Period&nbsp;2";
-    $cfg_mrbs->periods[] = "Period&nbsp;3";
-    $cfg_mrbs->periods[] = "Period&nbsp;4";
-    $cfg_mrbs->periods[] = "Period&nbsp;5";
-    $cfg_mrbs->periods[] = "Period&nbsp;6";
-    $cfg_mrbs->periods[] = "Period&nbsp;7";
-    $cfg_mrbs->periods[] = "Period&nbsp;8";
-    $cfg_mrbs->periods[] = "Period&nbsp;9";
-    $cfg_mrbs->periods[] = "Period&nbsp;10";
-    $cfg_mrbs->periods[] = "Period&nbsp;11";
-    $cfg_mrbs->periods[] = "Period&nbsp;12";
-} else {
-    $pds = explode("\n", $cfg_mrbs->periods);
-    $cfg_mrbs->periods = array();
-    foreach ($pds as $pd) {
-        $pd = trim($pd);
-        $cfg_mrbs->periods[] = $pd;
-    }
-}
-$output = '';
-if (!empty($cfg_mrbs->cronfile) && file_exists($cfg_mrbs->cronfile)) {
-    if ($mrbs_sessions = fopen($cfg_mrbs->cronfile, 'r')) {
-        $output .= get_string('startedimport', 'block_mrbs')."\n";
-        $now = time();
-        $DB->set_field_select('block_mrbs_entry', 'type', 'M', 'type=\'K\' and start_time > ?', array($now)); // Change old imported (type K) records to temporary type M
-        while ($array = fgetcsv($mrbs_sessions)) { //import timetable into mrbs
-            $csvrow = new stdClass();
-            $csvrow->start_time = clean_param($array[0], PARAM_TEXT);
-            $csvrow->end_time = clean_param($array[1], PARAM_TEXT);
-            $csvrow->first_date = clean_param($array[2], PARAM_TEXT);
-            $csvrow->weekpattern = clean_param($array[3], PARAM_TEXT);
-            $csvrow->room_name = clean_param($array[4], PARAM_TEXT);
-            $csvrow->username = clean_param($array[5], PARAM_TEXT);
-            $csvrow->name = clean_param($array[6], PARAM_TEXT);
-            $csvrow->description = clean_param($array[7], PARAM_TEXT);
+$instances = $DB->get_records('block_instances', array('blockname' => 'mrbs'));
+foreach($instances as $instance){
+	$instance_id = $instance->id;
+	$cfg_mrbs = unserialize(base64_decode($instance->configdata)); //get Moodle config settings for this instance of the MRBS block
+	if (!isset($cfg_mrbs->periods) or empty($cfg_mrbs->periods)) {
+		$cfg_mrbs->periods = array();
+		$cfg_mrbs->periods[] = "Period&nbsp;1";
+		$cfg_mrbs->periods[] = "Period&nbsp;2";
+		$cfg_mrbs->periods[] = "Period&nbsp;3";
+		$cfg_mrbs->periods[] = "Period&nbsp;4";
+		$cfg_mrbs->periods[] = "Period&nbsp;5";
+		$cfg_mrbs->periods[] = "Period&nbsp;6";
+		$cfg_mrbs->periods[] = "Period&nbsp;7";
+		$cfg_mrbs->periods[] = "Period&nbsp;8";
+		$cfg_mrbs->periods[] = "Period&nbsp;9";
+		$cfg_mrbs->periods[] = "Period&nbsp;10";
+		$cfg_mrbs->periods[] = "Period&nbsp;11";
+		$cfg_mrbs->periods[] = "Period&nbsp;12";
+	} else {
+		$pds = explode("\n", $cfg_mrbs->periods);
+		$cfg_mrbs->periods = array();
+		foreach ($pds as $pd) {
+			$pd = trim($pd);
+			$cfg_mrbs->periods[] = $pd;
+		}
+	}
+	$output = '';
+	if (!empty($cfg_mrbs->cronfile) && file_exists($cfg_mrbs->cronfile)) {
+		if ($mrbs_sessions = fopen($cfg_mrbs->cronfile, 'r')) {
+			$output .= get_string('startedimport', 'block_mrbs')." for instance ".$instance_id."\n";
+			$now = time();
+			$DB->set_field_select('block_mrbs_entry', 'type', 'M', 'type=\'K\' and instance = ? and start_time > ?', array($instance_id, $now)); // Change old imported (type K) records to temporary type M
+			while ($array = fgetcsv($mrbs_sessions)) { //import timetable into mrbs
+				$csvrow = new stdClass();
+				$csvrow->instance = $instance_id;
+				$csvrow->start_time = clean_param($array[0], PARAM_TEXT);
+				$csvrow->end_time = clean_param($array[1], PARAM_TEXT);
+				$csvrow->first_date = clean_param($array[2], PARAM_TEXT);
+				$csvrow->weekpattern = clean_param($array[3], PARAM_TEXT);
+				$csvrow->room_name = clean_param($array[4], PARAM_TEXT);
+				$csvrow->username = clean_param($array[5], PARAM_TEXT);
+				$csvrow->name = clean_param($array[6], PARAM_TEXT);
+				$csvrow->description = clean_param($array[7], PARAM_TEXT);
 
-            list($year, $month, $day) = explode('/', $csvrow->first_date);
-            $date = mktime(00, 00, 00, $month, $day, $year);
-            $room = room_id_lookup($csvrow->room_name);
-            $weeks = str_split($csvrow->weekpattern);
-            foreach ($weeks as $week) {
-                if (($week == 1) and ($date > $now)) {
-                    $start_time = time_to_datetime($date, $csvrow->start_time);
-                    $end_time = time_to_datetime($date, $csvrow->end_time);
-                    if (!is_timetabled($csvrow->name, $start_time)) { ////only timetable class if it isn't already timetabled elsewhere (class been moved)
-                        $entry = new stdClass();
-                        $entry->start_time = $start_time;
-                        $entry->end_time = $end_time;
-                        $entry->room_id = $room;
-                        $entry->timestamp = $now;
-                        $entry->create_by = $csvrow->username;
-                        $entry->name = $csvrow->name;
-                        $entry->type = 'K';
-                        $entry->description = $csvrow->description;
-                        $newentryid = $DB->insert_record('block_mrbs_entry', $entry);
+				list($year, $month, $day) = explode('/', $csvrow->first_date);
+				$date = mktime(00, 00, 00, $month, $day, $year);
+				$room = room_id_lookup($csvrow->instance, $csvrow->room_name);
+				$weeks = str_split($csvrow->weekpattern);
+				foreach ($weeks as $week) {
+					if (($week == 1) and ($date > $now)) {
+						$start_time = time_to_datetime($cfg_mrbs->enable_periods, $cfg_mrbs->periods, $date, $csvrow->start_time);
+						$end_time = time_to_datetime($cfg_mrbs->enable_periods, $cfg_mrbs->periods, $date, $csvrow->end_time);
+						if (!is_timetabled($csvrow->name, $start_time)) { ////only timetable class if it isn't already timetabled elsewhere (class been moved)
+							$entry = new stdClass();
+							$entry->instance = $instance_id;
+							$entry->start_time = $start_time;
+							$entry->end_time = $end_time;
+							$entry->room_id = $room;
+							$entry->timestamp = $now;
+							$entry->create_by = $csvrow->username;
+							$entry->name = $csvrow->name;
+							$entry->type = 'K';
+							$entry->description = $csvrow->description;
+							$newentryid = $DB->insert_record('block_mrbs_entry', $entry);
 
-                        //If there is another non-imported booking there, send emails. It is assumed that simultanious imported classes are intentional
-                        $sql = "SELECT *
-                                FROM {block_mrbs_entry} AS e
-                                WHERE
-                                    ((e.start_time < ? AND e.end_time > ?)
-                                  OR (e.start_time < ? AND e.end_time > ?)
-                                  OR (e.start_time >= ? AND e.end_time <= ? ))
-                                AND e.room_id = ? AND type <>'K'";
+							//If there is another non-imported booking there, send emails. It is assumed that simultanious imported classes are intentional
+							$sql = "SELECT *
+									FROM {block_mrbs_entry} AS e
+									WHERE
+										((e.start_time < ? AND e.end_time > ?)
+									OR (e.start_time < ? AND e.end_time > ?)
+									OR (e.start_time >= ? AND e.end_time <= ? ))
+									AND e.room_id = ? AND e.instance = ? AND type <>'K'";
 
-                        //limit to 1 to keep this simpler- if there is a 3-way clash it will be noticed by one of the 2 teachers notified
-                        if ($existingclass = $DB->get_record_sql($sql, array(
-                            $start_time, $start_time, $end_time,
-                            $end_time, $start_time, $end_time, $room
-                        ))
-                        ) {
-                            $hr_start_time = date("j F, Y", $start_time).", ".to_hr_time($start_time);
-                            $a = new stdClass();
-                            $a->oldbooking = $existingclass->description.'('.$existingclass->id.')';
-                            $a->newbooking = $csvrow->description.'('.$newentryid.')';
-                            $a->time = $hr_start_time;
-                            $a->room = $csvrow->room_name;
-                            $a->admin = $cfg_mrbs->admin.' ('.$cfg_mrbs->admin_email.')';
-                            $output .= get_string('clash', 'block_mrbs', $a);
+							//limit to 1 to keep this simpler- if there is a 3-way clash it will be noticed by one of the 2 teachers notified
+							if ($existingclass = $DB->get_record_sql($sql, array(
+								$start_time, $start_time, $end_time,
+								$end_time, $start_time, $end_time, $room, $instance_id
+							))
+							) {
+								$hr_start_time = date("j F, Y", $start_time).", ".to_hr_time($cfg_mrbs->enable_periods, $cfg_mrbs->periods, $start_time);
+								$a = new stdClass();
+								$a->oldbooking = $existingclass->description.'('.$existingclass->id.')';
+								$a->newbooking = $csvrow->description.'('.$newentryid.')';
+								$a->time = $hr_start_time;
+								$a->room = $csvrow->room_name;
+								$a->admin = $cfg_mrbs->admin.' ('.$cfg_mrbs->admin_email.')';
+								$output .= get_string('clash', 'block_mrbs', $a);
 
-                            $existingteacher = $DB->get_record('user', array('username' => $existingclass->create_by));
-                            $newteacher = $DB->get_record('user', array('username' => $csvrow->username));
+								$existingteacher = $DB->get_record('user', array('username' => $existingclass->create_by));
+								$newteacher = $DB->get_record('user', array('username' => $csvrow->username));
 
-                            $body = get_string('clashemailbody', 'block_mrbs', $a);
+								$body = get_string('clashemailbody', 'block_mrbs', $a);
 
-                            if (email_to_user($existingteacher, $newteacher, get_string('clashemailsub', 'block_mrbs', $a), $body)) {
-                                $output .= ', '.get_string('clashemailsent', 'block_mrbs').' '.$existingteacher->firstname.' '.$existingteacher->lastname.'<'.$existingteacher->email.'>';
-                            } else {
-                                $output .= get_string('clashemailnotsent', 'block_mrbs').$existingclass->description.'('.$existingclass->id.')';
-                            }
-                            if (email_to_user($newteacher, $existingteacher, get_string('clashemailsub', 'block_mrbs', $a), $body)) {
-                                $output .= ', '.get_string('clashemailsent', 'block_mrbs').' '.$newteacher->firstname.' '.$newteacher->lastname.'<'.$newteacher->email.'>';
-                            } else {
-                                $output .= get_string('clashemailnotsent', 'block_mrbs').$csvrow->description.'('.$newentryid.')';
-                            }
-                            $output .= "\n";
-                        }
-                    }
-                }
-                $date += 604800;
+								if (email_to_user($existingteacher, $newteacher, get_string('clashemailsub', 'block_mrbs', $a), $body)) {
+									$output .= ', '.get_string('clashemailsent', 'block_mrbs').' '.$existingteacher->firstname.' '.$existingteacher->lastname.'<'.$existingteacher->email.'>';
+								} else {
+									$output .= get_string('clashemailnotsent', 'block_mrbs').$existingclass->description.'('.$existingclass->id.')';
+								}
+								if (email_to_user($newteacher, $existingteacher, get_string('clashemailsub', 'block_mrbs', $a), $body)) {
+									$output .= ', '.get_string('clashemailsent', 'block_mrbs').' '.$newteacher->firstname.' '.$newteacher->lastname.'<'.$newteacher->email.'>';
+								} else {
+									$output .= get_string('clashemailnotsent', 'block_mrbs').$csvrow->description.'('.$newentryid.')';
+								}
+								$output .= "\n";
+							}
+						}
+					}
+					$date += 604800;
 
-                //checks for being an hour out due to BST/GMT change and corrects
-                if (date('G', $date) == 01) {
-                    $date = $date + 3600;
-                }
-                if (date('G', $date) == 23) {
-                    $date = $date - 3600;
-                }
-            }
-        }
+					//checks for being an hour out due to BST/GMT change and corrects
+					if (date('G', $date) == 01) {
+						$date = $date + 3600;
+					}
+					if (date('G', $date) == 23) {
+						$date = $date - 3600;
+					}
+				}
+			}
 
-        // any remaining type M records are no longer in the import file, so delete
-        $DB->delete_records_select('block_mrbs_entry', 'type=\'M\'');
+			// any remaining type M records are no longer in the import file, so delete
+			$DB->delete_records_select('block_mrbs_entry', 'type=\'M\' and instance=?', array($instance_id));
 
-        //move the processed file to prevent wasted time re-processing TODO: option for how long to keep these- I've found them useful for debugging but obviously can't keep them for ever
-        $date = date('Ymd');
-        if (rename($cfg_mrbs->cronfile, $cfg_mrbs->cronfile.'.'.$date)) {
-            $output .= $cfg_mrbs->cronfile.get_string('movedto', 'block_mrbs').$cfg_mrbs->cronfile.'.'.$date."\n";
-        }
-        $script_time_taken = time() - $script_start_time;
-        $output .= get_string('finishedimport', 'block_mrbs', $script_time_taken);
+			//move the processed file to prevent wasted time re-processing TODO: option for how long to keep these- I've found them useful for debugging but obviously can't keep them for ever
+			$date = date('Ymd');
+			if (rename($cfg_mrbs->cronfile, $cfg_mrbs->cronfile.'.'.$date)) {
+				$output .= $cfg_mrbs->cronfile.get_string('movedto', 'block_mrbs').$cfg_mrbs->cronfile.'.'.$date."\n";
+			}
+			$script_time_taken = time() - $script_start_time;
+			$output .= get_string('finishedimport', 'block_mrbs', $script_time_taken).' instance: '.$instance_id."\n";
 
-        echo $output; //will only show up if being run via apache
+			echo $output; //will only show up if being run via apache
 
-        //email output to admin
-        if ($mrbsadmin = $DB->get_record('user', array('email' => $cfg_mrbs->admin_email))) {
-            email_to_user($mrbsadmin, $mrbsadmin, get_string('importlog', 'block_mrbs'), $output);
-        }
+			//email output to admin
+			if ($mrbsadmin = $DB->get_record('user', array('email' => $cfg_mrbs->admin_email))) {
+				email_to_user($mrbsadmin, $mrbsadmin, get_string('importlog', 'block_mrbs'), $output);
+			}
+		}
     }
 }
 //==========================================FUNCTIONS==============================================================
 
 //looks up the room id from the name
-function room_id_lookup($name) {
+function room_id_lookup($instance_id, $name) {
     global $DB;
-    if (!$room = $DB->get_record('block_mrbs_room', array('room_name' => $name))) {
-        $error = "ERROR: failed to return id from database (room $name probably doesn't exist)";
+    if (!$room = $DB->get_record('block_mrbs_room', array('instance' => $instance_id, 'room_name' => $name))) {
+        $error = "ERROR: failed to return id from database (room $name in instanced $instance_id probably doesn't exist)";
         echo $error."\n";
         return 'error';
     } else {
@@ -190,15 +195,16 @@ function room_id_lookup($name) {
  * @param $time int start time of the booking in unix timestamp format
  * @return bool does a previous booking exist?
  */
-function is_timetabled($name, $time) {
+function is_timetabled($instance_id, $name, $time) {
     global $DB;
-    if ($DB->get_record('block_mrbs_entry', array('name' => $name, 'start_time' => $time, 'type' => 'L'))) {
+    if ($DB->get_record('block_mrbs_entry', array('instance' => $instance_id, 'name' => $name, 'start_time' => $time, 'type' => 'L'))) {
         return true;
     } else if ($record = $DB->get_record('block_mrbs_entry', array(
-        'name' => $name, 'start_time' => $time, 'type' => 'M'
+        'instance' => $instance_id, 'name' => $name, 'start_time' => $time, 'type' => 'M'
     ))
     ) {
         $upd = new stdClass;
+        $upd->instance =$instance_id;
         $upd->id = $record->id;
         $upd->type = 'K';
         if ($DB->update_record('block_mrbs_entry', $upd)) {
@@ -214,16 +220,17 @@ function is_timetabled($name, $time) {
 /**
  * Adds together a date (unixtime) and a time (hh:mm)
  *
+ * @param $enable_periods bool custom periods enabled
+ * @param $periods array custom periods
  * @param $date integer date in seconds since epoch
  * @param $time string time in hh:mm format
  * @return integer date/time in seconds since epoch
  */
-function time_to_datetime($date, $time) {
-    global $cfg_mrbs;
+function time_to_datetime($enable_periods, $periods, $date, $time) {
     list($hours, $mins) = explode(':', $time);
     $hours = intval($hours);
     $mins = intval($mins);
-    if ($cfg_mrbs->enable_periods && $hours == 0 && $mins < count($cfg_mrbs->periods)) {
+    if ($enable_periods && $hours == 0 && $mins < count($periods)) {
         $hours = 12; // Periods are imported as  P1 - 00:00, P2 - 00:01, P3 - 00:02, etc.
         // but stored internally as P1 - 12:00, P2 - 12:01, P3 - 12:02, etc.
     }
@@ -235,14 +242,15 @@ function time_to_datetime($date, $time) {
  * If periods are enabled then gives the name of the period starting at this time
  * Will probably break is some idiot has more than 59 periods per day (seems very unlikely though)
  *
+ * @param $enable_periods bool custom periods enabled
+ * @param $periods array custom periods
  * @param $time integer unix timestamp
  * @return string either the time formatted as hh:mm or the name of the period starting at this time
  */
-function to_hr_time($time) {
-    $cfg_mrbs = get_config('block/mrbs');
-    if ($cfg_mrbs->enable_periods) {
+function to_hr_time($enable_periods, $periods, $time) {
+    if ($enable_periods) {
         $period = intval(date('i', $time));
-        return $cfg_mrbs->periods[$period];
+        return $periods[$period];
     } else {
         return date('G:i', $time);
     }

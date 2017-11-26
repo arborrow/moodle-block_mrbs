@@ -52,6 +52,20 @@ function xmldb_block_mrbs_install() {
         assign_capability('block/mrbs:doublebook', CAP_ALLOW, $mrbsadminid, $context->id, true);
     }
 
+    // Add context level block to manager, student, editingteacher archetype
+    $roles = array('student', 'editingteacher','manager');
+    foreach($roles as $role) {
+        $roleid = $DB->get_field('role', 'id', array('shortname' => $role), MUST_EXIST);
+        if(! $roleid) {
+            throw new \coding_exception("The \'".$role."\' role must exist<br/>\n");
+        }
+        $levels = get_role_contextlevels($roleid);
+        if(! in_array(CONTEXT_BLOCK, $levels)) {
+            array_push($levels, CONTEXT_BLOCK);
+            set_role_contextlevels($roleid, $levels);
+        }
+    }
+
     // Clear any capability caches
     $context->mark_dirty();
 }

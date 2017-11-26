@@ -63,7 +63,7 @@ class booking_updated extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' has updated a booking in '{$this->other['room']}' for '{$this->other['name']}'";
+        return "The user with id '$this->userid' has updated a booking for '{$this->other['instance']}'in '{$this->other['room']}' for '{$this->other['name']}'";
     }
 
     /**
@@ -72,7 +72,7 @@ class booking_updated extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/blocks/mrbs/web/view_entry.php', array('id' => $this->objectid));
+        return new \moodle_url('/blocks/mrbs/web/view_entry.php', array('instance' => $this->other['instance'], 'id' => $this->objectid));
     }
 
     /**
@@ -82,11 +82,14 @@ class booking_updated extends \core\event\base {
      */
     protected function get_legacy_logdata() {
         global $CFG;
-        return array(SITEID, 'mrbs', 'edit booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?id='.$this->objectid,
+        return array(SITEID, 'mrbs', 'edit booking', $CFG->wwwroot.'blocks/mrbs/web/view_entry.php?instance='.$this->other['instance'].'&id='.$this->objectid,
                      $this->other['name']);
     }
 
     protected function validate_data() {
+        if (!isset($this->other['instance'])) {
+            throw new \coding_exception('Must specify the instance of the booking as \'other[\'instance\']\'');
+        }
         if (!isset($this->other['name'])) {
             throw new \coding_exception('Must specify the name of the booking as \'other[\'name\']\'');
         }

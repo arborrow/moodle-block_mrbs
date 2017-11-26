@@ -22,8 +22,10 @@
   be used to redirect to a particular room.
 */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php'); //for Moodle integration
-include("config.inc.php");
 global $DB;
+include("config.inc.php");
+include "functions.php";
+require_once('mrbs_auth.php');
 
 $day = date("d");
 $month = date("m");
@@ -31,13 +33,13 @@ $year = date("Y");
 
 switch ($default_view) {
     case "month":
-        $redirect = new moodle_url('/blocks/mrbs/web/month.php', array('year' => $year, 'month' => $month));
+        $redirect = new moodle_url('/blocks/mrbs/web/month.php', array('instance' => $instance_id, 'year' => $year, 'month' => $month));
         break;
     case "week":
-        $redirect = new moodle_url('/blocks/mrbs/web/week.php', array('year' => $year, 'month' => $month, 'day' => $day));
+        $redirect = new moodle_url('/blocks/mrbs/web/week.php', array('instance' => $instance_id, 'year' => $year, 'month' => $month, 'day' => $day));
         break;
     default:
-        $redirect = new moodle_url('/blocks/mrbs/web/day.php', array('day' => $day, 'month' => $month, 'year' => $year));
+        $redirect = new moodle_url('/blocks/mrbs/web/day.php', array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year));
 }
 
 if (!empty($default_room)) {
