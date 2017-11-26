@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
+global $CFG,$DB;
 
 // The following couple of lines stop a warning message when setting up PHPUnit.
 if (!isset($CFG->supportname)) {
@@ -25,8 +25,14 @@ if (!isset($CFG->supportemail)) {
     $CFG->supportemail = '';
 }
 
-$cfg_mrbs = get_config('block/mrbs');
-
+$default_instance = get_config('block/mrbs', 'default_instance');
+if(!$default_instance) {
+    $conditions = array();
+    $default_instance = $DB->get_field('block_instances', 'id', $conditions, IGNORE_MISSING | IGNORE_MULTIPLE);
+    if(!$default_instance) {
+        $default_instance = 0;
+    }
+}
 $settings->add(new admin_setting_heading('mrbs_default_settings', get_string('settings_heading_default','block_mrbs'),
                                                                   get_string('settings_default_comment','block_mrbs')));
 
@@ -38,9 +44,9 @@ $settings->add(new admin_setting_configtext('serverpath', get_string('serverpath
                                             get_string('adminview', 'block_mrbs'), $CFG->wwwroot.'/blocks/mrbs/web', PARAM_URL));
 $settings->settings->serverpath->plugin = 'block/mrbs';
 
-$settings->add(new admin_setting_configtext('default_instance', get_string('default_instance', 'block_mrbs'),
-                                            get_string('default_instance2', 'block_mrbs'), 0, PARAM_INT));
-$settings->settings->serverpath->plugin = 'block/mrbs';
+$settings->add(new admin_setting_configtext('default_instance', get_string('config_default_instance', 'block_mrbs'),
+                                            get_string('config_default_instance2', 'block_mrbs'), $default_instance, PARAM_INT));
+$settings->settings->default_instance->plugin = 'block/mrbs';
 
 $settings->add(new admin_setting_configtext('admin', get_string('config_admin', 'block_mrbs'), get_string('config_admin2', 'block_mrbs'), $CFG->supportname, PARAM_TEXT));
 $settings->settings->admin->plugin = 'block/mrbs';

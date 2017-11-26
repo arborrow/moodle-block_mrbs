@@ -222,7 +222,7 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
                 throw new \coding_exception('block_instance \'block_mrbs\' with id '.$instance_id.' must exist on \'site-index\'.');
             }
             $instance_id = $tmp->id;
-            $cfg_mrbs->default_instance = $instance_id;
+            set_config('default_instance', $instance_id, 'block/mrbs');
             $tmp->configdata = base64_encode(serialize($cfg_mrbs));
             $DB->update_record('block_instances', $tmp);
         } else {

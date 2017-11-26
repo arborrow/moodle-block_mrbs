@@ -17,5 +17,5 @@
 $plugin->version = 2017111601;
 $plugin->requires = 2014051200; // Moodle 2.7+
 $plugin->component = 'block_mrbs';
-$plugin->maturity = MATURITY_ALPHA;
+$plugin->maturity = MATURITY_BETA;
 $plugin->release = '3.x (Build: 2017111601)';

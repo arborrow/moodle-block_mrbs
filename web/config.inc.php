@@ -24,14 +24,10 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 global $DB,$CFG;
 
-$instance_id = optional_param('instance', PARAM_INT);
-if(!isset($instance_id)) {
-    if(isset($CFG->default_instance)) {
-        $instance_id = $CFG->default_instance;
-    }
-}
+$cfg_mrbs = get_config('block/mrbs');
+$instance_id = optional_param('instance', $cfg_mrbs->default_instance, PARAM_INT);
 if(! isset($instance_id)) {
-    throw new \coding_exception('instance_id is a required param.');
+    throw new \coding_exception('Either instance_id or mrbs->default_instance is required.');
 }
 $tmp = $DB->get_record('block_instances', array('id' => $instance_id), '*', MUST_EXIST);
 if(! isset($tmp)) {
