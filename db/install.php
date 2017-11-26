@@ -53,7 +53,7 @@ function xmldb_block_mrbs_install() {
     }
 
     // Add context level block to manager, student, editingteacher archetype
-    $roles = ('student', 'editingteacher','manager');
+    $roles = array('student', 'editingteacher','manager');
     foreach($roles as $role) {
         $roleid = $DB->get_field('role', 'id', array('shortname' => $role), MUST_EXIST);
         if(! $roleid) {

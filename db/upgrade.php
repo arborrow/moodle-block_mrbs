@@ -194,7 +194,7 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
         upgrade_block_savepoint(true, 2016101700, 'mrbs');
     }
 
-    if ($oldversion < 2017111601) {
+    if ($oldversion < 2017112601) {
         // Create system context instance from global config and move data to that instance.
         echo "Moving first instance to block in system context on site-index page<br/>\n";
 
@@ -282,7 +282,7 @@ function xmldb_block_mrbs_upgrade($oldversion=0) {
         echo "Please add \'?instance='.$instance_id.'\' to point your links to this instance.<br/>\n";
         
         // mrbs savepoint reached
-        upgrade_block_savepoint(true, 2017111601, 'mrbs');
+        upgrade_block_savepoint(true, 2017112601, 'mrbs');
     }
     return true;
 }
