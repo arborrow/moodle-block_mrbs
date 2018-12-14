@@ -27,7 +27,7 @@ function minicals($year, $month, $day, $area, $room, $dmy, $usertt = false) {
         var $dmy;
         var $usertt;
 
-        function Calendar($day, $month, $year, $h, $area, $room, $dmy, $usertt) {
+        public function __construct($day, $month, $year, $h, $area, $room, $dmy, $usertt) {
             $this->day = $day;
             $this->month = $month;
             $this->year = $year;
