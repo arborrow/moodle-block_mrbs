@@ -35,22 +35,18 @@ $message = "$USER->firstname $USER->lastname requests that you move $description
 $context = context_block::instance($instance_id);
 
 if (has_capability('block/mrbs:editmrbs', $context) or has_capability('block/mrbs:administermrbs', $context)) {
-    echo '<br><br><a href=# onClick="requestVacate.style.visibility=\'visible\';">'.get_string('requestvacate', 'block_mrbs').'</a>
-        <form id="editing" method="post" action="request_vacate_send.php">
-        <div id="request_vacate">
-        <input type="hidden" name="instance" value="'.$booking->instance.'" />
-        <input type="hidden" name="id" value="'.$booking->userid.'" />
-        <input type="hidden" name="sesskey" value="'.sesskey().'" />';
-    print_textarea(true, 15, 350, 0, 0, 'message', get_string('requestvacatemessage_html', 'block_mrbs', $messagelang));
+    echo '<br><br><a href=# onClick="requestVacate.style.visibility=\'visible\';">'.get_string('requestvacate', 'block_mrbs').'</a>';
+    echo '<form id="editing" method="post" action="request_vacate_send.php">';
+    echo '<div id="request_vacate">';
+    echo '<input type="hidden" name="id" value="'.$booking->userid.'" />';
+    echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+    echo $OUTPUT->print_textarea('message', 'edit-message', get_string('requestvacatemessage_html', 'block_mrbs', $messagelang), 15, 350);
     echo '<input type="hidden" name="format" value="'.FORMAT_HTML.'" />';
-
-    //<textarea name = "message" cols=50 rows=10>'.get_string('requestvacatemessage','block_mrbs',$messagelang).'</textarea>
-    echo '<input type="hidden" name="format" value="'.FORMAT_MOODLE.'" />
-        <br /><input type="submit" value="'.get_string('sendmessage', 'message').'" />
-        </div>
-        </form>
-
-        <SCRIPT LANGUAGE="JavaScript">
+    echo '<input type="hidden" name="format" value="'.FORMAT_MOODLE.'" />';
+    echo '<br /><input type="submit" value="'.get_string('sendmessage', 'message').'" />';
+    echo '</div>';
+    echo '</form>';
+    echo '<SCRIPT LANGUAGE="JavaScript">
         requestVacate=document.getElementById(\'request_vacate\');
         requestVacate.style.visibility=\'hidden\';
         </SCRIPT>';
