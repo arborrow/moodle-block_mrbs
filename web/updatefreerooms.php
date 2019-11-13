@@ -32,7 +32,7 @@ $area = optional_param('area', 0, PARAM_INT);
 $currentroom = optional_param('currentroom', 0, PARAM_INT);
 
 if (!$area) {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 
 global $tbl_room;

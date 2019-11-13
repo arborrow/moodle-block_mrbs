@@ -36,11 +36,11 @@ if (($day == 0) or ($month == 0) or ($year == 0)) {
     $year = date("Y");
 }
 
-$thisurl = new moodle_url('/blocks/mrbs/web/search.php', array('day' => $day, 'month' => $month, 'year' => $year));
+$thisurl = new moodle_url('/blocks/mrbs/web/search.php', array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year));
 if ($area) {
     $thisurl->param('area', $area);
 } else {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 if ($advanced) {
     $thisurl->param('advanced', $advanced);
@@ -54,7 +54,7 @@ if ($search_pos) {
 $PAGE->set_url($thisurl);
 require_login();
 
-print_header_mrbs($day, $month, $year, $area);
+print_header_mrbs($day, $month, $year, $instance_id, $area);
 
 if ($advanced) {
     echo "<H3>".get_string('advanced_search', 'block_mrbs')."</H3>";
@@ -62,6 +62,7 @@ if ($advanced) {
     echo get_string('search_for', 'block_mrbs')." <INPUT TYPE=TEXT SIZE=25 NAME=\"search_str\"><br>";
     echo get_string('from')." ";
     genDateSelector("", $day, $month, $year);
+    echo "<INPUT TYPE=HIDDEN NAME=\"instance\" VALUE=\"".$instance_id."\">";
     echo "<br><INPUT TYPE=SUBMIT VALUE=\"".get_string('search')."\">";
     include "trailer.php";
     echo "</BODY>";
@@ -84,8 +85,8 @@ $now = mktime(0, 0, 0, $month, $day, $year);
 $sql_pred = "( ".$DB->sql_like("create_by", '?', false)
     ." OR ".$DB->sql_like("name", '?', false)
     ." OR ".$DB->sql_like("description", '?', false)
-    .") AND end_time > ?";
-$params = array($search_str, $search_str, $search_str, $now);
+    .") AND end_time > ? AND instance = ?";
+$params = array($search_str, $search_str, $search_str, $now, $instance_id);
 
 // The first time the search is called, we get the total
 // number of matches.  This is passed along to subsequent
@@ -167,7 +168,7 @@ if ($has_prev || $has_next) {
     </TR>
 <?php
 foreach ($result as $entry) {
-    $viewurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('id' => $entry->id));
+    $viewurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('instance' => $instance_id, 'id' => $entry->id));
     echo "<TR>";
     echo "<TD><A HREF=\"".$viewurl."\">".get_string('view')."</A></TD>\n";
     echo "<TD>".s($entry->create_by)."</TD>\n";
@@ -178,6 +179,7 @@ foreach ($result as $entry) {
     $link = getdate($entry->start_time);
     $dayurl = new moodle_url('/blocks/mrbs/web/day.php',
                              array(
+                                 'instance' => $instance_id, 
                                  'day' => $link['mday'], 'month' => $link['mon'], 'year' => $link['year'],
                                  'area' => $entry->area_id
                              ));

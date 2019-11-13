@@ -48,10 +48,35 @@ $capabilities = array(
         )
     ),
 
+    'block/mrbs:viewmrbs' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
+            'student' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
+
     'block/mrbs:editmrbs' => array(
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
+
+    'block/mrbs:editmrbs' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
@@ -69,10 +94,31 @@ $capabilities = array(
         )
     ),
 
+    'block/mrbs:administermrbs' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
+    ),
+
     'block/mrbs:viewalltt' => array(
 
         'captype' => 'view',
         'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
+
+    'block/mrbs:viewalltt' => array(
+
+        'captype' => 'view',
+        'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
@@ -90,10 +136,28 @@ $capabilities = array(
         )
     ),
 
+    'block/mrbs:forcebook' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
+    ),
+
     'block/mrbs:doublebook' => array(
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
+    ),
+
+    'block/mrbs:doublebook' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array(
             'manager' => CAP_ALLOW
         )
@@ -108,9 +172,23 @@ $capabilities = array(
         'archetypes' => array()
     ),
 
+    'block/mrbs:editmrbsunconfirmed' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array()
+    ),
+
     'block/mrbs:myaddinstance' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+        ),
+    ),
+
+    'block/mrbs:myaddinstance' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array(
         ),
     ),
@@ -122,6 +200,7 @@ $capabilities = array(
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
             'manager' => CAP_ALLOW
         ),
 
@@ -136,5 +215,12 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'block/mrbs:administermrbs',
     ),
+    'block/mrbs:ignoremaxadvancedays' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        ),
+        'clonepermissionsfrom' => 'block/mrbs:administermrbs',
+    ),
 );
-

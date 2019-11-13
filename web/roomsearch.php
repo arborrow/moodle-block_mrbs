@@ -26,7 +26,7 @@ global $twentyfourhour_format;
 $day = optional_param('day', 0, PARAM_INT);
 $month = optional_param('month', 0, PARAM_INT);
 $year = optional_param('year', 0, PARAM_INT);
-$area = optional_param('area', get_default_area(), PARAM_INT);
+$area = optional_param('area', get_default_area($instance_id), PARAM_INT);
 $edit_type = optional_param('edit_type', '', PARAM_ALPHA);
 $id = optional_param('id', 0, PARAM_INT);
 $room_id = optional_param('room_id', 0, PARAM_INT);
@@ -211,6 +211,7 @@ if (($day == 0) or ($month == 0) or ($year == 0)) {
             </TR>
 
         </TABLE>
+        <INPUT TYPE="HIDDEN" NAME="instance" VALUE="<?php echo $instance_id; ?>">
     </FORM>
 
 </div>

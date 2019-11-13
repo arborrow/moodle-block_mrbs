@@ -17,24 +17,26 @@
 
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 global $PAGE, $DB, $USER;
+include "config.inc.php";
 
-$dayurl = new moodle_url('/blocks/mrbs/web/day.php');
+$dayurl = new moodle_url('/blocks/mrbs/web/day.php', array('instance' => $instance_id));
 $PAGE->set_url($dayurl); // Hopefully will never be needed
 require_login();
 
-$context = context_system::instance();
+$context = context_block::instance($instance_id);
 
 if (!has_capability('block/mrbs:editmrbs', $context) && !has_capability('block/mrbs:administermrbs', $context)) {
     redirect($dayurl);
 }
 
 $touser = required_param('id', PARAM_INT);
-$message = required_param('message', PARAM_TEXT);
+$message = required_param_array('message', PARAM_TEXT);
+
 
 $touser = $DB->get_record('user', array('id' => $touser));
 
 require_sesskey();
 
-email_to_user($touser, $USER, 'Request vacate room', $message);
+email_to_user($touser, $USER, 'Request vacate room', $message['text']);
 
 redirect($dayurl);

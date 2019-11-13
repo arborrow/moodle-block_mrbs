@@ -21,7 +21,6 @@ include "config.inc.php";
 include "functions.php";
 require_once('mrbs_auth.php');
 include "mincals.php";
-
 $day = optional_param('day', 0, PARAM_INT);
 $month = optional_param('month', 0, PARAM_INT);
 $year = optional_param('year', 0, PARAM_INT);
@@ -55,13 +54,13 @@ if ($enable_periods) {
 }
 
 $baseurl = new moodle_url('/blocks/mrbs/web/day.php', array(
-    'day' => $day, 'month' => $month, 'year' => $year
+    'instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year
 )); // Used as basis for URLs throughout this file
 $thisurl = new moodle_url($baseurl);
 if ($area > 0) {
     $thisurl->param('area', $area);
 } else {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 if ($morningstarts_minutes > 0) {
     $thisurl->param('morningstarts_minutes', $morningstarts_minutes);
@@ -74,7 +73,7 @@ $PAGE->set_url($thisurl);
 require_login();
 
 // print the page header
-print_header_mrbs($day, $month, $year, $area);
+print_header_mrbs($day, $month, $year, $instance_id, $area);
 
 // Define the start and end of each day in a way which is not affected by
 // daylight saving...
@@ -95,10 +94,10 @@ if ($pview != 1) {
     // need to show either a select box or a normal html list,
     // depending on the settings in config.inc.php
     if ($area_list_format == "select") {
-        echo make_area_select_html(new moodle_url('/blocks/mrbs/web/day.php'), $area, $year, $month, $day); // from functions.php
+        echo make_area_select_html(new moodle_url('/blocks/mrbs/web/day.php'), $area, $instance_id, $year, $month, $day); // from functions.php
     } else {
         // show the standard html list
-        $areas = $DB->get_records('block_mrbs_area', null, 'area_name');
+        $areas = $DB->get_records('block_mrbs_area', array('instance' => $instance_id), 'area_name');
         foreach ($areas as $dbarea) {
             echo '<a href="'.($baseurl->out(true, array('area' => $dbarea->id))).'">';
             if ($dbarea->id == $area) {
@@ -111,7 +110,7 @@ if ($pview != 1) {
     echo "</td>\n";
 
     //insert the goto room form
-    $gotoroom = new moodle_url('/blocks/mrbs/web/gotoroom.php');
+    $gotoroom = new moodle_url('/blocks/mrbs/web/gotoroom.php', array('instance' => $instance_id));
     $gostr = get_string('goroom', 'block_mrbs');
     $gotoval = '';
     $gotomsg = '';
@@ -121,7 +120,8 @@ if ($pview != 1) {
     }
     echo "<td width=\"20%\"><h3>".get_string('findroom', 'block_mrbs')."</h3>
         <form action='$gotoroom' method='get'>
-            <input type='text' name='room' value='$gotoval'>
+			<input type='text' name='room' value='$gotoval'>
+            <input type='hidden' name='instance' value='$instance_id'>
             <input type='hidden' name='day' value='$day'>
             <input type='hidden' name='month' value='$month'>
             <input type='hidden' name='year' value='$year'>
@@ -129,7 +129,7 @@ if ($pview != 1) {
         </form></td>";
 
     //Draw the three month calendars
-    minicals($year, $month, $day, $area, '', 'day');
+    minicals($year, $month, $day, $instance_id, $area, '', 'day');
     echo "</tr></table>";
 }
 
@@ -168,11 +168,12 @@ if (!empty($area)) {
     $sql = "SELECT e.id AS eid, r.id AS rid, e.start_time, e.end_time, e.name, e.type,
             e.description
             FROM {block_mrbs_entry} e, {block_mrbs_room} r
-            WHERE e.room_id = r.id
+            WHERE e.instance = ?
+            AND e.room_id = r.id
             AND r.area_id = ?
             AND e.start_time <= ? AND e.end_time > ?";
 
-    $entries = $DB->get_records_sql($sql, array($area, $pm7, $am7));
+    $entries = $DB->get_records_sql($sql, array($instance_id, $area, $pm7, $am7));
 
     foreach ($entries as $entry) {
         // $today is a map of the screen that will be displayed
@@ -242,7 +243,7 @@ if (!empty($area)) {
     // We need to know what all the rooms area called, so we can show them all
     // pull the data from the db and store it. Convienently we can print the room
     // headings and capacities at the same time
-    $rooms = $DB->get_records('block_mrbs_room', array('area_id' => $area), 'room_name');
+    $rooms = $DB->get_records('block_mrbs_room', array('instance' => $instance_id, 'area_id' => $area), 'room_name');
     foreach ($rooms as $room) {
         $room->allowedtobook = allowed_to_book($USER, $room);
     }
@@ -286,7 +287,7 @@ if (!empty($area)) {
 
         $room_column_width = (int)(95 / count($rooms));
         $weekurl = new moodle_url('/blocks/mrbs/web/week.php', array(
-            'year' => $year, 'month' => $month, 'day' => $day, 'area' => $area
+            'instance' => $instance_id, 'year' => $year, 'month' => $month, 'day' => $day, 'area' => $area
         ));
         foreach ($rooms as $room) {
             echo "<th width=\"$room_column_width%\">
@@ -384,13 +385,15 @@ if (!empty($area)) {
                             // Not allowed to book this room
                             echo '<center>';
                             $title = get_string('notallowedbook', 'block_mrbs');
-                            echo '<img src="'.$OUTPUT->pix_url('toofaradvance', 'block_mrbs').'" width="10" height="10" border="0" alt="'.$title.'" title="'.$title.'" />';
+                            echo $OUTPUT->pix_icon('toofaradvance', $title, 'block_mrbs', 
+										array('width' => '10', 'height' => '10',  'border' => '0', 'title' => $title));
                             echo '</center>';
                         } else if (!$advanceok) {
                             // Too far in advance to edit
                             echo '<center>';
                             $title = get_string('toofaradvance', 'block_mrbs', $max_advance_days);
-                            echo '<img src="'.$OUTPUT->pix_url('toofaradvance', 'block_mrbs').'" width="10" height="10" border="0" alt="'.$title.'" title="'.$title.'" />';
+                            echo $OUTPUT->pix_icon('toofaradvance', $title, 'block_mrbs', 
+										array('width' => '10', 'height' => '10',  'border' => '0', 'title' => $title));
                             echo '</center>';
                         } else {
                             if ($javascript_cursor) {
@@ -401,6 +404,7 @@ if (!empty($area)) {
                             echo "<center>";
                             $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php',
                                                       array(
+                                                          'instance' => $instance_id,
                                                           'room' => $room->id, 'area' => $area, 'year' => $year, 'month' => $month,
                                                           'day' => $day
                                                       ));
@@ -409,7 +413,9 @@ if (!empty($area)) {
                             } else {
                                 echo "<a href=\"".($editurl->out(true, array('hour' => $hour, 'minute' => $minute)))."\">";
                             }
-                            echo '<img src="'.$OUTPUT->pix_url('new', 'block_mrbs').'" width="10" height="10" border="0"></a>';
+                            $title = get_string('newbooking', 'block_mrbs');
+                            echo $OUTPUT->pix_icon('new', $title, 'block_mrbs', array('width' => '10', 'height' => '10',  'border' => '0'));
+                            echo '</a>';
                             echo "</center>";
                             if ($javascript_cursor) {
                                 echo "<SCRIPT language=\"JavaScript\">\n<!--\n";
@@ -433,6 +439,7 @@ if (!empty($area)) {
                 for ($i = 0; $i < count($descrs); $i++) {
                     $viewentry = new moodle_url('/blocks/mrbs/web/view_entry.php',
                                                 array(
+                                                    'instance' => $instance_id,
                                                     'id' => $ids[$i], 'area' => $area, 'day' => $day, 'month' => $month,
                                                     'year' => $year
                                                 ));
