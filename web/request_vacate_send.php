@@ -30,12 +30,13 @@ if (!has_capability('block/mrbs:editmrbs', $context) && !has_capability('block/m
 }
 
 $touser = required_param('id', PARAM_INT);
-$message = required_param('message', PARAM_TEXT);
+$message = required_param_array('message', PARAM_TEXT);
+
 
 $touser = $DB->get_record('user', array('id' => $touser));
 
 require_sesskey();
 
-email_to_user($touser, $USER, 'Request vacate room', $message);
+email_to_user($touser, $USER, 'Request vacate room', $message['text']);
 
 redirect($dayurl);
