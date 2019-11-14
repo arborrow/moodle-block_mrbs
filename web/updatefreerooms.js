@@ -1,8 +1,8 @@
 function updateFreeRooms() {
 //check for force book- if ticked we should be able to select any room
 
-    var instance_idInput = document.getElementsByName('instance_id');
-    var instance_id = instance_idInput[0].value;
+    var instanceInput = document.getElementsByName('instance');
+    var instance_id = instanceInput[0].value;
     
     var dayInput = document.getElementsByName('day');
     var day = dayInput[2].selectedIndex + 1;
@@ -29,7 +29,7 @@ function updateFreeRooms() {
     }
 
     //currentroom is put onto edit_entry.php server-side
-    var searchstring = "?instance=" + instance + "&day=" + day + "&month=" + month + "&year=" + year + "&period=" + period + "&duration=" + duration + "&dur_units=" + dur_units + "&area=" + area + "&currentroom=" + currentroom;
+    var searchstring = "?instance=" + instance_id + "&day=" + day + "&month=" + month + "&year=" + year + "&period=" + period + "&duration=" + duration + "&dur_units=" + dur_units + "&area=" + area + "&currentroom=" + currentroom;
 
     if (canforcebook) {
         var forcebookInput = document.getElementsByName('forcebook');
