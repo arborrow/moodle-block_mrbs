@@ -330,7 +330,7 @@ function mrbsGetRepeatEntryList($time, $enddate, $rep_type, $rep_opt, $max_ittr,
     $start_day = date('w', mktime($hour, $min, $sec, $month, $day, $year));
     $cur_day = $start_day;
 
-    $entrys = "";
+    $entrys = array();
     for ($i = 0; $i < $max_ittr; $i++) {
         $time = mktime($hour, $min, $sec, $month, $day, $year);
         if ($time > $enddate) {
