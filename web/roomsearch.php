@@ -168,7 +168,7 @@ if (($day == 0) or ($month == 0) or ($year == 0)) {
                             $units = array("minutes", "hours", "days", "weeks");
                         }
 
-                        while (list(, $unit) = each($units)) {
+			foreach ($units as $unit) {
                             echo "<OPTION VALUE=$unit";
                             if ($dur_units == get_string($unit, 'block_mrbs')) {
                                 echo " SELECTED";

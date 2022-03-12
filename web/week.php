@@ -292,9 +292,9 @@ if ($debug_flag) {
 
     echo "<p>\$d =\n";
     if (gettype($d) == "array") {
-        while (list($w_k, $w_v) = each($d)) {
-            while (list($t_k, $t_v) = each($w_v)) {
-                while (list($k_k, $k_v) = each($t_v)) {
+	foreach ($d as $w_k => $w_v) {
+	    foreach ($w_v as $t_k => $t_v) {
+		foreach ($t_v as $k_k => $k_v) {
                     echo "d[$w_k][$t_k][$k_k] = '$k_v'\n";
                 }
             }
