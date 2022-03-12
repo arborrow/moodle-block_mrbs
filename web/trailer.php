@@ -39,7 +39,7 @@ if ($pview != 1) {
         $params = array('area' => $area);
     }
 
-    for ($i = -6; $i <= 7; $i++) {
+    for ($i = 0; $i <= 7; $i++) {
         $ctime = mktime(0, 0, 0, $month, $day + $i, $year);
 
         $str = userdate($ctime, empty($dateformat) ? "%b %d" : "%d %b");
@@ -47,7 +47,7 @@ if ($pview != 1) {
         $cyear = date("Y", $ctime);
         $cmonth = date("m", $ctime);
         $cday = date("d", $ctime);
-        if ($i != -6) {
+        if ($i != 0) {
             echo " | ";
         }
         if ($i == 0) {
@@ -76,14 +76,14 @@ if ($pview != 1) {
     // How many days to skip back to first day of week:
     $skipback = (date("w", $ctime) - $weekstarts + 7) % 7;
 
-    for ($i = -4; $i <= 4; $i++) {
+    for ($i = 0; $i <= 4; $i++) {
         $ctime = mktime(0, 0, 0, $month, $day + 7 * $i - $skipback, $year);
 
         $cweek = date("W", $ctime);
         $cday = date("d", $ctime);
         $cmonth = date("m", $ctime);
         $cyear = date("Y", $ctime);
-        if ($i != -4) {
+        if ($i != 0) {
             echo " | ";
         }
 
@@ -105,13 +105,13 @@ if ($pview != 1) {
     }
 
     echo "<BR><B>".get_string('viewmonth', 'block_mrbs').":</B>\n";
-    for ($i = -2; $i <= 6; $i++) {
+    for ($i = 0; $i <= 3; $i++) {
         $ctime = mktime(0, 0, 0, $month + $i, 1, $year);
         $str = userdate($ctime, "%b %Y");
 
         $cmonth = date("m", $ctime);
         $cyear = date("Y", $ctime);
-        if ($i != -2) {
+        if ($i != 0) {
             echo " | ";
         }
         if ($i == 0) {

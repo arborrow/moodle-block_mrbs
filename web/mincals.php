@@ -198,10 +198,10 @@ function minicals($year, $month, $day, $area, $room, $dmy, $usertt = false) {
     $thismonth = mktime(12, 0, 0, $month, $day, $year);
     $nextmonth = mktime(12, 0, 0, $month + 1, 1, $year);
 
-    echo "<td>";
+    /*echo "<td>";
     $cal = new Calendar(date("d", $lastmonth), date("m", $lastmonth), date("Y", $lastmonth), 0, $area, $room, $dmy, $usertt);
     echo $cal->getHTML();
-    echo "</td>";
+    echo "</td>";*/
 
     echo "<td>";
     $cal = new Calendar(date("d", $thismonth), date("m", $thismonth), date("Y", $thismonth), 1, $area, $room, $dmy, $usertt);
