@@ -22,6 +22,7 @@ function xmldb_block_mrbs_install() {
     // Get system context.
     $context = context_system::instance();
 
+    update_capabilities('block_mrbs');
     // Create the viewer role.
     if (!$DB->record_exists('role', array('shortname' => 'mrbsviewer'))) {
         $mrbsviewerid = create_role(get_string('mrbsviewer', 'block_mrbs'), 'mrbsviewer',
