@@ -431,13 +431,13 @@ for ($t = $starttime; $t <= $endtime; $t += $resolution) {
                     // User not allowed to book this room
                     echo '<center>';
                     $title = get_string('notallowedbook', 'block_mrbs', $max_advance_days);
-                    echo '<img src="'.$OUTPUT->image_url('toofaradvance', 'block_mrbs').'" width="10" height="10" border="0" alt="'.$title.'" title="'.$title.'" />';
+                    echo $OUTPUT->pix_icon('toofaradvance', $title, 'block_mrbs');
                     echo '</center>';
                 } else if (!check_max_advance_days($wday, $wmonth, $wyear)) {
                     // Too far in advance to edit
                     echo '<center>';
                     $title = get_string('toofaradvance', 'block_mrbs', $max_advance_days);
-                    echo '<img src="'.$OUTPUT->image_url('toofaradvance', 'block_mrbs').'" width="10" height="10" border="0" alt="'.$title.'" title="'.$title.'" />';
+                    echo $OUTPUT->pix_icon('toofaradvance', $title, 'block_mrbs');
                     echo '</center>';
                 } else {
                     if ($javascript_cursor) {
@@ -456,7 +456,7 @@ for ($t = $starttime; $t <= $endtime; $t += $resolution) {
                     } else {
                         echo '<a href="'.($editentry->out(true, array('hour' => $hour, 'minute' => $minute))).'">';
                     }
-                    echo '<img src="'.$OUTPUT->image_url('new', 'block_mrbs').'" width="10" height="10" border="0"></a>';
+                    echo $OUTPUT->pix_icon('new', get_string('addnewbooking', 'block_mrbs'), 'block_mrbs').'</a>';
                     echo "</center>";
                     if ($javascript_cursor) {
                         echo "<SCRIPT language=\"JavaScript\">\n<!--\n";

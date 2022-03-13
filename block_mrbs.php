@@ -48,7 +48,7 @@ class block_mrbs extends block_base {
                 $serverpath = $CFG->wwwroot.'/blocks/mrbs/web';
             }
             $go = get_string('accessmrbs', 'block_mrbs');
-            $icon = '<img src="'.$OUTPUT->image_url('web', 'block_mrbs').'" height="16" width="16" alt="" />';
+            $icon = $OUTPUT->pix_icon('web', '', 'block_mrbs');
             $target = '';
             if ($cfg_mrbs->newwindow) {
                 $target = ' target="_blank" ';
