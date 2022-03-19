@@ -254,12 +254,12 @@ function do_summary(&$count, &$hours, &$room_hash, &$name_hash) {
     // and row indexes. Use the rooms and names hashes built by accumulate().
     // At PHP4 we could use array_keys().
     reset($room_hash);
-    while (list($room_key) = each($room_hash)) {
+    foreach ($room_hash as $room_key) {
         $rooms[] = $room_key;
     }
     ksort($rooms);
     reset($name_hash);
-    while (list($name_key) = each($name_hash)) {
+    foreach ($name_hash as $name_key) {
         $names[] = $name_key;
     }
     ksort($names);

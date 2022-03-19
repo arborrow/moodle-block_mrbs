@@ -411,7 +411,7 @@ print_header_mrbs($day, $month, $year, $area);
                         $units = array("minutes", "hours", "days", "weeks");
                     }
 
-                    while (list(, $unit) = each($units)) {
+                    foreach ($units as $unit) {
                         echo "<OPTION VALUE=$unit";
                         if ($dur_units == get_string($unit, 'block_mrbs')) {
                             echo " SELECTED";
