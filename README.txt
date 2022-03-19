@@ -17,6 +17,7 @@ Hence, use this block at your own risk.
 
 * Changes *
 
+2022-03-19 - PHP 7+, 8+ compatibility fixes; Moodle 3.8+ compatibility fixes.
 2014-06-09 - Fixed compatibility with M2.7
 2014-06-09 - Confirmed compatibility with M2.6, fixed roomsearch with periods disabled, removal of deprecated 'ereg_replace' funcion (minor warning message).
 2013-06-23 - New capability 'block/mrbs:ignoremaxadvancedays' - allows admin users to bypass the 'max_advance_days' restriction.
