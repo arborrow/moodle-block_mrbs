@@ -29,7 +29,7 @@ function minicals($year, $month, $day, $instance_id, $area, $room, $dmy, $usertt
         var $dmy;
         var $usertt;
 
-        function __construct($day, $month, $year, $h, $instance_id, $area, $room, $dmy, $usertt) {
+        public function __construct($day, $month, $year, $h, $instance_id, $area, $room, $dmy, $usertt) {
             $this->day = $day;
             $this->month = $month;
             $this->year = $year;

@@ -19,12 +19,12 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 global $PHP_SELF, $USER;
 
-if (isset($cookie_path_override)) {
-    $cookie_path = $cookie_path_override;
-} else {
-    $cookie_path = $PHP_SELF;
-    $cookie_path = preg_replace('|[^/]*$|', '', $cookie_path);
-}
+//if (isset($cookie_path_override)) {
+//    $cookie_path = $cookie_path_override;
+//} else {
+//    $cookie_path = $PHP_SELF;
+//    $cookie_path = preg_replace('|[^/]*$|', '', $cookie_path);
+//}
 //session_set_cookie_params(0, $cookie_path);
 //session_start();
 

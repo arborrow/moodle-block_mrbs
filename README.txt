@@ -17,6 +17,7 @@ Hence, use this block at your own risk.
 
 * Changes *
 
+2022-03-19 - PHP 7+, 8+ compatibility fixes; Moodle 3.8+ compatibility fixes.
 2017-11-17 - Make multiple instances available in MRBS
 2017-11-17 - Make MRBS honor course roles: student <-> Viewer, editingteacher <-> Editor, manager <-> Admin
 2014-06-09 - Fixed compatibility with M2.7

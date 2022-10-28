@@ -292,9 +292,9 @@ if ($debug_flag) {
 
     echo "<p>\$d =\n";
     if (gettype($d) == "array") {
-        while (list($w_k, $w_v) = each($d)) {
-            while (list($t_k, $t_v) = each($w_v)) {
-                while (list($k_k, $k_v) = each($t_v)) {
+	foreach ($d as $w_k => $w_v) {
+	    foreach ($w_v as $t_k => $t_v) {
+		foreach ($t_v as $k_k => $k_v) {
                     echo "d[$w_k][$t_k][$k_k] = '$k_v'\n";
                 }
             }
@@ -432,15 +432,13 @@ for ($t = $starttime; $t <= $endtime; $t += $resolution) {
                     // User not allowed to book this room
                     echo '<center>';
                     $title = get_string('notallowedbook', 'block_mrbs', $max_advance_days);
-                    echo $OUTPUT->pix_icon('toofaradvance', $title, 'block_mrbs', 
-								array('width' => '10', 'height' => '10',  'border' => '0', 'title' => $title));
+                    echo $OUTPUT->pix_icon('toofaradvance', $title, 'block_mrbs');
                     echo '</center>';
                 } else if (!check_max_advance_days($wday, $wmonth, $wyear)) {
                     // Too far in advance to edit
                     echo '<center>';
                     $title = get_string('toofaradvance', 'block_mrbs', $max_advance_days);
-                    echo $OUTPUT->pix_icon('toofaradvance', $title, 'block_mrbs', 
-								array('width' => '10', 'height' => '10',  'border' => '0', 'title' => $title));
+                    echo $OUTPUT->pix_icon('toofaradvance', $title, 'block_mrbs');
                     echo '</center>';
                 } else {
                     if ($javascript_cursor) {
@@ -460,9 +458,7 @@ for ($t = $starttime; $t <= $endtime; $t += $resolution) {
                     } else {
                         echo '<a href="'.($editentry->out(true, array('hour' => $hour, 'minute' => $minute))).'">';
                     }
-					$title = get_string('newbooking', 'block_mrbs');
-					echo $OUTPUT->pix_icon('new', $title, 'block_mrbs', array('width' => '10', 'height' => '10',  'border' => '0'));
-					echo '</a>';
+                    echo $OUTPUT->pix_icon('new', get_string('addnewbooking', 'block_mrbs'), 'block_mrbs').'</a>';
                     echo "</center>";
                     if ($javascript_cursor) {
                         echo "<SCRIPT language=\"JavaScript\">\n<!--\n";

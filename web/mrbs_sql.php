@@ -330,7 +330,7 @@ function mrbsGetRepeatEntryList($time, $enddate, $rep_type, $rep_opt, $max_ittr,
     $start_day = date('w', mktime($hour, $min, $sec, $month, $day, $year));
     $cur_day = $start_day;
 
-    $entrys = array();
+    $entrys = [];
     for ($i = 0; $i < $max_ittr; $i++) {
         $time = mktime($hour, $min, $sec, $month, $day, $year);
         if ($time > $enddate) {
@@ -433,7 +433,7 @@ function mrbsCreateRepeatingEntrys($starttime, $endtime, $rep_type, $rep_enddate
     $ret->created = 0;
     $ret->lasttime = null;
     $reps = mrbsGetRepeatEntryList($starttime, $rep_enddate, $rep_type, $rep_opt, $max_rep_entrys, $rep_num_weeks);
-    $ret->requested = count($reps);
+    $ret->requested = is_array($reps) ? count($reps) : 0;
     if ($ret->requested > $max_rep_entrys) {
         return $ret;
     }

@@ -58,7 +58,7 @@ class block_mrbs extends block_base {
             } else {
                 $go = get_string('accessmrbs', 'block_mrbs');
             }
-            $icon = $OUTPUT->pix_icon('web', 'MRBS icon', 'block_mrbs', array('height' => "16", 'width' => "16"));
+            $icon = $OUTPUT->pix_icon('web', '', 'block_mrbs');
             $target = '';
             if (isset($this->config->newwindow) and $this->config->newwindow) {
                 $target = ' target="_blank" ';
