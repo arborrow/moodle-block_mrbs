@@ -47,18 +47,18 @@ if (($month == 0) || ($year == 0) || !checkdate(intval($month), 1, intval($year)
 $day = 1;
 
 $baseurl = new moodle_url('/blocks/mrbs/web/month.php', array(
-    'month' => $month, 'year' => $year
+    'instance' => $instance_id, 'month' => $month, 'year' => $year
 )); // Used as basis for URLs throughout this file
 $thisurl = new moodle_url($baseurl);
 if ($area > 0) {
     $thisurl->param('area', $area);
 } else {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 if ($room > 0) {
     $thisurl->param('room', $room);
 } else {
-    $room = get_default_room($area);
+    $room = get_default_room($instance_id, $area);
     // Note $room will be 0 if there are no rooms; this is checked for below.
 }
 
@@ -66,7 +66,7 @@ $PAGE->set_url($thisurl);
 require_login();
 
 // print the page header
-print_header_mrbs($day, $month, $year, $area);
+print_header_mrbs($day, $month, $year, $instance_id, $area);
 
 // Month view start time. This ignores morningstarts/eveningends because it
 // doesn't make sense to not show all entries for the day, and it messes
@@ -118,11 +118,11 @@ if ($pview != 1) {
 
 // show either a select box or the normal html list
 if ($area_list_format == "select") {
-    echo make_area_select_html('month.php', $area, $year, $month, $day); // from functions.php
+    echo make_area_select_html('month.php', $area, $instance_id, $year, $month, $day); // from functions.php
     $this_area_name = s($DB->get_field('block_mrbs_area', 'area_name', array('id' => $area)));
     $this_room_name = s($DB->get_field('block_mrbs_room', 'room_name', array('id' => $room)));
 } else {
-    $dbareas = $DB->get_records('block_mrbs_area', null, 'area_name');
+    $dbareas = $DB->get_records('block_mrbs_area', array('instance' => $instance_id), 'area_name');
     $areaurl = new moodle_url($baseurl);
     foreach ($dbareas as $dbarea) {
         if ($pview != 1) {
@@ -149,9 +149,9 @@ if ($pview != 1) {
 
 // should we show a drop-down for the room list, or not?
 if ($area_list_format == "select") {
-    echo make_room_select_html('month.php', $area, $room, $year, $month, $day); // from functions.php
+    echo make_room_select_html('month.php', $area, $room, $instance_id, $year, $month, $day); // from functions.php
 } else {
-    $rooms = $DB->get_records('block_mrbs_room', array('area_id' => $area), 'room_name');
+    $rooms = $DB->get_records('block_mrbs_room', array('instance' => $instance_id, 'area_id' => $area), 'room_name');
     $roomurl = new moodle_url($baseurl, array('area' => $area));
     foreach ($rooms as $dbroom) {
         $roomurl->param('room', $dbroom->id);
@@ -171,7 +171,7 @@ if ($pview != 1) {
     echo "</td>\n";
 
     //Draw the three month calendars
-    minicals($year, $month, $day, $area, $room, 'month');
+    minicals($year, $month, $day, $instance_id, $area, $room, 'month');
     echo "</tr></table>\n";
 }
 
@@ -344,7 +344,7 @@ for ($weekcol = 0; $weekcol < $weekday_start; $weekcol++) {
     echo "<td bgcolor=\"#cccccc\" height=100>&nbsp;</td>\n";
 }
 
-$roomdata = $DB->get_record('block_mrbs_room', array('id' => $room));
+$roomdata = $DB->get_record('block_mrbs_room', array('instance' => $instance_id, 'id' => $room));
 $allowedtobook = allowed_to_book($USER, $roomdata);
 
 // Draw the days of the month:
@@ -353,7 +353,7 @@ for ($cday = 1; $cday <= $days_in_month; $cday++) {
         echo "</tr><tr>\n";
     }
     $dayurl = new moodle_url('/blocks/mrbs/web/day.php', array(
-        'year' => $year, 'month' => $month, 'day' => $cday, 'area' => $area
+        'instance' => $instance_id, 'year' => $year, 'month' => $month, 'day' => $cday, 'area' => $area
     ));
     echo "<td valign=top height=100 class=\"month\"><div class=\"monthday\"><a href=\"".$dayurl."\">$cday</a>&nbsp;\n";
     echo "</div>";
@@ -380,7 +380,7 @@ for ($cday = 1; $cday <= $days_in_month; $cday++) {
             }
 
             $viewentry_url = new moodle_url('/blocks/mrbs/web/view_entry.php', array(
-                'id' => $d[$cday]['id'][$i], 'day' => $cday, 'month' => $month, 'year' => $year
+                'instance' => $instance_id, 'id' => $d[$cday]['id'][$i], 'day' => $cday, 'month' => $month, 'year' => $year
             ));
             switch ($monthly_view_entries_details) {
                 case "description": {
@@ -428,7 +428,8 @@ for ($cday = 1; $cday <= $days_in_month; $cday++) {
                 echo "// -->\n</SCRIPT>";
             }
             $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php',
-                                      array('room' => $room, 'area' => $area, 'year' => $year, 'month' => $month, 'day' => $cday));
+                                      array('instance' => $instance_id, 
+											'room' => $room, 'area' => $area, 'year' => $year, 'month' => $month, 'day' => $cday));
             if ($enable_periods) {
                 echo '<a href="'.($editurl->out(true, array('period' => 0))).'">';
             } else {

@@ -16,7 +16,6 @@
 
 $plugin->version = 2022031900;
 $plugin->requires = 2019111800; // Moodle 3.8+
-$plugin->cron = 300;
 $plugin->component = 'block_mrbs';
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.x (Build: 2022031900)';
+$plugin->release = '3.x (Build: 2022031900)';

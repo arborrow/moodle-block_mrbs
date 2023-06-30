@@ -75,18 +75,18 @@ if (($weekday = (date("w", $time) - $weekstarts + 7) % 7) > 0) {
 }
 
 $baseurl = new moodle_url('/blocks/mrbs/web/userweek.php', array(
-    'day' => $day, 'month' => $month, 'year' => $year
+    'instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year
 )); // Used as the basis for URLs throughout this file
 $thisurl = new moodle_url($baseurl);
 if ($area > 0) {
     $thisurl->param('area', $area);
 } else {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 if ($room > 0) {
     $thisurl->param('room', $area);
 } else {
-    $room = get_default_room($area);
+    $room = get_default_room($instance_id, $area);
     // Note $room will be 0 if there are no rooms; this is checked for below.
 }
 if ($morningstarts_minutes > 0) {
@@ -102,7 +102,7 @@ require_login();
 // print the page header
 print_user_header_mrbs($day, $month, $year, $area);
 
-$context = context_system::instance();
+$context = context_block::instance($instance_id);
 
 if (!$user || !has_capability('block/mrbs:viewalltt', $context)) {
     $user = $USER->id;
@@ -128,7 +128,7 @@ if ($pview != 1) {
     echo "</td>\n";
 
     //Draw the three month calendars
-    minicals($year, $month, $day, $area, $room, 'week', $user);
+    minicals($year, $month, $day, $area, $instance_id, $room, 'week', $user);
     echo "</tr></table>\n";
 }
 
@@ -268,6 +268,7 @@ for ($j = 0; $j <= ($num_of_days - 1); $j++) {
     $t = mktime(12, 0, 0, $month, $day + $j, $year);
     $dayurl = new moodle_url('/blocks/mrbs/web/day.php',
                              array(
+                                 'instance' => $insance_id,
                                  'year' => userdate($t, "%Y"), 'month' => userdate($t, "%m"),
                                  'day' => userdate($t, "%d"), 'area' => $area
                              ));
@@ -397,6 +398,7 @@ for ($t = $starttime; $t <= $endtime; $t += $resolution) {
                 }
                 $viewentry = new moodle_url('/blocks/mrbs/web/view_entry.php',
                                             array(
+                                                'instance' => $instance_id,
                                                 'id' => $ids[$i], 'area' => $area, 'day' => $wday,
                                                 'month' => $wmonth, 'year' => $wyear
                                             ));
