@@ -75,7 +75,9 @@ if ($pview) {
 $PAGE->set_url($thisurl);
 require_login();
 
-$namefields = get_all_user_name_fields(true, 'u');
+$context = \context_system::instance();
+$userfields = \core_user\fields::for_name()->with_identity($context)->excluding('id', 'deleted');
+$fieldssql = $userfields->get_sql('u');
 if ($series) {
     $sql = "SELECT re.name,
             re.description,
@@ -92,9 +94,10 @@ if ($series) {
             re.end_date,
             re.rep_opt,
             re.rep_num_weeks,
-            u.id as userid,
-            $namefields
+            u.id as userid
+            {$fieldssql->selects}
             FROM  {block_mrbs_repeat} re left join {user} u on u.username = re.create_by, {block_mrbs_room} r, {block_mrbs_area} a
+                {$fieldssql->joins}
             WHERE re.room_id = r.id
             AND r.area_id = a.id
             AND re.id= ?";
@@ -111,15 +114,16 @@ if ($series) {
             e.start_time,
             e.end_time,
             e.repeat_id,
-            u.id as userid,
-            $namefields
+            u.id as userid
+            {$fieldssql->selects}
             FROM  {block_mrbs_entry} e left join {user} u on u.username = e.create_by, {block_mrbs_room} r, {block_mrbs_area} a
+                {$fieldssql->joins}
             WHERE e.room_id = r.id
             AND r.area_id = a.id
             AND e.id= ?";
 }
 
-$booking = $DB->get_record_sql($sql, array($id), MUST_EXIST);
+$booking = $DB->get_record_sql($sql, array_merge([$id], $fieldssql->params), MUST_EXIST);
 $booking->fullname = fullname($booking);
 
 // Note: Removed stripslashes() calls from name and description. Previous
