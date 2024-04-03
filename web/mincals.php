@@ -1,7 +1,8 @@
 <?php
 
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
-function minicals($year, $month, $day, $area, $room, $dmy, $usertt = false) {
+
+function minicals($year, $month, $day, $instance_id, $area, $room, $dmy, $usertt = false) {
     // PHP Calendar Class
     //
     // Copyright David Wilkinson 2000. All Rights reserved.
@@ -18,6 +19,7 @@ function minicals($year, $month, $day, $area, $room, $dmy, $usertt = false) {
     // Email: davidw@cascade.org.uk
 
     class Calendar {
+	var $instance_id;
         var $month;
         var $year;
         var $day;
@@ -27,11 +29,12 @@ function minicals($year, $month, $day, $area, $room, $dmy, $usertt = false) {
         var $dmy;
         var $usertt;
 
-        public function __construct($day, $month, $year, $h, $area, $room, $dmy, $usertt) {
+        public function __construct($day, $month, $year, $h, $instance_id, $area, $room, $dmy, $usertt) {
             $this->day = $day;
             $this->month = $month;
             $this->year = $year;
             $this->h = $h;
+            $this->instance_id = $instance_id;
             $this->area = $area;
             $this->room = $room;
             $this->dmy = $dmy;
@@ -49,7 +52,7 @@ function minicals($year, $month, $day, $area, $room, $dmy, $usertt = false) {
                 $isuser = 'user';
             }
             $returl = new moodle_url('/blocks/mrbs/web/'.$isuser.$this->dmy.'.php', array(
-                'year' => $year, 'month' => $month, 'day' => $day, 'area' => $this->area
+                'instance' => $this->instance_id, 'year' => $year, 'month' => $month, 'day' => $day, 'area' => $this->area
             ));
             if (!empty($this->usertt)) {
                 $returl->param('user', $this->usertt);
@@ -199,17 +202,17 @@ function minicals($year, $month, $day, $area, $room, $dmy, $usertt = false) {
     $nextmonth = mktime(12, 0, 0, $month + 1, 1, $year);
 
     echo "<td>";
-    $cal = new Calendar(date("d", $lastmonth), date("m", $lastmonth), date("Y", $lastmonth), 0, $area, $room, $dmy, $usertt);
+    $cal = new Calendar(date("d", $lastmonth), date("m", $lastmonth), date("Y", $lastmonth), 0, $instance_id, $area, $room, $dmy, $usertt);
     echo $cal->getHTML();
     echo "</td>";
 
     echo "<td>";
-    $cal = new Calendar(date("d", $thismonth), date("m", $thismonth), date("Y", $thismonth), 1, $area, $room, $dmy, $usertt);
+    $cal = new Calendar(date("d", $thismonth), date("m", $thismonth), date("Y", $thismonth), 1, $instance_id, $area, $room, $dmy, $usertt);
     echo $cal->getHTML();
     echo "</td>";
 
     echo "<td>";
-    $cal = new Calendar(date("d", $nextmonth), date("m", $nextmonth), date("Y", $nextmonth), 0, $area, $room, $dmy, $usertt);
+    $cal = new Calendar(date("d", $nextmonth), date("m", $nextmonth), date("Y", $nextmonth), 0, $instance_id, $area, $room, $dmy, $usertt);
     echo $cal->getHTML();
     echo "</td>";
 }

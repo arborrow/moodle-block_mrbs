@@ -71,18 +71,18 @@ if (($weekday = (date("w", $time) - $weekstarts + 7) % 7) > 0) {
 }
 
 $baseurl = new moodle_url('/blocks/mrbs/web/week.php', array(
-    'day' => $day, 'month' => $month, 'year' => $year
+    'instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year
 )); // Used as the basis for URLs throughout this file
 $thisurl = new moodle_url($baseurl);
 if ($area > 0) {
     $thisurl->param('area', $area);
 } else {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 if ($room > 0) {
     $thisurl->param('room', $area);
 } else {
-    $room = get_default_room($area);
+    $room = get_default_room($instance_id, $area);
     // Note $room will be 0 if there are no rooms; this is checked for below.
 }
 if ($morningstarts_minutes > 0) {
@@ -93,7 +93,7 @@ $PAGE->set_url($thisurl);
 require_login();
 
 // print the page header
-print_header_mrbs($day, $month, $year, $area);
+print_header_mrbs($day, $month, $year, $instance_id, $area);
 
 // Define the start and end of each day of the week in a way which is not
 // affected by daylight saving...
@@ -120,12 +120,12 @@ if ($pview != 1) {
 
 // show either a select box or the normal html list
 if ($area_list_format == "select") {
-    echo make_area_select_html('week.php', $area, $year, $month, $day); // from functions.php
+    echo make_area_select_html('week.php', $area, $instance_id, $year, $month, $day); // from functions.php
     $this_area_name = $DB->get_field('block_mrbs_area', 'area_name', array('id' => $area));
     $this_room_name = $DB->get_field('block_mrbs_room', 'room_name', array('id' => $room));
     $this_room_description = $DB->get_field('block_mrbs_room', 'description', array('id' => $room));
 } else {
-    $areas = $DB->get_records('block_mrbs_area', null, 'area_name');
+    $areas = $DB->get_records('block_mrbs_area', array('instance' => $instance_id), 'area_name');
     foreach ($areas as $dbarea) {
         if ($pview != 1) {
             echo '<a href="'.($baseurl->out(true, array('area' => $dbarea->id))).'">';
@@ -150,9 +150,9 @@ if ($pview != 1) {
 
 // should we show a drop-down for the room list, or not?
 if ($area_list_format == "select") {
-    echo make_room_select_html('week.php', $area, $room, $year, $month, $day); // from functions.php
+    echo make_room_select_html('week.php', $area, $room, $instance_id, $year, $month, $day); // from functions.php
 } else {
-    $rooms = $DB->get_records('block_mrbs_room', array('area_id' => $area), 'room_name');
+    $rooms = $DB->get_records('block_mrbs_room', array('instance' => $instance_id, 'area_id' => $area), 'room_name');
     foreach ($rooms as $dbroom) {
         if ($pview != 1) {
             echo '<a href="'.($baseurl->out(true, array(
@@ -175,7 +175,7 @@ if ($pview != 1) {
     echo "</td>\n";
 
     //Draw the three month calendars
-    minicals($year, $month, $day, $area, $room, 'week');
+    minicals($year, $month, $day, $instance_id, $area, $room, 'week');
     echo "</tr></table>\n";
 }
 
@@ -216,7 +216,7 @@ if ($pview != 1) {
       ".get_string('weekafter', 'block_mrbs')."&gt;&gt;</a></td></tr></table>";
 }
 
-$roomdata = $DB->get_record('block_mrbs_room', array('id' => $room));
+$roomdata = $DB->get_record('block_mrbs_room', array('instance' => $instance_id, 'id' => $room));
 $allowedtobook = allowed_to_book($USER, $roomdata);
 
 //Get all appointments for this week in the room that we care about
@@ -332,6 +332,7 @@ for ($j = 0; $j <= ($num_of_days - 1); $j++) {
     $t = mktime(12, 0, 0, $month, $day + $j, $year);
     $dayurl = new moodle_url('/blocks/mrbs/web/day.php',
                              array(
+                                 'instance' => $instance_id,
                                  'year' => userdate($t, "%Y"), 'month' => userdate($t, "%m"),
                                  'day' => userdate($t, "%d"), 'area' => $area
                              ));
@@ -448,6 +449,7 @@ for ($t = $starttime; $t <= $endtime; $t += $resolution) {
                     echo "<center>";
                     $editentry = new moodle_url('/blocks/mrbs/web/edit_entry.php',
                                                 array(
+													'instance' => $instance_id,
                                                     'room' => $room, 'area' => $area, 'year' => $wyear,
                                                     'month' => $wmonth, 'day' => $wday
                                                 ));
@@ -471,7 +473,7 @@ for ($t = $starttime; $t <= $endtime; $t += $resolution) {
             //if it is booked then show
             $viewentry = new moodle_url('/blocks/mrbs/web/view_entry.php',
                                         array(
-                                            'id' => $id, 'area' => $area, 'day' => $wday,
+                                            'instance' => $instance_id, 'id' => $id, 'area' => $area, 'day' => $wday,
                                             'month' => $wmonth, 'year' => $wyear
                                         ));
             echo ' <a href="'.$viewentry.'" title="'.$long_descr.'">'.$descr.'</a>';

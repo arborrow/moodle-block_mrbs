@@ -122,9 +122,9 @@ $sql .= "OR (e.start_time< ? AND e.end_time> ?) ";
 //new end time within old booking
 $sql .= "OR (e.start_time< ? AND e.end_time>= ?)) ";
 
-$sql .= "AND e.room_id = r.id ) < 1  AND r.capacity >= ? ";
+$sql .= "AND e.room_id = r.id ) < 1  AND r.instance = ? AND r.capacity >= ? ";
 
-$params = array($starttime, $endtime, $starttime, $starttime, $endtime, $endtime, $mincap);
+$params = array($starttime, $endtime, $starttime, $starttime, $endtime, $endtime, $instance_id, $mincap);
 
 if ($computer) {
     $sql .= " AND ".$DB->sql_like('r.description', '?', false);
@@ -145,7 +145,7 @@ $rooms = $DB->get_records_sql($sql, $params);
 if (!empty($rooms)) {
     $list = '';
     foreach ($rooms as $room) {
-        $list .= $room->area_name.',<a href="javascript:openURL(\'edit_entry.php?room='.$room->id.'&period='.$period.'&year='.$year.'&month='.$month.'&day='.$day.'&duration='.$diff.'\')">'.$room->room_name.'</a>,'.$room->description.','.$room->capacity."\n";
+        $list .= $room->area_name.',<a href="javascript:openURL(\'edit_entry.php?instance='.$instance_id.'&room='.$room->id.'&period='.$period.'&year='.$year.'&month='.$month.'&day='.$day.'&duration='.$diff.'\')">'.$room->room_name.'</a>,'.$room->description.','.$room->capacity."\n";
     }
     //remove last \n to prevent blank row in table
     echo substr($list, 0, -1);

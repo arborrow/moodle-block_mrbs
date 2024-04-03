@@ -18,6 +18,8 @@ Hence, use this block at your own risk.
 * Changes *
 
 2022-03-19 - PHP 7+, 8+ compatibility fixes; Moodle 3.8+ compatibility fixes.
+2017-11-17 - Make multiple instances available in MRBS
+2017-11-17 - Make MRBS honor course roles: student <-> Viewer, editingteacher <-> Editor, manager <-> Admin
 2014-06-09 - Fixed compatibility with M2.7
 2014-06-09 - Confirmed compatibility with M2.6, fixed roomsearch with periods disabled, removal of deprecated 'ereg_replace' funcion (minor warning message).
 2013-06-23 - New capability 'block/mrbs:ignoremaxadvancedays' - allows admin users to bypass the 'max_advance_days' restriction.
@@ -63,6 +65,9 @@ Because of changes in the way that MRBS handles database calls (they switched in
 
 In April 2011, Davo Smith ( http://www.davodev.co.uk ), commissioned by Synergy Learning ( http://www.synergy-learning.com/ ) and Landesmedienzentrum Baden-Württemberg (http://www.lmz-bw.de/ ), updated this block to work with Moodle 2.0. This built upon some earlier work by Stephen Bourget, but included updating the block to make use of the Moodle database functionality (for increased security and compatibility with all Moodle supported databases), as well as a number of minor bug fixes, security improvements and general code-cleaning.
 
+In November 2017, Frank Schütte ( http://www.gymnasium-himmelsthuer.de ), added code to host multiple instances of MRBS and the ability to
+assign manager role locally to MRBS instance to administer it.
+
 * MRBS Block - Installation *
 
 1) Save the zip file somewhere onto your local computer and extract all the files
@@ -78,7 +83,12 @@ In April 2011, Davo Smith ( http://www.davodev.co.uk ), commissioned by Synergy 
 Details about making use of these capabilities is found at: http://docs.moodle.org/en/MRBS_block#Installation
 Three roles are automatically created during installation - 'mrbsviewer', 'mrbseditor' and 'mrbsadmin'. Assigning users these roles at the system level will allow them the appropriate level of access to the MRBS system.
 
-6) The MRBS block is primarily intended for use on the Moodle front page (it works on other pages, but note that each instance of the block links to the same set of bookings - it is not possible to create independent sets of bookings by adding the block to multiple pages)
+In the multiple instance code, there is a change to use moodle roles assigned locally to each instance of the MRBS. So course students are
+capable of viewing MRBS, editing teachers are capable of editing MRBS, and manager (assigned locally to block) are able to administer
+the MRBS.
+
+6) The MRBS block is now useful not only on the front page but also in course pages. Each instance of the block links to it's own set
+of areas, rooms and bookings and can have it's own viewers, editors and administrators.
 
 * MRBS Block - unconfirmed capability *
 

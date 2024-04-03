@@ -17,12 +17,20 @@
 
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 
-function mrbsForceMove($room_id, $starttime, $endtime, $name, $id = null) {
+function mrbsForceMove($instance_id, $room_id, $starttime, $endtime, $name, $id = null) {
 
     global $USER;
     global $DB;
 
-    $cfg_mrbs = get_config('block/mrbs');
+    $instance_id = required_param('instance', PARAM_INT);
+    if(! isset($instance_id)) {
+        throw new \coding_exception('instance_id is a required param.');
+    }
+    $tmp = $DB->get_record('block_instances', array('id' => $instance_id), '*', MUST_EXIST);
+    if(! isset($tmp)) {
+        throw new \coding_exception('block_instance with id '.$instance_id.' must exist.');
+    }
+    $cfg_mrbs = unserialize(base64_decode($tmp->configdata)); //get Moodle config settings for this instance of the MRBS block
 
     $output = '';
 
@@ -50,22 +58,22 @@ function mrbsForceMove($room_id, $starttime, $endtime, $name, $id = null) {
     if (!empty($id)) {
         $sql .= ' AND e.id!=?';
     }
-    $sql .= ' AND e.room_id = ? ORDER BY e.start_time';
+    $sql .= ' AND e.room_id = ? AND e.instance = ?ORDER BY e.start_time';
 
     if (!empty($id)) {
         $oldbookings = $DB->get_records_sql($sql, array(
-            $starttime, $endtime, $starttime, $starttime, $endtime, $endtime, $id, $room_id
+            $starttime, $endtime, $starttime, $starttime, $endtime, $endtime, $id, $room_id, $instance_id
         ));
     } else {
         $oldbookings = $DB->get_records_sql($sql, array(
-            $starttime, $endtime, $starttime, $starttime, $endtime, $endtime, $room_id
+            $starttime, $endtime, $starttime, $starttime, $endtime, $endtime, $room_id, $instance_id
         ));
     }
 
     foreach ($oldbookings as $oldbooking) {
 
         $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
-        $hrstarttime = to_hr_time($oldbooking->start_time - ($today));
+        $hrstarttime = to_hr_time($cfg_mrbs->enable_periods, $cfg_mrbs->periods, $oldbooking->start_time - ($today));
 
         //Work out how many students so they don't get put in a tiny classroom
         $sizequery = 'SELECT count(*) as count
@@ -119,7 +127,7 @@ function mrbsForceMove($room_id, $starttime, $endtime, $name, $id = null) {
             '%teaching%',
             $class_size,
             '%special%',
-            $oldbooking->area_id
+            $oldbooking->area_id  //TODO: maybe room_id ?
         );
 
         $findroomresult = $DB->get_record_sql($findroomquery, $params);
@@ -136,6 +144,7 @@ function mrbsForceMove($room_id, $starttime, $endtime, $name, $id = null) {
         $langvars->newbookingname = $name;
 
         $booking = new stdClass;
+        $booking->instance = $oldbooking->instance;
         $booking->id = $oldbooking->entryid;
         $booking->room_id = $findroomresult->id;
 

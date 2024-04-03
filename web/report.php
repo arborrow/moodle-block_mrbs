@@ -155,7 +155,7 @@ function reporton(&$item, &$last_area_room, &$last_date, $sortby, $display) {
     echo "<hr><table width=\"100%\">\n";
 
     // Brief Description (title), linked to view_entry:
-    $viewurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('id' => $item->id));
+    $viewurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('instance' => $instance_id, 'id' => $item->id));
     echo "<tr><td class=\"BL\"><a href=\"".$viewurl."\">"
         .s($item->name)."</a></td>\n";
 
@@ -318,10 +318,10 @@ if (($day == 0) or ($month == 0) or ($year == 0)) {
     $year = date("Y");
 }
 
-$thisurl = new moodle_url('/blocks/mrbs/web/report.php', array('day' => $day, 'month' => $month, 'year' => $year));
+$thisurl = new moodle_url('/blocks/mrbs/web/report.php', array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year));
 
 if ($area == 0) {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 } else {
     $thisurl->param('area', $area);
 }
@@ -384,7 +384,7 @@ $PAGE->set_url($thisurl);
 require_login();
 
 // print the page header
-print_header_mrbs($day, $month, $year, $area);
+print_header_mrbs($day, $month, $year, $instance_id, $area);
 
 if ($submitform) {
     // Resubmit - reapply parameters as defaults.
@@ -553,6 +553,7 @@ if ($pview != 1) {
                 </td>
             </tr>
         </table>
+        <input name="instance" type="hidden" value="<?php echo $instance_id; ?>">
     </form>
 
     <?php
@@ -580,8 +581,8 @@ if ($submitform) {
         ."e.type, e.create_by, e.timestamp, a.area_name, r.room_name"
         ." FROM {block_mrbs_entry} e, {block_mrbs_area} a, {block_mrbs_room} r"
         ." WHERE e.room_id = r.id AND r.area_id = a.id"
-        ." AND e.start_time < ? AND e.end_time > ?";
-    $params = array($report_end, $report_start);
+        ." AND e.start_time < ? AND e.end_time > ? AND e.instance = ?";
+    $params = array($report_end, $report_start, $instance_id);
 
     if (!empty($areamatch)) {
         $sql .= " AND ".$DB->sql_like("a.area_name", '?', false);

@@ -29,7 +29,7 @@ $room = optional_param('room', 0, PARAM_INT);
 $series = optional_param('series', 0, PARAM_INT);
 $pview = optional_param('pview', 0, PARAM_INT);
 
-$context = context_system::instance();
+$context = context_block::instance($instance_id);
 
 //if the booking belongs to the user looking at it, they probably want to edit it
 if ($record = $DB->get_record('block_mrbs_entry', array('id' => $id))) {
@@ -43,7 +43,7 @@ if ($record = $DB->get_record('block_mrbs_entry', array('id' => $id))) {
             }
         }
         if ($redirect) {
-            redirect(new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id' => $id)));
+            redirect(new moodle_url('/blocks/mrbs/web/edit_entry.php', array('instance' => $instance_id, 'id' => $id)));
         }
     }
 }
@@ -55,12 +55,12 @@ if (($day == 0) or ($month == 0) or ($year == 0)) {
     $year = date("Y");
 }
 
-$thisurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('day' => $day, 'month' => $month, 'year' => $year, 'id' => $id));
+$thisurl = new moodle_url('/blocks/mrbs/web/view_entry.php', array('instance' => $instance_id, 'day' => $day, 'month' => $month, 'year' => $year, 'id' => $id));
 
 if ($area) {
     $thisurl->param('area', $area);
 } else {
-    $area = get_default_area();
+    $area = get_default_area($instance_id);
 }
 if ($room) {
     $thisurl->param('room', $room);
@@ -75,7 +75,9 @@ if ($pview) {
 $PAGE->set_url($thisurl);
 require_login();
 
-$namefields = get_all_user_name_fields(true, 'u');
+$context = \context_system::instance();
+$userfields = \core_user\fields::for_name()->with_identity($context)->excluding('id', 'deleted');
+$fieldssql = $userfields->get_sql('u');
 if ($series) {
     $sql = "SELECT re.name,
             re.description,
@@ -92,9 +94,10 @@ if ($series) {
             re.end_date,
             re.rep_opt,
             re.rep_num_weeks,
-            u.id as userid,
-            $namefields
+            u.id as userid
+            {$fieldssql->selects}
             FROM  {block_mrbs_repeat} re left join {user} u on u.username = re.create_by, {block_mrbs_room} r, {block_mrbs_area} a
+                {$fieldssql->joins}
             WHERE re.room_id = r.id
             AND r.area_id = a.id
             AND re.id= ?";
@@ -111,15 +114,16 @@ if ($series) {
             e.start_time,
             e.end_time,
             e.repeat_id,
-            u.id as userid,
-            $namefields
+            u.id as userid
+            {$fieldssql->selects}
             FROM  {block_mrbs_entry} e left join {user} u on u.username = e.create_by, {block_mrbs_room} r, {block_mrbs_area} a
+                {$fieldssql->joins}
             WHERE e.room_id = r.id
             AND r.area_id = a.id
             AND e.id= ?";
 }
 
-$booking = $DB->get_record_sql($sql, array($id), MUST_EXIST);
+$booking = $DB->get_record_sql($sql, array_merge([$id], $fieldssql->params), MUST_EXIST);
 $booking->fullname = fullname($booking);
 
 // Note: Removed stripslashes() calls from name and description. Previous
@@ -128,7 +132,7 @@ $booking->fullname = fullname($booking);
 // leave this code alone, please.
 $name = s($booking->name);
 $description = s($booking->description);
-$userurl = new moodle_url('/user/view.php', array('id' => $booking->userid));
+$userurl = new moodle_url('/user/view.php', array('instance' => $instance_id, 'id' => $booking->userid));
 $create_by = '<a href="'.$userurl.'">'.s($booking->fullname).'</a>';
 $room_name = s($booking->room_name);
 $area_name = s($booking->area_name);
@@ -202,16 +206,16 @@ if (has_capability('block/mrbs:editmrbsunconfirmed', $context, null, false)) {
 }
 
 if ($roomadmin && $type == 'U') {
-    redirect(new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id' => $id)));
+    redirect(new moodle_url('/blocks/mrbs/web/edit_entry.php', array('instance' => $instance_id, 'id' => $id)));
 }
 // Now that we know all the data we start drawing it
-print_header_mrbs($day, $month, $year, $area);
+print_header_mrbs($day, $month, $year, $instance_id, $area);
 ?>
 
     <H3>
         <?php
         if ($course = $DB->get_record('course', array('shortname' => $name))) {
-            $courseurl = new moodle_url('/course/view.php', array('id' => $course->id));
+            $courseurl = new moodle_url('/course/view.php', array('instance' => $instance_id, 'id' => $course->id));
             echo '<a href="'.$courseurl.'">'.$name.'</a>';
             $sizequery = "SELECT count(*) as size
                     FROM {context} cx
@@ -296,10 +300,10 @@ print_header_mrbs($day, $month, $year, $area);
 
 <?php
 
-$canedit = getWritable($booking->create_by, getUserName());
+$canedit = getWritable($instance_id, $booking->create_by, getUserName());
 if ($canedit || $roomadmin) {
     if (!$series) {
-        $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('id' => $id));
+        $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array('instance' => $instance_id, 'id' => $id));
         echo '<a href="'.$editurl.'">'.get_string('editentry', 'block_mrbs')."</a>";
     }
     if ($repeat_id) {
@@ -307,7 +311,7 @@ if ($canedit || $roomadmin) {
     }
     if ($repeat_id || $series) {
         $editurl = new moodle_url('/blocks/mrbs/web/edit_entry.php', array(
-            'id' => $id, 'edit_type' => 'series', 'day' => $day, 'month' => $month, 'year' => $year
+            'instance' => $instance_id, 'id' => $id, 'edit_type' => 'series', 'day' => $day, 'month' => $month, 'year' => $year
         ));
         echo '<a href="'.$editurl.'">'.get_string('editseries', 'block_mrbs')."</a>";
     }
@@ -315,7 +319,7 @@ if ($canedit || $roomadmin) {
     echo '<br />';
 
     if (!$series) {
-        $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array('id' => $id, 'series' => 0, 'sesskey' => sesskey()));
+        $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array('instance' => $instance_id, 'id' => $id, 'series' => 0, 'sesskey' => sesskey()));
         echo '<A HREF="'.$delurl.'" onClick="return confirm("'.get_string('confirmdel', 'block_mrbs').'");">'.get_string('deleteentry', 'block_mrbs')."</A>";
     }
 
@@ -325,7 +329,7 @@ if ($canedit || $roomadmin) {
 
     if ($repeat_id || $series) {
         $delurl = new moodle_url('/blocks/mrbs/web/del_entry.php', array(
-            'id' => $id, 'series' => 1, 'sesskey' => sesskey(), 'day' => $day, 'month' => $month, 'year' => $year
+            'instance' => $instance_id, 'id' => $id, 'series' => 1, 'sesskey' => sesskey(), 'day' => $day, 'month' => $month, 'year' => $year
         ));
         echo '<A HREF="'.$delurl.'" onClick="return confirm("'.get_string('confirmdel', 'block_mrbs').'");">'.get_string('deleteseries', 'block_mrbs')."</A>";
     }
