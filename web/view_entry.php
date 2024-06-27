@@ -75,7 +75,9 @@ if ($pview) {
 $PAGE->set_url($thisurl);
 require_login();
 
-$namefields = get_all_user_name_fields(true, 'u');
+$namefields = \core_user\fields::get_name_fields();
+$namefields = substr_replace($namefields, 'u.', 0, 0);
+$namefields = join(',', $namefields);
 if ($series) {
     $sql = "SELECT re.name,
             re.description,
